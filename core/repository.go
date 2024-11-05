@@ -33,7 +33,7 @@ func (r CrudRepository) GetRows(tableName string, f Filters, p Pagination) (json
 	table := r.tablesMap[tableName]
 
 	if table == nil {
-		return json.RawMessage{}, fmt.Errorf("can't lookup table: %s", tableName)
+		return nil, fmt.Errorf("can't lookup table: %s", tableName)
 	}
 
 	fullSqlTemplate := `
@@ -71,9 +71,12 @@ func (r CrudRepository) GetRows(tableName string, f Filters, p Pagination) (json
 	row := r.db.QueryRow(context.TODO(), fullSql, f.Args...)
 
 	var data json.RawMessage
-	err := row.Scan(&data)
 
-	return data, err
+	if err := row.Scan(&data); err != nil {
+		return nil, fmt.Errorf("query for %s failed: %w", table.Name, err)
+	}
+
+	return data, nil
 
 }
 
