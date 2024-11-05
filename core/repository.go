@@ -24,8 +24,8 @@ func NewCrudRepository(db *pgxpool.Pool, tables []Table) CrudRepository {
 	}
 
 	return CrudRepository{
-		db,
-		tablesMap,
+		db:        db,
+		tablesMap: tablesMap,
 	}
 }
 
