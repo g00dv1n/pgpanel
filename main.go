@@ -20,8 +20,11 @@ func main() {
 	defer dbpool.Close()
 
 	app := core.NewApp(dbpool)
+	addr := ":3333"
 
-	if err := http.ListenAndServe(":3333", app.Routes()); err != nil {
+	app.Logger.Info(fmt.Sprintf("Running server on http://127.0.0.1%s", addr))
+
+	if err := http.ListenAndServe(addr, app.Routes()); err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to ListenAndServe: %v\n", err)
 		os.Exit(1)
 	}
