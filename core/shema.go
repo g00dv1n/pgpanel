@@ -12,16 +12,16 @@ type SchemaExtractor interface {
 }
 
 type Column struct {
-	Name       string
-	DataType   string
-	IsNullable string
-	Default    sql.NullString
+	Name       string         `json:"name"`
+	DataType   string         `json:"dataType"`
+	IsNullable string         `json:"isNullable"`
+	Default    sql.NullString `json:"default"`
 }
 
 type Table struct {
-	Name        string
-	Columns     []Column
-	PrimaryKeys []string
+	Name        string   `json:"name"`
+	Columns     []Column `json:"columns"`
+	PrimaryKeys []string `json:"primaryKeys"`
 }
 
 type DbSchemaExtractor struct {
