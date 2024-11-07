@@ -29,7 +29,7 @@ func NewCrudRepository(db *pgxpool.Pool, tables []Table) CrudRepository {
 	}
 }
 
-func (r CrudRepository) GetRows(tableName string, f Filters, p Pagination) (json.RawMessage, error) {
+func (r CrudRepository) GetRowsWithPageInfo(tableName string, f Filters, p Pagination) (json.RawMessage, error) {
 	table := r.tablesMap[tableName]
 
 	if table == nil {
@@ -42,7 +42,7 @@ func (r CrudRepository) GetRows(tableName string, f Filters, p Pagination) (json
 			total_count as (%s)
 			SELECT 
 				json_build_object(
-					'rows', COALESCE(json_agg(row_to_json(paginated_q)), '[]'::json),
+					'rows', ,
 					'total', total_count.value,
 					'page', %d,
 					'limit', %d
@@ -77,7 +77,40 @@ func (r CrudRepository) GetRows(tableName string, f Filters, p Pagination) (json
 	}
 
 	return data, nil
+}
 
+func (r CrudRepository) GetRows(tableName string, f Filters, p Pagination) (json.RawMessage, error) {
+	table := r.tablesMap[tableName]
+
+	if table == nil {
+		return nil, fmt.Errorf("can't lookup table: %s", tableName)
+	}
+
+	fullSqlTemplate := `
+			WITH q as (%s)
+			SELECT 
+				COALESCE(json_agg(row_to_json(q)), '[]'::json) as result
+			FROM q
+	`
+
+	/// MAIN QUERY
+	q := fmt.Sprintf(
+		`SELECT * FROM "%s" %s LIMIT %d OFFSET %d`,
+		table.Name, f.ToWhereClause(), p.Limit, p.Offset,
+	)
+
+	/// FULL SQL with all params applied
+	fullSql := fmt.Sprintf(fullSqlTemplate, q)
+
+	row := r.db.QueryRow(context.TODO(), fullSql, f.Args...)
+
+	var data json.RawMessage
+
+	if err := row.Scan(&data); err != nil {
+		return nil, fmt.Errorf("query for %s failed: %w", table.Name, err)
+	}
+
+	return data, nil
 }
 
 type Pagination struct {
