@@ -3,6 +3,8 @@ package core
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/g00dv1n/pgpanel/ui"
 )
 
 type ApiHandler func(w http.ResponseWriter, r *http.Request) error
@@ -30,12 +32,21 @@ func (app *App) getRowsHandler(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (app *App) Routes() *http.ServeMux {
-	mux := http.NewServeMux()
+	root := http.NewServeMux()
 
-	mux.HandleFunc("GET /api/schema/tables", createApiHandler(app.getTablesHandler))
-	mux.HandleFunc("GET /api/data/{table}", createApiHandler(app.getRowsHandler))
+	//------- Register embeded fronted serving ------
+	root.Handle("/", ui.Handler())
+	//-----------------------------------------------
 
-	return mux
+	// -------Set Up API Roputer with /api prefix----
+	api := http.NewServeMux()
+	root.Handle("/api/", http.StripPrefix("/api", api))
+
+	// --------------API ENDPOINTS-------------------
+	api.Handle("GET /schema/tables", createApiHandler(app.getTablesHandler))
+	api.Handle("GET /data/{table}", createApiHandler(app.getRowsHandler))
+
+	return root
 }
 
 func createApiHandler(handlers ...ApiHandler) http.HandlerFunc {
