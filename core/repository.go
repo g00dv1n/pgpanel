@@ -54,8 +54,8 @@ func (r CrudRepository) GetRowsWithPageInfo(tableName string, f Filters, p Pagin
 
 	/// MAIN QUERY
 	q := fmt.Sprintf(
-		`SELECT * FROM "%s" %s`,
-		table.Name, f.ToWhereClause(),
+		`SELECT %s FROM "%s" %s`,
+		ToSqlColumns(table), table.Name, f.ToWhereClause(),
 	)
 
 	paginated := fmt.Sprintf(
@@ -95,8 +95,8 @@ func (r CrudRepository) GetRows(tableName string, f Filters, p Pagination) (json
 
 	/// MAIN QUERY
 	q := fmt.Sprintf(
-		`SELECT * FROM "%s" %s LIMIT %d OFFSET %d`,
-		table.Name, f.ToWhereClause(), p.Limit, p.Offset,
+		`SELECT %s FROM "%s" %s LIMIT %d OFFSET %d`,
+		ToSqlColumns(table), table.Name, f.ToWhereClause(), p.Limit, p.Offset,
 	)
 
 	/// FULL SQL with all params applied
@@ -171,4 +171,18 @@ func (f *Filters) ToWhereClause() string {
 	}
 
 	return fmt.Sprintf("WHERE %s", f.Statement)
+}
+
+func ToSqlColumns(t *Table) string {
+	sql := ""
+
+	for i, c := range t.Columns {
+		sql += fmt.Sprintf(`"%s"`, c.Name)
+
+		if i+1 != len(t.Columns) {
+			sql += ","
+		}
+	}
+
+	return sql
 }
