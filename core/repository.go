@@ -11,25 +11,25 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type CrudRepository struct {
+type TablesRepository struct {
 	db        *pgxpool.Pool
 	tablesMap map[string]*Table
 }
 
-func NewCrudRepository(db *pgxpool.Pool, tables []Table) CrudRepository {
+func NewTablesRepository(db *pgxpool.Pool, tables []Table) TablesRepository {
 	tablesMap := make(map[string]*Table, len(tables))
 
 	for _, t := range tables {
 		tablesMap[t.Name] = &t
 	}
 
-	return CrudRepository{
+	return TablesRepository{
 		db:        db,
 		tablesMap: tablesMap,
 	}
 }
 
-func (r CrudRepository) GetRowsWithPageInfo(tableName string, f Filters, p Pagination) (json.RawMessage, error) {
+func (r TablesRepository) GetRowsWithPageInfo(tableName string, f Filters, p Pagination) (json.RawMessage, error) {
 	table := r.tablesMap[tableName]
 
 	if table == nil {
@@ -55,7 +55,7 @@ func (r CrudRepository) GetRowsWithPageInfo(tableName string, f Filters, p Pagin
 	/// MAIN QUERY
 	q := fmt.Sprintf(
 		`SELECT %s FROM "%s" %s`,
-		ToSqlColumns(table), table.Name, f.ToWhereClause(),
+		ToSqlColumns(table), table.Name, f.ToSQL(),
 	)
 
 	paginated := fmt.Sprintf(
@@ -79,7 +79,7 @@ func (r CrudRepository) GetRowsWithPageInfo(tableName string, f Filters, p Pagin
 	return data, nil
 }
 
-func (r CrudRepository) GetRows(tableName string, f Filters, p Pagination) (json.RawMessage, error) {
+func (r TablesRepository) GetRows(tableName string, f Filters, p Pagination, s Sorting) (json.RawMessage, error) {
 	table := r.tablesMap[tableName]
 
 	if table == nil {
@@ -95,8 +95,8 @@ func (r CrudRepository) GetRows(tableName string, f Filters, p Pagination) (json
 
 	/// MAIN QUERY
 	q := fmt.Sprintf(
-		`SELECT %s FROM "%s" %s LIMIT %d OFFSET %d`,
-		ToSqlColumns(table), table.Name, f.ToWhereClause(), p.Limit, p.Offset,
+		`SELECT %s FROM "%s" %s %s LIMIT %d OFFSET %d`,
+		ToSqlColumns(table), table.Name, f.ToSQL(), s.ToSQL(), p.Limit, p.Offset,
 	)
 
 	/// FULL SQL with all params applied
@@ -141,6 +141,12 @@ func ParsePaginationFromQuery(q url.Values) Pagination {
 	return p
 }
 
+/// FILTER OF ALL KIND
+
+const (
+	fieldsDelimiter = "|"
+)
+
 // Statement should be valid SQL for WHERE Clause
 type Filters struct {
 	Statement string
@@ -155,7 +161,7 @@ func ParseFiltersFromQuery(q url.Values) Filters {
 		return Filters{Statement: statement, Args: nil}
 	}
 
-	parsedArgs := strings.Split(rawArgs, "|")
+	parsedArgs := strings.Split(rawArgs, fieldsDelimiter)
 	args := make([]any, len(parsedArgs), len(parsedArgs))
 
 	for i, v := range parsedArgs {
@@ -165,7 +171,7 @@ func ParseFiltersFromQuery(q url.Values) Filters {
 	return Filters{Statement: statement, Args: args}
 }
 
-func (f *Filters) ToWhereClause() string {
+func (f *Filters) ToSQL() string {
 	if len(f.Statement) == 0 {
 		return ""
 	}
@@ -180,6 +186,55 @@ func ToSqlColumns(t *Table) string {
 		sql += fmt.Sprintf(`"%s"`, c.Name)
 
 		if i+1 != len(t.Columns) {
+			sql += ","
+		}
+	}
+
+	return sql
+}
+
+type SortingField struct {
+	Name  string
+	Order string
+}
+type Sorting []SortingField
+
+func ParseSortingFromQuery(q url.Values) Sorting {
+	sort := q.Get("sort")
+
+	if len(sort) == 0 {
+		return nil
+	}
+
+	fieldsRaw := strings.Split(sort, fieldsDelimiter)
+	fields := make([]SortingField, 0, len(fieldsRaw))
+
+	for _, fr := range fieldsRaw {
+		if len(fr) == 0 {
+			continue
+		}
+
+		if strings.HasPrefix(fr, "-") {
+			fields = append(fields, SortingField{Name: strings.TrimPrefix(fr, "-"), Order: "DESC"})
+		} else {
+			fields = append(fields, SortingField{Name: fr, Order: "ASC"})
+		}
+	}
+
+	return fields
+}
+
+func (s Sorting) ToSQL() string {
+	if len(s) == 0 {
+		return ""
+	}
+
+	sql := "ORDER BY "
+
+	for i, sf := range s {
+		sql += fmt.Sprintf("%s %s", sf.Name, sf.Order)
+
+		if i+1 != len(s) {
 			sql += ","
 		}
 	}
