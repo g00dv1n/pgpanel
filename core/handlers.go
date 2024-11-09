@@ -13,7 +13,7 @@ type ApiErrorResponse struct {
 }
 
 func (app *App) getTablesHandler(w http.ResponseWriter, r *http.Request) error {
-	return json.NewEncoder(w).Encode(app.Repo.tablesMap)
+	return json.NewEncoder(w).Encode(app.CRUD.tablesMap)
 }
 
 func (app *App) getRowsHandler(w http.ResponseWriter, r *http.Request) error {
@@ -21,7 +21,7 @@ func (app *App) getRowsHandler(w http.ResponseWriter, r *http.Request) error {
 	filters := ParseFiltersFromQuery(r.URL.Query())
 	pagination := ParsePaginationFromQuery(r.URL.Query())
 
-	data, err := app.Repo.GetRows(tableName, filters, pagination)
+	data, err := app.CRUD.GetRows(tableName, filters, pagination)
 
 	if err != nil {
 		return err

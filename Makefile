@@ -15,6 +15,6 @@ build-be:
 run:
 	@go run main.go
 
-build: build-fe build-be
+build: build-ui build-be
 	
 

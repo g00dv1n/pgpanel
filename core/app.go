@@ -8,8 +8,9 @@ import (
 )
 
 type App struct {
+	DB     *pgxpool.Pool
 	Logger *slog.Logger
-	Repo   *CrudRepository
+	CRUD   *CrudRepository
 }
 
 func NewApp(db *pgxpool.Pool) App {
@@ -23,10 +24,11 @@ func NewApp(db *pgxpool.Pool) App {
 		os.Exit(1)
 	}
 
-	repo := NewCrudRepository(db, tables)
+	crud := NewCrudRepository(db, tables)
 
 	return App{
+		DB:     db,
 		Logger: logger,
-		Repo:   &repo,
+		CRUD:   &crud,
 	}
 }

@@ -16,6 +16,9 @@ export interface Table {
   primaryKeys: string[];
 }
 
+export type RowField = string | number | string[] | null | boolean | object;
+export type Row = Record<string, RowField>;
+
 export type DbTablesMap = Record<string, Table>;
 export const DbTablesMapContext = createContext({} as DbTablesMap);
 
@@ -25,4 +28,12 @@ export async function getTables() {
   );
 
   return tablesMap;
+}
+
+export async function getTableRows(tableName: string) {
+  const rows: Row[] = await fetch(`/api/data/${tableName}`).then((r) =>
+    r.json()
+  );
+
+  return rows;
 }
