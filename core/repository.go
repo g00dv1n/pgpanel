@@ -44,7 +44,7 @@ func (r TablesRepository) GetRowsWithPageInfo(tableName string, f Filters, p Pag
 				json_build_object(
 					'rows', ,
 					'total', total_count.value,
-					'page', %d,
+					'offset', %d,
 					'limit', %d
 				) as result
 			FROM paginated_q
@@ -66,7 +66,7 @@ func (r TablesRepository) GetRowsWithPageInfo(tableName string, f Filters, p Pag
 	totalCount := "SELECT COUNT(*) AS value FROM q"
 
 	/// FULL SQL with all params applied
-	fullSql := fmt.Sprintf(fullSqlTemplate, q, paginated, totalCount, p.Page, p.Limit)
+	fullSql := fmt.Sprintf(fullSqlTemplate, q, paginated, totalCount, p.Offset, p.Limit)
 
 	row := r.db.QueryRow(context.TODO(), fullSql, f.Args...)
 
@@ -114,31 +114,25 @@ func (r TablesRepository) GetRows(tableName string, f Filters, p Pagination, s S
 }
 
 type Pagination struct {
-	Page   int
 	Limit  int
 	Offset int
 }
 
 func ParsePaginationFromQuery(q url.Values) Pagination {
-	var p Pagination
-
-	pageStr := q.Get("page")
+	offsetStr := q.Get("offset")
 	limitStr := q.Get("limit")
 
-	page, pageErr := strconv.Atoi(pageStr)
-	if pageErr != nil || page < 1 {
-		page = 1
+	offset, offsetErr := strconv.Atoi(offsetStr)
+	if offsetErr != nil || offset < 0 {
+		offset = 0
 	}
 
 	limit, limitErr := strconv.Atoi(limitStr)
 	if limitErr != nil || limit < 1 {
-		limit = 25
+		limit = 50
 	}
-	p.Page = page
-	p.Limit = limit
-	p.Offset = (p.Page - 1) * p.Limit
 
-	return p
+	return Pagination{Offset: offset, Limit: limit}
 }
 
 /// FILTER OF ALL KIND

@@ -30,10 +30,24 @@ export async function getTables() {
   return tablesMap;
 }
 
-export async function getTableRows(tableName: string) {
-  const rows: Row[] = await fetch(`/api/data/${tableName}`).then((r) =>
-    r.json()
-  );
+interface GetTableRowParams {
+  tableName: string;
+  offset: number;
+  limit: number;
+}
+
+export async function getTableRows({
+  tableName,
+  offset,
+  limit,
+}: GetTableRowParams) {
+  const searchParams = new URLSearchParams();
+  searchParams.set("offset", offset.toString());
+  searchParams.set("limit", limit.toString());
+
+  const rows: Row[] = await fetch(
+    `/api/data/${tableName}?${searchParams.toString()}`
+  ).then((r) => r.json());
 
   return rows;
 }
