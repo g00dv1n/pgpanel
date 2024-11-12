@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 interface TableControlsProps {
@@ -11,11 +12,19 @@ interface TableControlsProps {
 
 export function TableControls({
   tableName,
-  offset,
-  limit,
+  offset: initOffset,
+  limit: initLimit,
 }: TableControlsProps) {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [offset, setOffset] = useState(initOffset);
+  const [limit, setLimit] = useState(initLimit);
+
+  useEffect(() => {
+    setOffset(initOffset);
+    setLimit(initLimit);
+  }, [tableName, initLimit, initOffset]);
 
   return (
     <div className="ml-auto flex gap-1">
@@ -25,6 +34,7 @@ export function TableControls({
         disabled={offset - limit < 0}
         onClick={() => {
           const newOffset = offset - limit;
+          setOffset(newOffset);
           navigate(`/${tableName}?offset=${newOffset}&limit=${limit}`);
         }}
       >
@@ -35,7 +45,8 @@ export function TableControls({
           className="h-9 w-14 text-center"
           value={limit}
           onChange={(e) => {
-            const newLimit = e.currentTarget.value;
+            const newLimit = Number(e.currentTarget.value);
+            setLimit(newLimit);
             navigate(`/${tableName}?offset=${offset}&limit=${newLimit}`);
           }}
         />
@@ -43,7 +54,8 @@ export function TableControls({
           className="h-9 w-14 text-center"
           value={offset}
           onChange={(e) => {
-            const newOffset = e.currentTarget.value;
+            const newOffset = Number(e.currentTarget.value);
+            setOffset(newOffset);
             navigate(`/${tableName}?offset=${newOffset}&limit=${limit}`);
           }}
         />
@@ -54,6 +66,7 @@ export function TableControls({
         size="icon"
         onClick={() => {
           const newOffset = offset + limit;
+          setOffset(newOffset);
           navigate(`/${tableName}?offset=${newOffset}&limit=${limit}`);
         }}
       >
