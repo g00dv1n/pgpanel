@@ -1,4 +1,8 @@
-import { getTableRows, parseQueryRowParams } from "@/api/admin";
+import {
+  GetTableRowParams,
+  getTableRows,
+  parseQueryRowParams,
+} from "@/api/admin";
 import { DataTable } from "@/components/DataTable";
 import { TablePagination } from "@/components/TablePagination";
 import { useLoaderDataTyped, useTablesMap } from "@/hooks/use-data";
@@ -7,31 +11,28 @@ import { LoaderFunctionArgs, useNavigate } from "react-router-dom";
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const tableName = params.tableName || "";
   const url = new URL(request.url);
-  const rowsParams = { tableName, ...parseQueryRowParams(url) };
-  const rows = await getTableRows(rowsParams);
+  const rowsParams = parseQueryRowParams(url);
+  const rows = await getTableRows(tableName, rowsParams);
 
-  return { rowsParams, rows };
+  return { tableName, rowsParams, rows };
 }
 
 export default function TablePage() {
   const navigate = useNavigate();
-  const { rows, rowsParams } = useLoaderDataTyped<typeof loader>();
+  const { tableName, rows, rowsParams } = useLoaderDataTyped<typeof loader>();
 
   const tablesMap = useTablesMap();
-  const table = tablesMap[rowsParams.tableName];
+  const table = tablesMap[tableName];
 
-  const onRowsParamsChange = (newParams: {
-    offset: number;
-    limit: number;
-    sort?: string;
-  }) => {
-    const q = new URLSearchParams({
-      offset: newParams.offset.toString(),
-      limit: newParams.limit.toString(),
-      sort: newParams.sort || "",
-    });
+  const onRowsParamsChange = (newParams: GetTableRowParams) => {
+    const q = new URLSearchParams();
 
-    navigate(`/${table.name}?${q.toString()}`);
+    for (const key in newParams) {
+      const val = (newParams as any)[key] || "";
+      q.set(key, val.toString());
+    }
+
+    navigate(`?${q.toString()}`);
   };
 
   return (

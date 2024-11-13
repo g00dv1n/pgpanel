@@ -30,8 +30,7 @@ export async function getTables() {
   return tablesMap;
 }
 
-interface GetTableRowParams {
-  tableName: string;
+export interface GetTableRowParams {
   offset: number;
   limit: number;
   sort?: string;
@@ -45,12 +44,10 @@ export function parseQueryRowParams(url: URL) {
   return { offset, limit, sort };
 }
 
-export async function getTableRows({
-  tableName,
-  offset,
-  limit,
-  sort,
-}: GetTableRowParams) {
+export async function getTableRows(
+  tableName: string,
+  { offset, limit, sort }: GetTableRowParams
+) {
   const searchParams = new URLSearchParams();
   searchParams.set("offset", offset.toString());
   searchParams.set("limit", limit.toString());
