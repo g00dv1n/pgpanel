@@ -1,32 +1,29 @@
 import { Button } from "@/components/ui/button";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
 
 interface TableColumnSortableProps {
   name: string;
   sortValue?: string;
+  onChange: (newVal: string) => void;
 }
 
 export function TableColumnSortable({
   name,
   sortValue,
+  onChange,
 }: TableColumnSortableProps) {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-
   const askValue = name;
   const descValue = `-${name}`;
 
-  const onSortTogle = () => {
-    const newVal = sortValue === askValue ? descValue : askValue;
-
-    searchParams.set("sort", newVal);
-    navigate(`${location.pathname}?${searchParams.toString()}`);
-  };
-
   return (
-    <Button variant="ghost" className="p-0" onClick={() => onSortTogle()}>
+    <Button
+      variant="ghost"
+      className="p-0"
+      onClick={() => {
+        const newVal = sortValue === askValue ? descValue : askValue;
+        onChange(newVal);
+      }}
+    >
       {name}
       {sortValue === askValue && <ArrowUp />}
       {sortValue === descValue && <ArrowDown />}

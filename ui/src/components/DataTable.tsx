@@ -14,9 +14,15 @@ interface DataTableProps {
   table: DBTable;
   rows: Row[];
   sortValue?: string;
+  onSortChange: (newSortVal: string) => void;
 }
 
-export function DataTable({ table, rows, sortValue }: DataTableProps) {
+export function DataTable({
+  table,
+  rows,
+  sortValue,
+  onSortChange,
+}: DataTableProps) {
   return (
     <Table>
       <TableHeader>
@@ -27,7 +33,11 @@ export function DataTable({ table, rows, sortValue }: DataTableProps) {
           {table.columns.map((c) => {
             return (
               <TableHead key={c.name}>
-                <TableColumnSortable name={c.name} sortValue={sortValue} />
+                <TableColumnSortable
+                  name={c.name}
+                  sortValue={sortValue}
+                  onChange={onSortChange}
+                />
               </TableHead>
             );
           })}

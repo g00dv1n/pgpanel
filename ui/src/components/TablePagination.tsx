@@ -2,22 +2,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 
-interface TableControlsProps {
+interface TablePaginationProps {
   tableName: string;
   offset: number;
   limit: number;
+  onChange: (offset: number, limit: number) => void;
 }
 
-export function TableControls({
+export function TablePagination({
   tableName,
   offset: initOffset,
   limit: initLimit,
-}: TableControlsProps) {
-  const navigate = useNavigate();
-  const location = useLocation();
-
+  onChange,
+}: TablePaginationProps) {
   const [offset, setOffset] = useState(initOffset);
   const [limit, setLimit] = useState(initLimit);
 
@@ -35,7 +33,7 @@ export function TableControls({
         onClick={() => {
           const newOffset = offset - limit;
           setOffset(newOffset);
-          navigate(`/${tableName}?offset=${newOffset}&limit=${limit}`);
+          onChange(newOffset, limit);
         }}
       >
         <ChevronLeft className="h-6 w-6" />
@@ -54,7 +52,7 @@ export function TableControls({
             }
 
             setLimit(newLimit);
-            navigate(`/${tableName}?offset=${offset}&limit=${newLimit}`);
+            onChange(offset, newLimit);
           }}
         />
         <Input
@@ -67,7 +65,7 @@ export function TableControls({
             }
 
             setOffset(newOffset);
-            navigate(`/${tableName}?offset=${newOffset}&limit=${limit}`);
+            onChange(newOffset, limit);
           }}
         />
       </div>
@@ -78,7 +76,7 @@ export function TableControls({
         onClick={() => {
           const newOffset = offset + limit;
           setOffset(newOffset);
-          navigate(`/${tableName}?offset=${newOffset}&limit=${limit}`);
+          onChange(newOffset, limit);
         }}
       >
         <ChevronRight className="h-6 w-6" />
@@ -87,7 +85,7 @@ export function TableControls({
         className="ml-5"
         variant="outline"
         size="icon"
-        onClick={() => navigate(location.pathname + location.search)}
+        onClick={() => onChange(offset, limit)}
       >
         <RotateCcw className="h-5 w-5" />
       </Button>
