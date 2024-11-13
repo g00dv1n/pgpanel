@@ -27,8 +27,7 @@ export default function TablePage() {
   const onRowsParamsChange = (newParams: GetTableRowParams) => {
     const q = new URLSearchParams();
 
-    for (const key in newParams) {
-      const val = (newParams as any)[key];
+    for (const [key, val] of Object.entries(newParams)) {
       if (val) {
         q.set(key, val.toString());
       }
