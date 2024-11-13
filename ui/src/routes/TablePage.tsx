@@ -23,6 +23,7 @@ export default function TablePage() {
 
   return (
     <>
+      <title>{`${table.name} - table `}</title>
       <div className="flex">
         <h1 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
           {table.name}
