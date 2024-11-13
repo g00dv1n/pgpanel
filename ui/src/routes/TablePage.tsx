@@ -18,11 +18,11 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 }
 
 export default function TablePage() {
-  const navigate = useNavigate();
   const { tableName, rows, rowsParams } = useLoaderDataTyped<typeof loader>();
-
   const tablesMap = useTablesMap();
   const table = tablesMap[tableName];
+
+  const navigate = useNavigate();
 
   const onRowsParamsChange = (newParams: GetTableRowParams) => {
     const q = new URLSearchParams();
