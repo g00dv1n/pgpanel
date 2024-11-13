@@ -1,4 +1,4 @@
-import { DbTablesMapContext } from "@/api/admin";
+import { DBTablesMapContext } from "@/api/admin";
 import { useContext } from "react";
 import { useLoaderData } from "react-router-dom";
 
@@ -7,5 +7,5 @@ export function useLoaderDataTyped<T extends (...args: any) => Promise<any>>() {
 }
 
 export function useTablesMap() {
-  return useContext(DbTablesMapContext);
+  return useContext(DBTablesMapContext);
 }

@@ -1,4 +1,4 @@
-import { DbTablesMapContext, getTables } from "@/api/admin";
+import { DBTablesMapContext, getTables } from "@/api/admin";
 import {
   Sidebar,
   SidebarContent,
@@ -59,9 +59,9 @@ export default function AdminRoot() {
       </Sidebar>
       <SidebarTrigger />
       <main className="container overflow-hidden mx-auto flex flex-col min-h-screen py-10 px-4">
-        <DbTablesMapContext.Provider value={tablesMap}>
+        <DBTablesMapContext.Provider value={tablesMap}>
           <Outlet />
-        </DbTablesMapContext.Provider>
+        </DBTablesMapContext.Provider>
       </main>
     </SidebarProvider>
   );

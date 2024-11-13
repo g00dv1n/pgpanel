@@ -45,7 +45,14 @@ export function TableControls({
           className="h-9 w-14 text-center"
           value={limit}
           onChange={(e) => {
-            const newLimit = Number(e.currentTarget.value);
+            let newLimit = Number(e.currentTarget.value);
+            if (newLimit > 500) {
+              newLimit = 500;
+            }
+            if (newLimit < 1) {
+              newLimit = 1;
+            }
+
             setLimit(newLimit);
             navigate(`/${tableName}?offset=${offset}&limit=${newLimit}`);
           }}
@@ -54,7 +61,11 @@ export function TableControls({
           className="h-9 w-14 text-center"
           value={offset}
           onChange={(e) => {
-            const newOffset = Number(e.currentTarget.value);
+            let newOffset = Number(e.currentTarget.value);
+            if (newOffset < 0) {
+              newOffset = 0;
+            }
+
             setOffset(newOffset);
             navigate(`/${tableName}?offset=${newOffset}&limit=${limit}`);
           }}

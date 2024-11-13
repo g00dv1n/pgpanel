@@ -10,7 +10,7 @@ export interface Column {
   };
 }
 
-export interface Table {
+export interface DBTable {
   name: string;
   columns: Column[];
   primaryKeys: string[];
@@ -19,11 +19,11 @@ export interface Table {
 export type RowField = string | number | string[] | null | boolean | object;
 export type Row = Record<string, RowField>;
 
-export type DbTablesMap = Record<string, Table>;
-export const DbTablesMapContext = createContext({} as DbTablesMap);
+export type DBTablesMap = Record<string, DBTable>;
+export const DBTablesMapContext = createContext({} as DBTablesMap);
 
 export async function getTables() {
-  const tablesMap: DbTablesMap = await fetch("/api/schema/tables").then((r) =>
+  const tablesMap: DBTablesMap = await fetch("/api/schema/tables").then((r) =>
     r.json()
   );
 
