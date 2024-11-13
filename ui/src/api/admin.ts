@@ -34,16 +34,29 @@ interface GetTableRowParams {
   tableName: string;
   offset: number;
   limit: number;
+  sort?: string;
+}
+
+export function parseQueryRowParams(url: URL) {
+  const offset = Number(url.searchParams.get("offset") || 0);
+  const limit = Number(url.searchParams.get("limit") || 50);
+  const sort = url.searchParams.get("sort") || undefined;
+
+  return { offset, limit, sort };
 }
 
 export async function getTableRows({
   tableName,
   offset,
   limit,
+  sort,
 }: GetTableRowParams) {
   const searchParams = new URLSearchParams();
   searchParams.set("offset", offset.toString());
   searchParams.set("limit", limit.toString());
+  if (sort) {
+    searchParams.set("sort", sort);
+  }
 
   const rows: Row[] = await fetch(
     `/api/data/${tableName}?${searchParams.toString()}`

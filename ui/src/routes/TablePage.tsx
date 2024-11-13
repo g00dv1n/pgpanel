@@ -1,4 +1,4 @@
-import { getTableRows } from "@/api/admin";
+import { getTableRows, parseQueryRowParams } from "@/api/admin";
 import { DataTable } from "@/components/DataTable";
 import { TableControls } from "@/components/TableControls";
 import { useLoaderDataTyped, useTablesMap } from "@/hooks/use-data";
@@ -7,9 +7,7 @@ import { LoaderFunctionArgs } from "react-router-dom";
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const tableName = params.tableName || "";
   const url = new URL(request.url);
-  const offset = Number(url.searchParams.get("offset") || 0);
-  const limit = Number(url.searchParams.get("limit") || 50);
-  const rowsParams = { tableName, offset, limit };
+  const rowsParams = { tableName, ...parseQueryRowParams(url) };
   const rows = await getTableRows(rowsParams);
 
   return { rowsParams, rows };
@@ -32,7 +30,7 @@ export default function TablePage() {
       </div>
 
       <div className="rounded-md border mt-10">
-        <DataTable table={table} rows={rows} />
+        <DataTable table={table} rows={rows} sortValue={rowsParams.sort} />
       </div>
     </>
   );

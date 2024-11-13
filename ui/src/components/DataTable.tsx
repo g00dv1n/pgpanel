@@ -1,5 +1,5 @@
 import { DBTable, Row, RowField } from "@/api/admin";
-import { Button } from "@/components/ui/button";
+import { TableColumnSortable } from "@/components/TableColumnSortable";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
@@ -9,14 +9,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowUpDown } from "lucide-react";
 
 interface DataTableProps {
   table: DBTable;
   rows: Row[];
+  sortValue?: string;
 }
 
-export function DataTable({ table, rows }: DataTableProps) {
+export function DataTable({ table, rows, sortValue }: DataTableProps) {
   return (
     <Table>
       <TableHeader>
@@ -27,10 +27,7 @@ export function DataTable({ table, rows }: DataTableProps) {
           {table.columns.map((c) => {
             return (
               <TableHead key={c.name}>
-                <Button variant="ghost" className="p-0">
-                  {c.name}
-                  <ArrowUpDown />
-                </Button>
+                <TableColumnSortable name={c.name} sortValue={sortValue} />
               </TableHead>
             );
           })}
