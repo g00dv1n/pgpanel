@@ -28,8 +28,10 @@ export default function TablePage() {
     const q = new URLSearchParams();
 
     for (const key in newParams) {
-      const val = (newParams as any)[key] || "";
-      q.set(key, val.toString());
+      const val = (newParams as any)[key];
+      if (val) {
+        q.set(key, val.toString());
+      }
     }
 
     navigate(`?${q.toString()}`);
