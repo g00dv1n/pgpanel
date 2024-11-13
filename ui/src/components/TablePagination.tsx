@@ -29,9 +29,13 @@ export function TablePagination({
       <Button
         variant="outline"
         size="icon"
-        disabled={offset - limit < 0}
+        disabled={offset === 0}
         onClick={() => {
-          const newOffset = offset - limit;
+          let newOffset = offset - limit;
+          if (newOffset < 0) {
+            newOffset = 0;
+          }
+
           setOffset(newOffset);
           onChange(newOffset, limit);
         }}
