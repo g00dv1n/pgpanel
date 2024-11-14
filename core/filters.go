@@ -22,14 +22,13 @@ func ParseFiltersFromQuery(q url.Values) Filters {
 	if len(filters) > 0 && !hasSQLWhereClauseOperators(filters) {
 		return TextSearchFilters{Text: filters}
 	}
-
 	return ParseSQLFilters(filters, rawArgs)
 }
 
 func hasSQLWhereClauseOperators(input string) bool {
-	// Define a regular expression pattern to match SQL operators used in WHERE clauses.
-	// This includes typical comparison and logical operators.
-	pattern := `(?i)\b(=|<>|!=|<|>|<=|>=|AND|OR|LIKE|ILIKE|IN|BETWEEN|IS NULL|IS NOT NULL)\b`
+	// Define a refined regex pattern to match SQL operators used in WHERE clauses.
+	// This includes common operators, accounting for variations in spacing and boundaries.
+	pattern := `(?i)(=|<>|!=|<|>|<=|>=|\s+AND\s+|\s+OR\s+|LIKE|ILIKE|\s+IN\s*\(|\s+BETWEEN\s+|IS NULL|IS NOT NULL)`
 
 	// Compile the regex pattern.
 	regex := regexp.MustCompile(pattern)
