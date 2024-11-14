@@ -2,10 +2,13 @@ import {
   GetTableRowParams,
   getTableRows,
   parseQueryRowParams,
+  rowParamsToSearchParams,
 } from "@/api/data";
 import { DataTable } from "@/components/DataTable";
 import { TablePagination } from "@/components/TablePagination";
+import { TableTextSearch } from "@/components/TableTextSearch";
 import { useLoaderDataTyped, useTablesMap } from "@/hooks/use-data";
+import { searchByTextColumnsFilters } from "@/lib/filters";
 import { LoaderFunctionArgs, useNavigate } from "react-router-dom";
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
@@ -25,15 +28,9 @@ export default function TablePage() {
   const navigate = useNavigate();
 
   const onRowsParamsChange = (newParams: GetTableRowParams) => {
-    const q = new URLSearchParams();
+    const s = rowParamsToSearchParams(newParams);
 
-    for (const [key, val] of Object.entries(newParams)) {
-      if (val) {
-        q.set(key, val.toString());
-      }
-    }
-
-    navigate(`?${q.toString()}`);
+    navigate(`?${s.toString()}`);
   };
 
   return (
@@ -49,15 +46,32 @@ export default function TablePage() {
           limit={rowsParams.limit}
           onChange={(offset, limit) => {
             onRowsParamsChange({
+              filters: rowsParams.filters,
+              sort: rowsParams.sort,
               offset,
               limit,
-              sort: rowsParams.sort,
             });
           }}
         />
       </div>
 
-      <div className="rounded-md border mt-10">
+      <div className="mt-10">
+        <TableTextSearch
+          onSearch={(q) => {
+            const filters =
+              q.length > 0 ? searchByTextColumnsFilters(q, table) : undefined;
+
+            onRowsParamsChange({
+              offset: rowsParams.offset,
+              limit: rowsParams.limit,
+              sort: rowsParams.sort,
+              filters: filters,
+            });
+          }}
+        />
+      </div>
+
+      <div className="rounded-md border mt-5">
         <DataTable
           table={table}
           rows={rows}
@@ -66,6 +80,7 @@ export default function TablePage() {
             onRowsParamsChange({
               offset: rowsParams.offset,
               limit: rowsParams.limit,
+              filters: rowsParams.filters,
               sort: [newSortVal],
             });
           }}

@@ -59,10 +59,12 @@ export function parseQueryRowParams(url: URL) {
   return { offset, limit, sort, filters };
 }
 
-export async function getTableRows(
-  tableName: string,
-  { offset, limit, sort, filters }: GetTableRowParams
-) {
+export function rowParamsToSearchParams({
+  offset,
+  limit,
+  sort,
+  filters,
+}: GetTableRowParams) {
   const searchParams = new URLSearchParams();
   searchParams.set("offset", offset.toString());
   searchParams.set("limit", limit.toString());
@@ -74,6 +76,14 @@ export async function getTableRows(
     searchParams.set("filtersArgs", filters.args.join(fieldsDelimiter));
   }
 
+  return searchParams;
+}
+
+export async function getTableRows(
+  tableName: string,
+  rowParams: GetTableRowParams
+) {
+  const searchParams = rowParamsToSearchParams(rowParams);
   const rows: Row[] = await fetch(
     `/api/data/${tableName}?${searchParams.toString()}`
   ).then((r) => r.json());
