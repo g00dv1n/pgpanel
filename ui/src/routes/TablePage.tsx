@@ -30,7 +30,7 @@ export default function TablePage() {
   const onRowsParamsChange = (newParams: GetTableRowParams) => {
     const s = rowParamsToSearchParams(newParams);
 
-    navigate(`?${s.toString()}`);
+    navigate(`?${s}`);
   };
 
   return (
@@ -46,8 +46,7 @@ export default function TablePage() {
           limit={rowsParams.limit}
           onChange={(offset, limit) => {
             onRowsParamsChange({
-              filters: rowsParams.filters,
-              sort: rowsParams.sort,
+              ...rowsParams,
               offset,
               limit,
             });
@@ -62,9 +61,7 @@ export default function TablePage() {
               q.length > 0 ? searchByTextColumnsFilters(q, table) : undefined;
 
             onRowsParamsChange({
-              offset: rowsParams.offset,
-              limit: rowsParams.limit,
-              sort: rowsParams.sort,
+              ...rowsParams,
               filters: filters,
             });
           }}
@@ -78,9 +75,7 @@ export default function TablePage() {
           sortValue={rowsParams.sort}
           onSortChange={(newSortVal) => {
             onRowsParamsChange({
-              offset: rowsParams.offset,
-              limit: rowsParams.limit,
-              filters: rowsParams.filters,
+              ...rowsParams,
               sort: [newSortVal],
             });
           }}

@@ -83,10 +83,10 @@ export async function getTableRows(
   tableName: string,
   rowParams: GetTableRowParams
 ) {
-  const searchParams = rowParamsToSearchParams(rowParams);
-  const rows: Row[] = await fetch(
-    `/api/data/${tableName}?${searchParams.toString()}`
-  ).then((r) => r.json());
+  const s = rowParamsToSearchParams(rowParams);
+  const rows: Row[] = await fetch(`/api/data/${tableName}?${s}`).then((r) =>
+    r.json()
+  );
 
   return rows;
 }
