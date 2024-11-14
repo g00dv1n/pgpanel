@@ -2,7 +2,7 @@ import {
   GetTableRowParams,
   getTableRows,
   parseQueryRowParams,
-} from "@/api/admin";
+} from "@/api/data";
 import { DataTable } from "@/components/DataTable";
 import { TablePagination } from "@/components/TablePagination";
 import { useLoaderDataTyped, useTablesMap } from "@/hooks/use-data";

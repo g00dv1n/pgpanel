@@ -1,4 +1,4 @@
-import { DBTable, Row, RowField } from "@/api/admin";
+import { DBTable, Row, RowField } from "@/api/data";
 import { TableColumnSortable } from "@/components/TableColumnSortable";
 import { Checkbox } from "@/components/ui/checkbox";
 import {

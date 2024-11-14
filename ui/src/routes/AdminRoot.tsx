@@ -1,4 +1,4 @@
-import { DBTablesMapContext, getTables } from "@/api/admin";
+import { DBTablesMapContext, getTables } from "@/api/data";
 import {
   Sidebar,
   SidebarContent,

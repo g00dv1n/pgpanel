@@ -1,4 +1,4 @@
-import { DBTablesMapContext } from "@/api/admin";
+import { DBTablesMapContext } from "@/api/data";
 import { useContext } from "react";
 import { useLoaderData } from "react-router-dom";
 
