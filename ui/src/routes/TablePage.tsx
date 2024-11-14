@@ -53,7 +53,7 @@ export default function TablePage() {
         />
       </div>
 
-      <div className="mt-10">
+      <div className="mt-10 max-w-[750px]">
         <TableTextSearch
           q={rowsParams.filters}
           onSearch={(q) => {

@@ -18,7 +18,7 @@ export function TableTextSearch({
   }, [initQ]);
 
   return (
-    <div className="flex w-full max-w-sm items-center space-x-2">
+    <div className="flex w-full items-center space-x-2">
       <Input
         type="search"
         placeholder="Search by text fields"
