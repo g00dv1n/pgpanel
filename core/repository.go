@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"text/template"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -29,55 +30,19 @@ func NewTablesRepository(db *pgxpool.Pool, tables []Table) TablesRepository {
 	}
 }
 
-func (r TablesRepository) GetRowsWithPageInfo(tableName string, f Filters, p Pagination) (json.RawMessage, error) {
-	table := r.tablesMap[tableName]
-
-	if table == nil {
-		return nil, fmt.Errorf("can't lookup table: %s", tableName)
-	}
-
-	fullSqlTemplate := `
-			WITH q as (%s),
-			paginated_q as (%s),
-			total_count as (%s)
-			SELECT 
-				json_build_object(
-					'rows', ,
-					'total', total_count.value,
-					'offset', %d,
-					'limit', %d
-				) as result
-			FROM paginated_q
-			CROSS JOIN total_count
-			GROUP BY  total_count.value
-	`
-
-	/// MAIN QUERY
-	q := fmt.Sprintf(
-		`SELECT %s FROM "%s" %s`,
-		ToSqlColumns(table), table.Name, f.ToSQL(),
+var GetRowsSQL *template.Template = sqlTempl(`
+	WITH q as (
+		SELECT {{ .Select }}
+		FROM "{{.From}}"
+		{{.Where}}
+		{{.OrderBy}}
+		LIMIT {{.Limit}}
+		OFFSET {{.Offset}}
 	)
-
-	paginated := fmt.Sprintf(
-		"SELECT * FROM q LIMIT %d OFFSET %d",
-		p.Limit, p.Offset,
-	)
-	/// COUNT of rows from main query
-	totalCount := "SELECT COUNT(*) AS value FROM q"
-
-	/// FULL SQL with all params applied
-	fullSql := fmt.Sprintf(fullSqlTemplate, q, paginated, totalCount, p.Offset, p.Limit)
-
-	row := r.db.QueryRow(context.TODO(), fullSql, f.Args...)
-
-	var data json.RawMessage
-
-	if err := row.Scan(&data); err != nil {
-		return nil, fmt.Errorf("query for %s failed: %w", table.Name, err)
-	}
-
-	return data, nil
-}
+	SELECT 
+		COALESCE(json_agg(row_to_json(q)), '[]'::json) as result
+	FROM q
+`)
 
 func (r TablesRepository) GetRows(tableName string, f Filters, p Pagination, s Sorting) (json.RawMessage, error) {
 	table := r.tablesMap[tableName]
@@ -86,23 +51,20 @@ func (r TablesRepository) GetRows(tableName string, f Filters, p Pagination, s S
 		return nil, fmt.Errorf("can't lookup table: %s", tableName)
 	}
 
-	fullSqlTemplate := `
-			WITH q as (%s)
-			SELECT 
-				COALESCE(json_agg(row_to_json(q)), '[]'::json) as result
-			FROM q
-	`
+	where, args := f.ToSQL(table)
+	orderBy := s.ToSQL()
 
-	/// MAIN QUERY
-	q := fmt.Sprintf(
-		`SELECT %s FROM "%s" %s %s LIMIT %d OFFSET %d`,
-		ToSqlColumns(table), table.Name, f.ToSQL(), s.ToSQL(), p.Limit, p.Offset,
-	)
+	var sql strings.Builder
+	GetRowsSQL.Execute(&sql, map[string]any{
+		"Select":  ToSqlColumns(table),
+		"From":    table.Name,
+		"Where":   where,
+		"OrderBy": orderBy,
+		"Limit":   p.Limit,
+		"Offset":  p.Offset,
+	})
 
-	/// FULL SQL with all params applied
-	fullSql := fmt.Sprintf(fullSqlTemplate, q)
-
-	row := r.db.QueryRow(context.TODO(), fullSql, f.Args...)
+	row := r.db.QueryRow(context.TODO(), sql.String(), args...)
 
 	var data json.RawMessage
 
@@ -133,58 +95,6 @@ func ParsePaginationFromQuery(q url.Values) Pagination {
 	}
 
 	return Pagination{Offset: offset, Limit: limit}
-}
-
-/// FILTER OF ALL KIND
-
-const (
-	fieldsDelimiter = "|"
-)
-
-// Statement should be valid SQL for WHERE Clause
-type Filters struct {
-	Statement string
-	Args      []any
-}
-
-func ParseFiltersFromQuery(q url.Values) Filters {
-	statement := q.Get("filters")
-	rawArgs := q.Get("filtersArgs")
-
-	if len(rawArgs) == 0 {
-		return Filters{Statement: statement, Args: nil}
-	}
-
-	parsedArgs := strings.Split(rawArgs, fieldsDelimiter)
-	args := make([]any, len(parsedArgs), len(parsedArgs))
-
-	for i, v := range parsedArgs {
-		args[i] = v
-	}
-
-	return Filters{Statement: statement, Args: args}
-}
-
-func (f *Filters) ToSQL() string {
-	if len(f.Statement) == 0 {
-		return ""
-	}
-
-	return fmt.Sprintf("WHERE %s", f.Statement)
-}
-
-func ToSqlColumns(t *Table) string {
-	sql := ""
-
-	for i, c := range t.Columns {
-		sql += fmt.Sprintf(`"%s"`, c.Name)
-
-		if i+1 != len(t.Columns) {
-			sql += ","
-		}
-	}
-
-	return sql
 }
 
 type SortingField struct {
@@ -229,6 +139,20 @@ func (s Sorting) ToSQL() string {
 		sql += fmt.Sprintf("%s %s", sf.Name, sf.Order)
 
 		if i+1 != len(s) {
+			sql += ","
+		}
+	}
+
+	return sql
+}
+
+func ToSqlColumns(t *Table) string {
+	sql := ""
+
+	for i, c := range t.Columns {
+		sql += fmt.Sprintf(`"%s"`, c.Name)
+
+		if i+1 != len(t.Columns) {
 			sql += ","
 		}
 	}

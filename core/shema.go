@@ -12,10 +12,11 @@ type SchemaExtractor interface {
 }
 
 type Column struct {
-	Name       string         `json:"name"`
-	DataType   string         `json:"dataType"`
-	IsNullable string         `json:"isNullable"`
-	Default    sql.NullString `json:"default"`
+	Name             string         `json:"name"`
+	DataType         string         `json:"dataType"`
+	DataTypeCategory string         `json:"dataTypeCategory"`
+	IsNullable       string         `json:"isNullable"`
+	Default          sql.NullString `json:"default"`
 }
 
 type Table struct {
@@ -88,6 +89,8 @@ func (e DbSchemaExtractor) GetTables() ([]Table, error) {
 			if err := rows.Scan(&col.Name, &col.DataType, &col.IsNullable, &col.Default); err != nil {
 				return nil, err
 			}
+			col.DataTypeCategory = getTypeCategory(col.DataType)
+
 			tables[i].Columns = append(tables[i].Columns, col)
 		}
 	}
@@ -124,4 +127,106 @@ func (e DbSchemaExtractor) GetTables() ([]Table, error) {
 	}
 
 	return tables, nil
+}
+
+// Define PostgreSQL type categories as constants.
+const (
+	NumericType   = "NumericType"
+	SerialType    = "SerialType"
+	CharacterType = "CharacterType"
+	TextType      = "TextType"
+	BooleanType   = "BooleanType"
+	DateTimeType  = "DateTimeType"
+	UuidType      = "UuidType"
+	JsonType      = "JsonType"
+	ArrayType     = "ArrayType"
+	NetworkType   = "NetworkType"
+	GeometricType = "GeometricType"
+	EnumType      = "EnumType"
+	BitStringType = "BitStringType"
+	BinaryType    = "BinaryType"
+	XmlType       = "XmlType"
+	UnknownType   = "UnknownType"
+)
+
+// typesMap maps PostgreSQL types to their corresponding categories.
+var typesMap = map[string]string{
+	// Numeric types
+	"smallint":         NumericType,
+	"integer":          NumericType,
+	"bigint":           NumericType,
+	"decimal":          NumericType,
+	"numeric":          NumericType,
+	"real":             NumericType,
+	"double precision": NumericType,
+	"money":            NumericType,
+
+	// Serial types
+	"smallserial": SerialType,
+	"serial":      SerialType,
+	"bigserial":   SerialType,
+
+	// Character types
+	"char":              CharacterType,
+	"varchar":           CharacterType,
+	"character varying": CharacterType,
+
+	// Text type
+	"text": TextType,
+
+	// Boolean type
+	"boolean": BooleanType,
+
+	// Date/time types
+	"date":        DateTimeType,
+	"timestamp":   DateTimeType,
+	"timestamptz": DateTimeType,
+	"time":        DateTimeType,
+	"timetz":      DateTimeType,
+	"interval":    DateTimeType,
+
+	// UUID type
+	"uuid": UuidType,
+
+	// JSON types
+	"json":  JsonType,
+	"jsonb": JsonType,
+
+	// Array type
+	"ARRAY": ArrayType,
+
+	// Network types
+	"inet":    NetworkType,
+	"cidr":    NetworkType,
+	"macaddr": NetworkType,
+
+	// Geometric types
+	"point":   GeometricType,
+	"line":    GeometricType,
+	"lseg":    GeometricType,
+	"box":     GeometricType,
+	"path":    GeometricType,
+	"polygon": GeometricType,
+	"circle":  GeometricType,
+
+	// Enum type placeholder
+	"enum": EnumType,
+
+	// Bit string types
+	"bit":         BitStringType,
+	"bit varying": BitStringType,
+
+	// Binary type
+	"bytea": BinaryType,
+
+	// XML type
+	"xml": XmlType,
+}
+
+// GetTypeCategory returns the category of a PostgreSQL type.
+func getTypeCategory(pgType string) string {
+	if category, found := typesMap[pgType]; found {
+		return category
+	}
+	return UnknownType
 }

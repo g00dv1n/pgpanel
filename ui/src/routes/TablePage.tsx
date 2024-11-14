@@ -8,7 +8,6 @@ import { DataTable } from "@/components/DataTable";
 import { TablePagination } from "@/components/TablePagination";
 import { TableTextSearch } from "@/components/TableTextSearch";
 import { useLoaderDataTyped, useTablesMap } from "@/hooks/use-data";
-import { searchByTextColumnsFilters } from "@/lib/filters";
 import { LoaderFunctionArgs, useNavigate } from "react-router-dom";
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
@@ -56,13 +55,11 @@ export default function TablePage() {
 
       <div className="mt-10">
         <TableTextSearch
+          q={rowsParams.filters}
           onSearch={(q) => {
-            const filters =
-              q.length > 0 ? searchByTextColumnsFilters(q, table) : undefined;
-
             onRowsParamsChange({
               ...rowsParams,
-              filters: filters,
+              filters: q,
             });
           }}
         />

@@ -1,19 +1,28 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface TableTextSearchProps {
+  q?: string;
   onSearch: (q: string) => void;
 }
 
-export function TableTextSearch({ onSearch }: TableTextSearchProps) {
-  const [q, setQ] = useState("");
+export function TableTextSearch({
+  q: initQ = "",
+  onSearch,
+}: TableTextSearchProps) {
+  const [q, setQ] = useState(initQ);
+
+  useEffect(() => {
+    setQ(initQ);
+  }, [initQ]);
 
   return (
     <div className="flex w-full max-w-sm items-center space-x-2">
       <Input
         type="search"
         placeholder="Search by text fields"
+        value={q}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             onSearch(q);

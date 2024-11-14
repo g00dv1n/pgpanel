@@ -1,9 +1,9 @@
-import { Filters } from "@/lib/filters";
 import { createContext } from "react";
 
 export interface Column {
   name: string;
   dataType: string;
+  dataTypeCategory: string;
   isNullable: string;
   default: {
     String: string;
@@ -35,7 +35,8 @@ export interface GetTableRowParams {
   offset: number;
   limit: number;
   sort?: string[];
-  filters?: Filters;
+  filters?: string;
+  filtersArgs?: string;
 }
 
 const fieldsDelimiter = "|";
@@ -47,16 +48,10 @@ export function parseQueryRowParams(url: URL) {
   const sortRaw = url.searchParams.get("sort") || undefined;
   const sort = sortRaw ? sortRaw.split(fieldsDelimiter) : undefined;
 
-  const filtersStatement = url.searchParams.get("filters") || undefined;
-  const filtersArgs = (url.searchParams.get("filtersArgs") || "").split(
-    fieldsDelimiter
-  );
+  const filters = url.searchParams.get("filters") || undefined;
+  const filtersArgs = url.searchParams.get("filtersArgs") || undefined;
 
-  const filters = filtersStatement
-    ? { statement: filtersStatement, args: filtersArgs }
-    : undefined;
-
-  return { offset, limit, sort, filters };
+  return { offset, limit, sort, filters, filtersArgs };
 }
 
 export function rowParamsToSearchParams({
@@ -64,16 +59,22 @@ export function rowParamsToSearchParams({
   limit,
   sort,
   filters,
+  filtersArgs,
 }: GetTableRowParams) {
   const searchParams = new URLSearchParams();
+
   searchParams.set("offset", offset.toString());
   searchParams.set("limit", limit.toString());
+
   if (sort) {
     searchParams.set("sort", sort.join(fieldsDelimiter));
   }
   if (filters) {
-    searchParams.set("filters", filters.statement);
-    searchParams.set("filtersArgs", filters.args.join(fieldsDelimiter));
+    searchParams.set("filters", filters);
+  }
+
+  if (filtersArgs) {
+    searchParams.set("filtersArgs", filtersArgs);
   }
 
   return searchParams;
