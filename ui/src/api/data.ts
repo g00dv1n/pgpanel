@@ -38,15 +38,19 @@ export interface GetTableRowParams {
   filters?: Filters;
 }
 
+const fieldsDelimiter = "|";
+
 export function parseQueryRowParams(url: URL) {
   const offset = Number(url.searchParams.get("offset") || 0);
   const limit = Number(url.searchParams.get("limit") || 50);
 
   const sortRaw = url.searchParams.get("sort") || undefined;
-  const sort = sortRaw ? sortRaw.split("|") : undefined;
+  const sort = sortRaw ? sortRaw.split(fieldsDelimiter) : undefined;
 
   const filtersStatement = url.searchParams.get("filters") || undefined;
-  const filtersArgs = (url.searchParams.get("filtersArgs") || "").split("|");
+  const filtersArgs = (url.searchParams.get("filtersArgs") || "").split(
+    fieldsDelimiter
+  );
 
   const filters = filtersStatement
     ? { statement: filtersStatement, args: filtersArgs }
@@ -57,13 +61,17 @@ export function parseQueryRowParams(url: URL) {
 
 export async function getTableRows(
   tableName: string,
-  { offset, limit, sort }: GetTableRowParams
+  { offset, limit, sort, filters }: GetTableRowParams
 ) {
   const searchParams = new URLSearchParams();
   searchParams.set("offset", offset.toString());
   searchParams.set("limit", limit.toString());
   if (sort) {
-    searchParams.set("sort", sort.join("|"));
+    searchParams.set("sort", sort.join(fieldsDelimiter));
+  }
+  if (filters) {
+    searchParams.set("filters", filters.statement);
+    searchParams.set("filtersArgs", filters.args.join(fieldsDelimiter));
   }
 
   const rows: Row[] = await fetch(
