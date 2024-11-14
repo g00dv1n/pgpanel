@@ -1,3 +1,4 @@
+import { Filters } from "@/lib/filters";
 import { createContext } from "react";
 
 export interface Column {
@@ -33,15 +34,25 @@ export async function getTables() {
 export interface GetTableRowParams {
   offset: number;
   limit: number;
-  sort?: string;
+  sort?: string[];
+  filters?: Filters;
 }
 
 export function parseQueryRowParams(url: URL) {
   const offset = Number(url.searchParams.get("offset") || 0);
   const limit = Number(url.searchParams.get("limit") || 50);
-  const sort = url.searchParams.get("sort") || undefined;
 
-  return { offset, limit, sort };
+  const sortRaw = url.searchParams.get("sort") || undefined;
+  const sort = sortRaw ? sortRaw.split("|") : undefined;
+
+  const filtersStatement = url.searchParams.get("filters") || undefined;
+  const filtersArgs = (url.searchParams.get("filtersArgs") || "").split("|");
+
+  const filters = filtersStatement
+    ? { statement: filtersStatement, args: filtersArgs }
+    : undefined;
+
+  return { offset, limit, sort, filters };
 }
 
 export async function getTableRows(
@@ -52,7 +63,7 @@ export async function getTableRows(
   searchParams.set("offset", offset.toString());
   searchParams.set("limit", limit.toString());
   if (sort) {
-    searchParams.set("sort", sort);
+    searchParams.set("sort", sort.join("|"));
   }
 
   const rows: Row[] = await fetch(

@@ -13,7 +13,7 @@ import {
 interface DataTableProps {
   table: DBTable;
   rows: Row[];
-  sortValue?: string;
+  sortValue?: string[];
   onSortChange: (newSortVal: string) => void;
 }
 

@@ -66,7 +66,7 @@ export default function TablePage() {
             onRowsParamsChange({
               offset: rowsParams.offset,
               limit: rowsParams.limit,
-              sort: newSortVal,
+              sort: [newSortVal],
             });
           }}
         />
