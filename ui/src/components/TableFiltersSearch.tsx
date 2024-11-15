@@ -61,7 +61,7 @@ export function TableFiltersSearch({
       <Button type="submit" onClick={() => onSearch(q)}>
         Filter
       </Button>
-      <div className="ml-10 flex items-center gap-1 w-56">
+      <div className="ml-10 flex items-center space-x-2 w-56">
         <Switch
           className="data-[state=checked]:bg-blue-500"
           id="sql-mode"
