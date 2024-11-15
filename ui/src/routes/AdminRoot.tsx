@@ -21,8 +21,8 @@ export async function loader() {
 }
 
 export default function AdminRoot() {
-  const { tablesMap } = useLoaderDataTyped<typeof loader>();
-  const tables = tablesMap ? Object.values(tablesMap) : [];
+  const { tablesMap = {} } = useLoaderDataTyped<typeof loader>();
+  const tables = Object.values(tablesMap);
 
   return (
     <SidebarProvider>
