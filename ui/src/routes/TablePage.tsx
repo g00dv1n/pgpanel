@@ -5,9 +5,10 @@ import {
   rowParamsToSearchParams,
 } from "@/api/data";
 import { DataTable } from "@/components/DataTable";
+import { TableFiltersSearch } from "@/components/TableFiltersSearch";
 import { TablePagination } from "@/components/TablePagination";
-import { TableTextSearch } from "@/components/TableTextSearch";
 import { useLoaderDataTyped, useTablesMap } from "@/hooks/use-data";
+
 import { LoaderFunctionArgs, useNavigate } from "react-router-dom";
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
@@ -53,8 +54,11 @@ export default function TablePage() {
         />
       </div>
 
+      <div className="max-w-[750px]"></div>
+
       <div className="mt-10 max-w-[750px]">
-        <TableTextSearch
+        <TableFiltersSearch
+          table={table}
           q={rowsParams.filters}
           onSearch={(q) => {
             onRowsParamsChange({
