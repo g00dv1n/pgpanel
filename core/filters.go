@@ -72,29 +72,20 @@ type TextSearchFilters struct {
 }
 
 func (f TextSearchFilters) ToSQL(t *Table) (string, []any) {
-	var textCols []string
+	var textColsExps []string
 
 	for _, col := range t.Columns {
 		if col.DataTypeCategory == TextType || col.DataTypeCategory == CharacterType {
-			textCols = append(textCols, col.Name)
+			textColsExps = append(textColsExps, fmt.Sprintf(`"%s" ILIKE $1`, col.Name))
 		}
 	}
 
-	if len(textCols) == 0 {
+	if len(textColsExps) == 0 {
 		return "", nil
 	}
 
-	args := []any{"%" + strings.ToLower(f.Text) + "%"}
+	pattern := "%" + strings.ToLower(f.Text) + "%"
+	sql := "WHERE " + strings.Join(textColsExps, " OR ")
 
-	sql := "WHERE "
-
-	for i, colName := range textCols {
-		sql += fmt.Sprintf("%s ILIKE $1", colName)
-
-		if i+1 != len(textCols) {
-			sql += " OR "
-		}
-	}
-
-	return sql, args
+	return sql, []any{pattern}
 }
