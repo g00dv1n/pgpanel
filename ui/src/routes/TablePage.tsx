@@ -21,7 +21,8 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 }
 
 export default function TablePage() {
-  const { tableName, rows, rowsParams } = useLoaderDataTyped<typeof loader>();
+  const { tableName, rows, rowsParams, error } =
+    useLoaderDataTyped<typeof loader>();
   const tablesMap = useTablesMap();
   const table = tablesMap[tableName];
 
@@ -54,8 +55,6 @@ export default function TablePage() {
         />
       </div>
 
-      <div className="max-w-[750px]"></div>
-
       <div className="mt-10 max-w-[750px]">
         <TableFiltersSearch
           table={table}
@@ -82,6 +81,10 @@ export default function TablePage() {
           }}
         />
       </div>
+
+      {error && (
+        <div className="my-5 text-red-600 max-w-[750px]">{error.message}</div>
+      )}
     </>
   );
 }
