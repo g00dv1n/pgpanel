@@ -33,7 +33,7 @@ export function TableFiltersSearch({
   };
 
   return (
-    <div className="flex w-full items-center space-x-2">
+    <div className="flex items-center gap-1">
       {!sqlMode && (
         <Input
           type="search"
@@ -61,8 +61,9 @@ export function TableFiltersSearch({
       <Button type="submit" onClick={() => onSearch(q)}>
         Filter
       </Button>
-      <div className="flex items-center space-x-2 w-56">
+      <div className="ml-10 flex items-center gap-1 w-56">
         <Switch
+          className="data-[state=checked]:bg-blue-500"
           id="sql-mode"
           checked={sqlMode}
           onCheckedChange={() => setSqlMode(!sqlMode)}
