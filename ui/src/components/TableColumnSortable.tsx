@@ -34,7 +34,7 @@ export function TableColumnSortable({
       variant="ghost"
       className="p-0"
       onClick={() => {
-        const newVal = currentSortValue === askValue ? descValue : askValue;
+        const newVal = currentSortValue === descValue ? askValue : descValue;
         onChange(newVal);
       }}
     >
