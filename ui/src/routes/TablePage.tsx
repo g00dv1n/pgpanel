@@ -14,9 +14,9 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   const tableName = params.tableName || "";
   const url = new URL(request.url);
   const rowsParams = parseQueryRowParams(url);
-  const rows = await getTableRows(tableName, rowsParams);
+  const { rows, error } = await getTableRows(tableName, rowsParams);
 
-  return { tableName, rowsParams, rows };
+  return { tableName, rowsParams, rows, error };
 }
 
 export default function TablePage() {

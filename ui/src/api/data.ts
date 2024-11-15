@@ -19,16 +19,36 @@ export interface DBTable {
 
 export type RowField = string | number | string[] | null | boolean | object;
 export type Row = Record<string, RowField>;
+export type ApiErr = { message: string };
 
 export type DBTablesMap = Record<string, DBTable>;
 export const DBTablesMapContext = createContext({} as DBTablesMap);
 
+export async function fetchJsonData<T = any>(
+  input: string | URL | globalThis.Request,
+  init?: RequestInit
+): Promise<{ data?: T; error?: ApiErr }> {
+  const res = await fetch(input, init);
+  const jsonRes = await res.json();
+
+  let data: T | undefined = undefined;
+  let error: ApiErr | undefined = undefined;
+
+  if (res.ok) {
+    data = jsonRes;
+  } else {
+    error = jsonRes;
+  }
+
+  return { data, error };
+}
+
 export async function getTables() {
-  const tablesMap: DBTablesMap = await fetch("/api/schema/tables").then((r) =>
-    r.json()
+  const { data: tablesMap, error } = await fetchJsonData<DBTablesMap>(
+    "/api/schema/tables"
   );
 
-  return tablesMap;
+  return { tablesMap, error };
 }
 
 export interface GetTableRowParams {
@@ -85,9 +105,9 @@ export async function getTableRows(
   rowParams: GetTableRowParams
 ) {
   const s = rowParamsToSearchParams(rowParams);
-  const rows: Row[] = await fetch(`/api/data/${tableName}?${s}`).then((r) =>
-    r.json()
+  const { data: rows = [], error } = await fetchJsonData<Row[]>(
+    `/api/data/${tableName}?${s}`
   );
 
-  return rows;
+  return { rows, error };
 }

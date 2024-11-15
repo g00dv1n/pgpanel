@@ -21,7 +21,8 @@ export async function loader() {
 }
 
 export default function AdminRoot() {
-  const tablesMap = useLoaderDataTyped<typeof loader>();
+  const { tablesMap } = useLoaderDataTyped<typeof loader>();
+  const tables = tablesMap ? Object.values(tablesMap) : [];
 
   return (
     <SidebarProvider>
@@ -41,7 +42,7 @@ export default function AdminRoot() {
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
-                  {Object.values(tablesMap).map((t) => {
+                  {tables.map((t) => {
                     return (
                       <SidebarMenuButton key={t.name} asChild>
                         <Link to={`/${t.name}`}>

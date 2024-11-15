@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { useEffect, useState } from "react";
 
 interface TableTextSearchProps {
@@ -40,6 +42,10 @@ export function TableTextSearch({
       <Button type="submit" onClick={() => onSearch(q)}>
         Search
       </Button>
+      <div className="flex items-center space-x-2 w-56 ml-10">
+        <Switch id="airplane-mode" />
+        <Label htmlFor="airplane-mode">SQL Mode</Label>
+      </div>
     </div>
   );
 }
