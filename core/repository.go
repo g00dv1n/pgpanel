@@ -136,7 +136,7 @@ func (s Sorting) ToSQL() string {
 	sql := "ORDER BY "
 
 	for i, sf := range s {
-		sql += fmt.Sprintf("%s %s", sf.Name, sf.Order)
+		sql += fmt.Sprintf(`"%s" %s`, sf.Name, sf.Order)
 
 		if i+1 != len(s) {
 			sql += ","
