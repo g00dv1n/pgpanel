@@ -51,7 +51,7 @@ export async function getTables() {
   return { tablesMap, error };
 }
 
-export interface GetTableRowParams {
+export interface GetTableRowsParams {
   offset: number;
   limit: number;
   sort?: string[];
@@ -62,7 +62,7 @@ export interface GetTableRowParams {
 
 const fieldsDelimiter = "|";
 
-export function parseQueryRowParams(url: URL): GetTableRowParams {
+export function parseQueryRowsParams(url: URL): GetTableRowsParams {
   const offset = Number(url.searchParams.get("offset") || 0);
   const limit = Number(url.searchParams.get("limit") || 50);
 
@@ -76,7 +76,7 @@ export function parseQueryRowParams(url: URL): GetTableRowParams {
   return { offset, limit, sort, textFilters, filters, filtersArgs };
 }
 
-export function rowParamsToSearchParams(params: GetTableRowParams) {
+export function rowsParamsToSearchParams(params: GetTableRowsParams) {
   const searchParams = new URLSearchParams();
 
   for (const [key, val] of Object.entries(params)) {
@@ -89,9 +89,9 @@ export function rowParamsToSearchParams(params: GetTableRowParams) {
 
 export async function getTableRows(
   tableName: string,
-  rowParams: GetTableRowParams
+  rowParams: GetTableRowsParams
 ) {
-  const s = rowParamsToSearchParams(rowParams);
+  const s = rowsParamsToSearchParams(rowParams);
   const { data: rows = [], error } = await fetchJsonData<Row[]>(
     `/api/data/${tableName}?${s}`
   );

@@ -1,8 +1,8 @@
 import {
-  GetTableRowParams,
+  GetTableRowsParams,
   getTableRows,
-  parseQueryRowParams,
-  rowParamsToSearchParams,
+  parseQueryRowsParams,
+  rowsParamsToSearchParams,
 } from "@/api/data";
 import { DataTable } from "@/components/DataTable";
 import { TableFiltersSearch } from "@/components/TableFiltersSearch";
@@ -14,7 +14,7 @@ import { LoaderFunctionArgs, useNavigate } from "react-router-dom";
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const tableName = params.tableName || "";
   const url = new URL(request.url);
-  const rowsParams = parseQueryRowParams(url);
+  const rowsParams = parseQueryRowsParams(url);
   const { rows, error } = await getTableRows(tableName, rowsParams);
 
   return { tableName, rowsParams, rows, error };
@@ -28,8 +28,8 @@ export default function TablePage() {
 
   const navigate = useNavigate();
 
-  const onRowsParamsChange = (newParams: GetTableRowParams) => {
-    const s = rowParamsToSearchParams(newParams);
+  const onRowsParamsChange = (newParams: GetTableRowsParams) => {
+    const s = rowsParamsToSearchParams(newParams);
     navigate(`?${s}`);
   };
 
