@@ -7,10 +7,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type SchemaExtractor interface {
-	GetTables() ([]Table, error)
-}
-
+// ---------------------- Column & Tables -------------------------------
 type Column struct {
 	Name             string         `json:"name"`
 	DataType         string         `json:"dataType"`
@@ -19,10 +16,35 @@ type Column struct {
 	Default          sql.NullString `json:"default"`
 }
 
+// Safe name to use in SQL
+func (c *Column) SafeName() string {
+	return `"` + c.Name + `"`
+}
+
 type Table struct {
 	Name        string   `json:"name"`
 	Columns     []Column `json:"columns"`
 	PrimaryKeys []string `json:"primaryKeys"`
+}
+
+// Safe name to use in SQL
+func (t *Table) SafeName() string {
+	return `"` + t.Name + `"`
+}
+
+func (t *Table) SafeColumnNames() []string {
+	safeNames := make([]string, len(t.Columns))
+
+	for i, c := range t.Columns {
+		safeNames[i] = c.SafeName()
+	}
+
+	return safeNames
+}
+
+// ---------------------- Schema -------------------------------
+type SchemaExtractor interface {
+	GetTables() ([]Table, error)
 }
 
 type DbSchemaExtractor struct {

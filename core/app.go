@@ -17,18 +17,17 @@ func NewApp(db *pgxpool.Pool) App {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 	se := NewDbSchemaExtractor(db, nil)
-	tables, err := se.GetTables()
+
+	crud, err := NewTablesRepository(db, &se, logger)
 
 	if err != nil {
 		logger.Error("can't extract tables", "error", err)
 		os.Exit(1)
 	}
 
-	crud := NewTablesRepository(db, tables)
-
 	return App{
 		DB:     db,
 		Logger: logger,
-		CRUD:   &crud,
+		CRUD:   crud,
 	}
 }

@@ -18,11 +18,9 @@ func (app *App) getTablesHandler(w http.ResponseWriter, r *http.Request) error {
 
 func (app *App) getRowsHandler(w http.ResponseWriter, r *http.Request) error {
 	tableName := r.PathValue("table")
-	filters := ParseFiltersFromQuery(r.URL.Query())
-	pagination := ParsePaginationFromQuery(r.URL.Query())
-	sorting := ParseSortingFromQuery(r.URL.Query())
+	params := ParseGetRowsParamsFromQuery(r.URL.Query())
 
-	data, err := app.CRUD.GetRows(tableName, filters, pagination, sorting)
+	data, err := app.CRUD.GetRows(tableName, params)
 
 	if err != nil {
 		return err
