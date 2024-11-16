@@ -1,17 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 
-interface TableColumnSortableProps {
+interface ColumnSortableProps {
   name: string;
   sortValue?: string[];
   onChange: (newVal: string) => void;
 }
 
-export function TableColumnSortable({
+export function ColumnSortable({
   name,
   sortValue = [],
   onChange,
-}: TableColumnSortableProps) {
+}: ColumnSortableProps) {
   const askValue = name;
   const descValue = `-${name}`;
 

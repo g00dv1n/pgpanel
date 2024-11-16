@@ -3,19 +3,19 @@ import { Input } from "@/components/ui/input";
 import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
 import { useEffect, useState } from "react";
 
-interface TablePaginationProps {
+interface PaginationProps {
   tableName: string;
   offset: number;
   limit: number;
   onChange: (offset: number, limit: number) => void;
 }
 
-export function TablePagination({
+export function Pagination({
   tableName,
   offset: initOffset,
   limit: initLimit,
   onChange,
-}: TablePaginationProps) {
+}: PaginationProps) {
   const [offset, setOffset] = useState(initOffset);
   const [limit, setLimit] = useState(initLimit);
 

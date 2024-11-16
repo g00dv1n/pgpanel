@@ -5,8 +5,8 @@ import {
   rowsParamsToSearchParams,
 } from "@/api/data";
 import { DataTable } from "@/components/DataTable";
-import { TableFiltersSearch } from "@/components/TableFiltersSearch";
-import { TablePagination } from "@/components/TablePagination";
+import { FiltersSearch } from "@/components/FiltersSearch";
+import { Pagination } from "@/components/Pagination";
 import { useLoaderDataTyped, useTablesMap } from "@/hooks/use-data";
 
 import { LoaderFunctionArgs, useNavigate } from "react-router-dom";
@@ -40,7 +40,7 @@ export default function TablePage() {
         <h1 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
           {table.name}
         </h1>
-        <TablePagination
+        <Pagination
           tableName={table.name}
           offset={rowsParams.offset}
           limit={rowsParams.limit}
@@ -55,7 +55,7 @@ export default function TablePage() {
       </div>
 
       <div className="mt-10 max-w-[750px]">
-        <TableFiltersSearch
+        <FiltersSearch
           table={table}
           q={rowsParams.textFilters || rowsParams.filters}
           sqlMode={Boolean(rowsParams.filters)}

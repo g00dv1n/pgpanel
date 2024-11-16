@@ -6,19 +6,19 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useEffect, useState } from "react";
 
-interface TableFiltersSearchProps {
+interface FiltersSearchProps {
   q?: string;
   table: DBTable;
   sqlMode?: boolean;
   onSearch: (q: string, sqlMode: boolean) => void;
 }
 
-export function TableFiltersSearch({
+export function FiltersSearch({
   q: initQ = "",
   sqlMode: initsqlMode = false,
   table,
   onSearch,
-}: TableFiltersSearchProps) {
+}: FiltersSearchProps) {
   const [q, setQ] = useState(initQ);
   const [sqlMode, setSqlMode] = useState(initsqlMode);
 

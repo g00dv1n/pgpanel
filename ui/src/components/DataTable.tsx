@@ -1,5 +1,5 @@
 import { DBTable, Row, RowField } from "@/api/data";
-import { TableColumnSortable } from "@/components/TableColumnSortable";
+import { ColumnSortable } from "@/components/ColumnSortable";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
@@ -33,7 +33,7 @@ export function DataTable({
           {table.columns.map((c) => {
             return (
               <TableHead key={c.name}>
-                <TableColumnSortable
+                <ColumnSortable
                   name={c.name}
                   sortValue={sortValue}
                   onChange={onSortChange}
