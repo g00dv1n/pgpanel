@@ -69,7 +69,6 @@ export function SqlFiltersInput({
       extensions={[
         sql({
           dialect: SQLDialect.define({
-            operatorChars: "*+-%<>!=&|/~",
             keywords:
               "and or not between in like ilike is null is not null exists any all some case when then else end" +
               "lower upper length substring trim replace date time timestamp now extract to_char",
