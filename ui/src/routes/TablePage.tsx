@@ -65,6 +65,7 @@ export default function TablePage() {
 
             onRowsParamsChange({
               ...rowsParams,
+              offset: 0,
               textFilters,
               filters,
             });
