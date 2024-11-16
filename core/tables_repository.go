@@ -49,11 +49,15 @@ var GetRowsSQL *template.Template = sqlTempl(`
 	FROM q
 `)
 
-func (r TablesRepository) GetRows(tableName string, params GetRowsParams) (json.RawMessage, error) {
+func (r TablesRepository) GetRows(tableName string, params *GetRowsParams) (json.RawMessage, error) {
 	table := r.tablesMap[tableName]
 
 	if table == nil {
 		return nil, fmt.Errorf("can't lookup table: %s", tableName)
+	}
+
+	if params == nil {
+		params = DefaultGetRowsParams()
 	}
 
 	selectColumns := strings.Join(table.SafeColumnNames(), ",")

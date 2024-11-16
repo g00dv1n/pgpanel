@@ -9,6 +9,7 @@ import (
 
 const (
 	fieldsDelimiter = "|"
+	defaultLimit    = 50
 )
 
 // ---------------------- General Filters Interface -------------------------------
@@ -99,7 +100,7 @@ func ParsePaginationFromQuery(q url.Values) Pagination {
 
 	limit, limitErr := strconv.Atoi(limitStr)
 	if limitErr != nil || limit < 1 {
-		limit = 50
+		limit = defaultLimit
 	}
 
 	return Pagination{Offset: offset, Limit: limit}
@@ -162,8 +163,16 @@ type GetRowsParams struct {
 	Sorting    Sorting
 }
 
-func ParseGetRowsParamsFromQuery(q url.Values) GetRowsParams {
-	return GetRowsParams{
+func DefaultGetRowsParams() *GetRowsParams {
+	return &GetRowsParams{
+		Pagination: Pagination{Limit: defaultLimit, Offset: 0},
+		Filters:    SQLFilters{},
+		Sorting:    Sorting{},
+	}
+}
+
+func ParseGetRowsParamsFromQuery(q url.Values) *GetRowsParams {
+	return &GetRowsParams{
 		Filters:    ParseFiltersFromQuery(q),
 		Pagination: ParsePaginationFromQuery(q),
 		Sorting:    ParseSortingFromQuery(q),
