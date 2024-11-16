@@ -9,26 +9,33 @@ import { useEffect, useState } from "react";
 interface TableFiltersSearchProps {
   q?: string;
   table: DBTable;
-  onSearch: (q: string) => void;
+  sqlMode?: boolean;
+  onSearch: (q: string, sqlMode: boolean) => void;
 }
 
 export function TableFiltersSearch({
   q: initQ = "",
+  sqlMode: initsqlMode = false,
   table,
   onSearch,
 }: TableFiltersSearchProps) {
   const [q, setQ] = useState(initQ);
-  const [sqlMode, setSqlMode] = useState(false);
+  const [sqlMode, setSqlMode] = useState(initsqlMode);
 
   useEffect(() => {
     setQ(initQ);
   }, [initQ]);
 
+  const toggleMode = () => {
+    setSqlMode(!sqlMode);
+    onChange("");
+  };
+
   const onChange = (newQ: string) => {
     setQ(newQ);
 
     if (newQ.length === 0) {
-      onSearch("");
+      onSearch("", sqlMode);
     }
   };
 
@@ -41,7 +48,7 @@ export function TableFiltersSearch({
           value={q}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              onSearch(q);
+              onSearch(q, sqlMode);
             }
           }}
           onChange={(e) => onChange(e.currentTarget.value)}
@@ -53,12 +60,12 @@ export function TableFiltersSearch({
           placeholder="id = 1 OR ..."
           table={table}
           value={q}
-          onChange={onChange}
-          onEnter={() => onSearch(q)}
+          onChange={(v) => onChange(v)}
+          onEnter={() => onSearch(q, sqlMode)}
         />
       )}
 
-      <Button type="submit" onClick={() => onSearch(q)}>
+      <Button type="submit" onClick={() => onSearch(q, sqlMode)}>
         Filter
       </Button>
       <div className="ml-10 flex items-center space-x-2 w-56">
@@ -66,7 +73,7 @@ export function TableFiltersSearch({
           className="data-[state=checked]:bg-blue-500"
           id="sql-mode"
           checked={sqlMode}
-          onCheckedChange={() => setSqlMode(!sqlMode)}
+          onCheckedChange={() => toggleMode()}
         />
         <Label htmlFor="sql-mode">SQL Mode</Label>
       </div>

@@ -30,7 +30,6 @@ export default function TablePage() {
 
   const onRowsParamsChange = (newParams: GetTableRowParams) => {
     const s = rowParamsToSearchParams(newParams);
-
     navigate(`?${s}`);
   };
 
@@ -58,11 +57,16 @@ export default function TablePage() {
       <div className="mt-10 max-w-[750px]">
         <TableFiltersSearch
           table={table}
-          q={rowsParams.filters}
-          onSearch={(q) => {
+          q={rowsParams.textFilters || rowsParams.filters}
+          sqlMode={Boolean(rowsParams.filters)}
+          onSearch={(q, sqlMode) => {
+            const filters = sqlMode && q.length > 0 ? q : undefined;
+            const textFilters = !sqlMode && q.length > 0 ? q : undefined;
+
             onRowsParamsChange({
               ...rowsParams,
-              filters: q,
+              textFilters,
+              filters,
             });
           }}
         />
