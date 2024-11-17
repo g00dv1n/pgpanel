@@ -8,13 +8,13 @@ dev-ui:
 build-ui:
 	@cd $(frontend_dir) && $(frontend_runner) run build
 
-build-be:
+build-server:
 	@go build -o ./bin/$(bin_name) main.go
 	@echo "go built ✓"
 
-run:
+run-server:
 	@go run main.go
 
-build: build-ui build-be
+build: build-ui build-server
 	
 
