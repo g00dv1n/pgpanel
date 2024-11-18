@@ -9,7 +9,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function LoginForm() {
+interface LoginFormProps {
+  error?: string;
+  onSubmit: (data: { username: string; password: string }) => void;
+}
+
+export function LoginForm({ error, onSubmit }: LoginFormProps) {
   return (
     <Card className="mx-auto max-w-sm">
       <CardHeader>
@@ -25,14 +30,15 @@ export function LoginForm() {
             e.preventDefault();
 
             const formData = new FormData(e.currentTarget);
-            const data = Object.fromEntries(formData.entries());
-
-            console.log(data);
+            onSubmit({
+              username: stringFormField(formData, "username"),
+              password: stringFormField(formData, "password"),
+            });
           }}
         >
           <div className="grid gap-2">
-            <Label htmlFor="email">Login</Label>
-            <Input name="login" type="text" placeholder="admin" required />
+            <Label htmlFor="username">Login</Label>
+            <Input name="username" type="text" placeholder="admin" required />
           </div>
           <div className="grid gap-2">
             <div className="flex items-center">
@@ -40,6 +46,7 @@ export function LoginForm() {
             </div>
             <Input name="password" type="password" required />
           </div>
+          {error && <span className="text-red-500">{error}</span>}
           <Button type="submit" className="w-full">
             Login
           </Button>
@@ -47,4 +54,14 @@ export function LoginForm() {
       </CardContent>
     </Card>
   );
+}
+
+function stringFormField(formData: FormData, key: string) {
+  const value = formData.get(key);
+
+  if (!value) return "";
+
+  if (typeof value !== "string") return "";
+
+  return value;
 }

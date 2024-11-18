@@ -1,7 +1,7 @@
 import { createAuthFetchClient } from "@/api/fetchClient";
 import { createContext } from "react";
 
-const client = createAuthFetchClient("");
+const client = createAuthFetchClient(localStorage.getItem("authToken") || "");
 
 export interface Column {
   name: string;

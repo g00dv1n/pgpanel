@@ -1,8 +1,8 @@
 export type ApiErr = { code: number; message: string };
 export type ApiUrl = string | URL;
 
-export async function fetchAsJson<T = any>(
-  input: string | URL | globalThis.Request,
+export async function fetchApi<T = any>(
+  url: ApiUrl,
   init?: RequestInit
 ): Promise<{ data?: T; error?: ApiErr }> {
   const defaultInit: RequestInit = {
@@ -14,7 +14,7 @@ export async function fetchAsJson<T = any>(
   };
 
   try {
-    const res = await fetch(input, defaultInit);
+    const res = await fetch(url, defaultInit);
     const jsonRes = await res.json();
 
     let data: T | undefined = undefined;
@@ -42,8 +42,18 @@ export function createAuthFetchClient(token: string) {
     Authorization: `Bearer ${token}`,
   };
 
+  async function authFetch<T>(url: ApiUrl, init?: RequestInit) {
+    const res = await fetchApi<T>(url, init);
+
+    if (res.error && res.error.code === 403) {
+      window.location.href = "/login";
+    }
+
+    return res;
+  }
+
   return {
-    fetchAsJson<T>(url: ApiUrl, init?: RequestInit) {
+    fetch<T>(url: ApiUrl, init?: RequestInit) {
       const initWithAuth: RequestInit = {
         ...init,
         headers: {
@@ -52,23 +62,23 @@ export function createAuthFetchClient(token: string) {
         },
       };
 
-      return fetchAsJson<T>(url, initWithAuth);
+      return authFetch<T>(url, initWithAuth);
     },
     get<T>(url: ApiUrl) {
-      return fetchAsJson<T>(url, {
+      return authFetch<T>(url, {
         method: "GET",
         headers,
       });
     },
     post<T>(url: ApiUrl, body: any) {
-      return fetchAsJson<T>(url, {
+      return authFetch<T>(url, {
         method: "POST",
         body: JSON.stringify(body),
         headers,
       });
     },
     put<T>(url: ApiUrl, body: any) {
-      return fetchAsJson<T>(url, {
+      return authFetch<T>(url, {
         method: "PUT",
         body: JSON.stringify(body),
         headers,
@@ -76,7 +86,7 @@ export function createAuthFetchClient(token: string) {
     },
 
     delete<T>(url: ApiUrl) {
-      return fetchAsJson<T>(url, {
+      return authFetch<T>(url, {
         method: "DELETE",
         headers,
       });
