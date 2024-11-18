@@ -18,9 +18,9 @@ export function LoginForm({ error, onSubmit }: LoginFormProps) {
   return (
     <Card className="mx-auto max-w-sm">
       <CardHeader>
-        <CardTitle className="text-2xl">Login</CardTitle>
+        <CardTitle className="text-2xl text-center">Login</CardTitle>
         <CardDescription>
-          Enter your login below to login to your account
+          Enter your username and password below
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -37,8 +37,8 @@ export function LoginForm({ error, onSubmit }: LoginFormProps) {
           }}
         >
           <div className="grid gap-2">
-            <Label htmlFor="username">Login</Label>
-            <Input name="username" type="text" placeholder="admin" required />
+            <Label htmlFor="username">Username</Label>
+            <Input name="username" type="text" required />
           </div>
           <div className="grid gap-2">
             <div className="flex items-center">
