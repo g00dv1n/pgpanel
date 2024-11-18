@@ -1,7 +1,5 @@
-import { createAuthFetchClient } from "@/api/fetchClient";
+import { fetchApiwithAuth } from "@/api/auth";
 import { createContext } from "react";
-
-const client = createAuthFetchClient(localStorage.getItem("authToken") || "");
 
 export interface Column {
   name: string;
@@ -27,7 +25,7 @@ export type DBTablesMap = Record<string, DBTable>;
 export const DBTablesMapContext = createContext({} as DBTablesMap);
 
 export async function getTables() {
-  const { data: tablesMap, error } = await client.get<DBTablesMap>(
+  const { data: tablesMap, error } = await fetchApiwithAuth<DBTablesMap>(
     "/api/schema/tables"
   );
 
@@ -75,7 +73,7 @@ export async function getTableRows(
   rowParams: GetTableRowsParams
 ) {
   const s = rowsParamsToSearchParams(rowParams);
-  const { data: rows = [], error } = await client.get<Row[]>(
+  const { data: rows = [], error } = await fetchApiwithAuth<Row[]>(
     `/api/data/${tableName}?${s}`
   );
 
