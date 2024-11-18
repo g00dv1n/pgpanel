@@ -1,9 +1,10 @@
 import AdminRoot, { loader as adminRootLoader } from "@/routes/AdminRoot";
+import LoginPage from "@/routes/LoginPage";
 import TablePage, { loader as tableLoader } from "@/routes/TablePage";
 
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, RouteObject } from "react-router-dom";
 
-export const router = createBrowserRouter([
+const routes: RouteObject[] = [
   {
     path: "/",
     element: <AdminRoot />,
@@ -16,4 +17,12 @@ export const router = createBrowserRouter([
       },
     ],
   },
-]);
+  {
+    path: "/login",
+    element: <LoginPage />,
+  },
+];
+
+export const router = createBrowserRouter(routes, {
+  future: {},
+});

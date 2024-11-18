@@ -1,4 +1,7 @@
+import { createAuthFetchClient } from "@/api/fetchClient";
 import { createContext } from "react";
+
+const client = createAuthFetchClient("");
 
 export interface Column {
   name: string;
@@ -19,32 +22,12 @@ export interface DBTable {
 
 export type RowField = string | number | string[] | null | boolean | object;
 export type Row = Record<string, RowField>;
-export type ApiErr = { message: string };
 
 export type DBTablesMap = Record<string, DBTable>;
 export const DBTablesMapContext = createContext({} as DBTablesMap);
 
-export async function fetchJsonData<T = any>(
-  input: string | URL | globalThis.Request,
-  init?: RequestInit
-): Promise<{ data?: T; error?: ApiErr }> {
-  const res = await fetch(input, init);
-  const jsonRes = await res.json();
-
-  let data: T | undefined = undefined;
-  let error: ApiErr | undefined = undefined;
-
-  if (res.ok) {
-    data = jsonRes;
-  } else {
-    error = jsonRes;
-  }
-
-  return { data, error };
-}
-
 export async function getTables() {
-  const { data: tablesMap, error } = await fetchJsonData<DBTablesMap>(
+  const { data: tablesMap, error } = await client.get<DBTablesMap>(
     "/api/schema/tables"
   );
 
@@ -92,7 +75,7 @@ export async function getTableRows(
   rowParams: GetTableRowsParams
 ) {
   const s = rowsParamsToSearchParams(rowParams);
-  const { data: rows = [], error } = await fetchJsonData<Row[]>(
+  const { data: rows = [], error } = await client.get<Row[]>(
     `/api/data/${tableName}?${s}`
   );
 
