@@ -1,6 +1,7 @@
 package core
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -48,26 +49,31 @@ func GenerateToken(username string, ttl time.Duration) (string, error) {
 
 // ValidateToken checks if the token is valid
 func ValidateToken(tokenString string) (*AdminClaims, error) {
-	// Parse the token
-	token, err := jwt.ParseWithClaims(tokenString, &AdminClaims{}, func(token *jwt.Token) (interface{}, error) {
-		// Verify signing method
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method")
+	var claims AdminClaims
+	token, err := jwt.ParseWithClaims(tokenString, &claims, func(t *jwt.Token) (interface{}, error) {
+		// Validate the signing method (optional but recommended)
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 		}
+
 		return secretKey, nil
 	})
 
-	// Check for parsing errors
 	if err != nil {
-		return nil, err
+		// override ErrTokenExpired to show pretty error on frontend
+		switch {
+		case errors.Is(err, jwt.ErrTokenExpired):
+			return nil, fmt.Errorf("token is expired")
+		default:
+			return nil, err
+		}
 	}
 
-	// Extract and return claims if token is valid
-	if claims, ok := token.Claims.(*AdminClaims); ok && token.Valid {
-		return claims, nil
+	if !token.Valid {
+		return nil, fmt.Errorf("invalid token")
 	}
 
-	return nil, fmt.Errorf("invalid token")
+	return &claims, nil
 }
 
 func ExtractBearerToken(r *http.Request) (string, error) {
