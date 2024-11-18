@@ -1,4 +1,4 @@
-export type ApiErr = { message: string };
+export type ApiErr = { code: number; message: string };
 export type ApiUrl = string | URL;
 
 export async function fetchAsJson<T = any>(
@@ -30,6 +30,7 @@ export async function fetchAsJson<T = any>(
     return {
       data: undefined,
       error: {
+        code: 500,
         message: `Fetch error: ${err}`,
       },
     };

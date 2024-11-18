@@ -9,6 +9,7 @@ import (
 
 type ApiHandler func(w http.ResponseWriter, r *http.Request) error
 type ApiErrorResponse struct {
+	Code    int    `json:"code"`
 	Message string `json:"message"`
 }
 
@@ -58,12 +59,13 @@ func createApiHandler(handlers ...ApiHandler) http.HandlerFunc {
 		for _, h := range handlers {
 			if err := h(w, r); err != nil {
 
-				res := ApiErrorResponse{
+				errRes := ApiErrorResponse{
+					Code:    500,
 					Message: err.Error(),
 				}
 
-				w.WriteHeader(500)
-				json.NewEncoder(w).Encode(&res)
+				w.WriteHeader(errRes.Code)
+				json.NewEncoder(w).Encode(&errRes)
 
 				return
 			}
