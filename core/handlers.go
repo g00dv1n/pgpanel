@@ -7,12 +7,25 @@ import (
 	"github.com/g00dv1n/pgpanel/ui"
 )
 
+// ---------------------- API types -------------------------------
 type ApiHandler func(w http.ResponseWriter, r *http.Request) error
-type ApiErrorResponse struct {
+type ApiError struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 }
 
+func NewApiError(code int, err error) ApiError {
+	return ApiError{
+		Code:    code,
+		Message: err.Error(),
+	}
+}
+
+func (e ApiError) Error() string {
+	return e.Message
+}
+
+// ---------------------- Data API Handleers -------------------------------
 func (app *App) getTablesHandler(w http.ResponseWriter, r *http.Request) error {
 	return json.NewEncoder(w).Encode(app.CRUD.tablesMap)
 }
@@ -24,7 +37,7 @@ func (app *App) getRowsHandler(w http.ResponseWriter, r *http.Request) error {
 	data, err := app.CRUD.GetRows(tableName, params)
 
 	if err != nil {
-		return err
+		return NewApiError(http.StatusBadRequest, err)
 	}
 
 	_, err = w.Write(data)
@@ -55,17 +68,16 @@ func createApiHandler(handlers ...ApiHandler) http.HandlerFunc {
 		w.Header().Add("Content-Type", "application/json")
 
 		// execute all handlers one by one and return error early
-		// TODO different codes
 		for _, h := range handlers {
 			if err := h(w, r); err != nil {
 
-				errRes := ApiErrorResponse{
-					Code:    500,
-					Message: err.Error(),
+				apiErr, ok := err.(ApiError)
+				if !ok {
+					apiErr = NewApiError(http.StatusInternalServerError, err)
 				}
 
-				w.WriteHeader(errRes.Code)
-				json.NewEncoder(w).Encode(&errRes)
+				w.WriteHeader(apiErr.Code)
+				json.NewEncoder(w).Encode(&apiErr)
 
 				return
 			}
