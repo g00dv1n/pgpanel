@@ -86,11 +86,15 @@ func ExtractBearerToken(r *http.Request) (string, error) {
 	}
 
 	// Split the header
-	parts := strings.Split(authHeader, " ")
+	parts := strings.SplitN(authHeader, " ", 2)
 
 	// Validate header format
-	if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
+	if len(parts) < 1 || strings.ToLower(parts[0]) != "bearer" {
 		return "", fmt.Errorf("invalid authorization header format")
+	}
+
+	if len(parts) < 2 {
+		return "", fmt.Errorf("empty authorization token")
 	}
 
 	return parts[1], nil

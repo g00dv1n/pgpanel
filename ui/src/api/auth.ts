@@ -7,15 +7,11 @@ export const fetchApiwithAuth = createFetchWithAuth(
 );
 
 export function createFetchWithAuth(token: string | undefined | null) {
-  if (!token) {
-    return fetchApi;
-  }
-
   return async function <T>(url: ApiUrl, init?: RequestInit) {
     const res = await fetchApi<T>(url, {
       ...init,
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token || ""}`,
       },
     });
 
