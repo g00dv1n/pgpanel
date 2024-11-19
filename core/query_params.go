@@ -68,7 +68,7 @@ func (f TextSearchFilters) ToSQL(t *Table) (string, []any) {
 	var textColsExps []string
 
 	for _, col := range t.Columns {
-		if col.DataTypeCategory == TextType || col.DataTypeCategory == CharacterType {
+		if col.UdtName == "varchar" || col.UdtName == "text" {
 			textColsExps = append(textColsExps, fmt.Sprintf(`"%s" ILIKE $1`, col.Name))
 		}
 	}
