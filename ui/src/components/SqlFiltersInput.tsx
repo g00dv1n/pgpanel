@@ -1,11 +1,10 @@
+import { PgTable } from "@/lib/pgTypes";
 import { sql, SQLDialect } from "@codemirror/lang-sql";
 import { githubLight } from "@uiw/codemirror-theme-github";
 import CodeMirror, { keymap } from "@uiw/react-codemirror";
 
-import { DBTable } from "@/api/data";
-
 interface SqlFiltersInputProps {
-  table: DBTable;
+  table: PgTable;
   value?: string;
   placeholder?: string;
   onChange?: (value: string) => void;

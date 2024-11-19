@@ -1,31 +1,12 @@
 import { fetchApiwithAuth } from "@/api/auth";
+import { PgTable, Row } from "@/lib/pgTypes";
 import { createContext } from "react";
 
-export interface Column {
-  name: string;
-  dataType: string;
-  udtName: string;
-  isNullable: string;
-  default: {
-    String: string;
-    Valid: boolean;
-  };
-}
-
-export interface DBTable {
-  name: string;
-  columns: Column[];
-  primaryKeys: string[];
-}
-
-export type RowField = string | number | string[] | null | boolean | object;
-export type Row = Record<string, RowField>;
-
-export type DBTablesMap = Record<string, DBTable>;
-export const DBTablesMapContext = createContext({} as DBTablesMap);
+export type PgTablesMap = Record<string, PgTable>;
+export const PgTablesMapContext = createContext({} as PgTablesMap);
 
 export async function getTables() {
-  const { data: tablesMap, error } = await fetchApiwithAuth<DBTablesMap>(
+  const { data: tablesMap, error } = await fetchApiwithAuth<PgTablesMap>(
     "/api/schema/tables"
   );
 

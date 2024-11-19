@@ -5,6 +5,8 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const (
@@ -68,7 +70,7 @@ func (f TextSearchFilters) ToSQL(t *Table) (string, []any) {
 	var textColsExps []string
 
 	for _, col := range t.Columns {
-		if col.UdtName == "varchar" || col.UdtName == "text" {
+		if col.OID == pgtype.VarcharOID || col.OID == pgtype.TextOID {
 			textColsExps = append(textColsExps, fmt.Sprintf(`"%s" ILIKE $1`, col.Name))
 		}
 	}

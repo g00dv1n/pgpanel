@@ -1,14 +1,14 @@
-import { DBTable } from "@/api/data";
 import { SqlFiltersInput } from "@/components/SqlFiltersInput";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { PgTable } from "@/lib/pgTypes";
 import { useEffect, useState } from "react";
 
 interface FiltersSearchProps {
   q?: string;
-  table: DBTable;
+  table: PgTable;
   sqlMode?: boolean;
   onSearch: (q: string, sqlMode: boolean) => void;
 }

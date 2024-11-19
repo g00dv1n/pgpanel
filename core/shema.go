@@ -2,18 +2,18 @@ package core
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 // ---------------------- Column & Tables -------------------------------
 type Column struct {
-	Name       string         `json:"name"`
-	DataType   string         `json:"dataType"`
-	UdtName    string         `json:"udtName"`
-	IsNullable string         `json:"isNullable"`
-	Default    sql.NullString `json:"default"`
+	Name       string  `json:"name"`
+	OID        int     `json:"OID"`
+	RegType    string  `json:"regType"`
+	UdtName    string  `json:"udtName"`
+	IsNullable string  `json:"isNullable"`
+	Default    *string `json:"default"`
 }
 
 // Safe name to use in SQL
@@ -91,7 +91,8 @@ func (e DbSchemaExtractor) GetTables() ([]Table, error) {
 		rows, err := e.db.Query(ctx, `
 			SELECT 
 				column_name,
-				data_type,
+				udt_name::regtype::oid::int AS oid,
+				udt_name::regtype AS regtype,
 				udt_name,
 				is_nullable,
 				column_default
@@ -109,7 +110,7 @@ func (e DbSchemaExtractor) GetTables() ([]Table, error) {
 
 		for rows.Next() {
 			var col Column
-			if err := rows.Scan(&col.Name, &col.DataType, &col.UdtName, &col.IsNullable, &col.Default); err != nil {
+			if err := rows.Scan(&col.Name, &col.OID, &col.RegType, &col.UdtName, &col.IsNullable, &col.Default); err != nil {
 				return nil, err
 			}
 

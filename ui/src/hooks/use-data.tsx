@@ -1,4 +1,4 @@
-import { DBTablesMapContext } from "@/api/data";
+import { PgTablesMapContext } from "@/api/data";
 import { useContext } from "react";
 import { useLoaderData } from "react-router-dom";
 
@@ -7,5 +7,5 @@ export function useLoaderDataTyped<T extends (...args: any) => Promise<any>>() {
 }
 
 export function useTablesMap() {
-  return useContext(DBTablesMapContext);
+  return useContext(PgTablesMapContext);
 }

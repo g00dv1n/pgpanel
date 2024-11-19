@@ -1,4 +1,3 @@
-import { DBTable, Row, RowField } from "@/api/data";
 import { ColumnSortable } from "@/components/ColumnSortable";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -9,9 +8,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { fieldToString, PgTable, Row, RowField } from "@/lib/pgTypes";
 
 interface DataTableProps {
-  table: DBTable;
+  table: PgTable;
   rows: Row[];
   sortValue?: string[];
   onSortChange: (newSortVal: string) => void;
@@ -67,20 +67,8 @@ export function DataTable({
   );
 }
 
-function printRowField(field: RowField) {
-  if (field === null) {
-    return "NULL";
-  }
-
-  if (typeof field === "object") {
-    return JSON.stringify(field);
-  }
-
-  return field.toString();
-}
-
 function printRowFieldSafe(field: RowField) {
-  const s = printRowField(field);
+  const s = fieldToString(field);
 
   if (s.length < 80) {
     return s;
