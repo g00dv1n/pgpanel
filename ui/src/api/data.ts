@@ -4,7 +4,7 @@ import { createContext } from "react";
 export interface Column {
   name: string;
   dataType: string;
-  dataTypeCategory: string;
+  udtName: string;
   isNullable: string;
   default: {
     String: string;
