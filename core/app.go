@@ -13,9 +13,7 @@ type App struct {
 	CRUD   *TablesRepository
 }
 
-func NewApp(db *pgxpool.Pool) App {
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
-
+func NewApp(db *pgxpool.Pool, logger *slog.Logger) App {
 	se := NewDbSchemaExtractor(db, nil)
 
 	crud, err := NewTablesRepository(db, &se, logger)
