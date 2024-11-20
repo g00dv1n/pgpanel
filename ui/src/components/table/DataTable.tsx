@@ -14,7 +14,8 @@ interface DataTableProps {
   table: PgTable;
   rows: Row[];
   sortValue?: string[];
-  onSortChange: (newSortVal: string) => void;
+  onSortChange?: (newSortVal: string) => void;
+  onRowOpen?: (row: Row, table: PgTable) => void;
 }
 
 export function DataTable({
@@ -22,6 +23,7 @@ export function DataTable({
   rows,
   sortValue,
   onSortChange,
+  onRowOpen,
 }: DataTableProps) {
   return (
     <Table>
@@ -36,7 +38,7 @@ export function DataTable({
                 <ColumnSortable
                   name={c.name}
                   sortValue={sortValue}
-                  onChange={onSortChange}
+                  onChange={(v) => onSortChange && onSortChange(v)}
                 />
               </TableHead>
             );
@@ -47,7 +49,10 @@ export function DataTable({
         {rows.map((row, i) => {
           const rowKey = `${table.name}_row_${i}`;
           return (
-            <TableRow key={rowKey}>
+            <TableRow
+              key={rowKey}
+              onClick={() => onRowOpen && onRowOpen(row, table)}
+            >
               <TableCell>
                 <Checkbox />
               </TableCell>

@@ -9,7 +9,7 @@ import { useSearchParams } from "react-router-dom";
 
 export default function LoginPage() {
   const [loginError, setLoginError] = useState<string | undefined>(undefined);
-  let [searchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   const authError = searchParams.get("authError");
   const expiredError = authError === "token is expired";

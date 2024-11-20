@@ -4,10 +4,12 @@ import {
   parseQueryRowsParams,
   rowsParamsToSearchParams,
 } from "@/api/data";
+import { FormSheet } from "@/components/form/FormSheet";
 import { DataTable } from "@/components/table/DataTable";
 import { FiltersSearch } from "@/components/table/FiltersSearch";
 import { Pagination } from "@/components/table/Pagination";
 import { useLoaderDataTyped, useTablesMap } from "@/hooks/use-data";
+import { useState } from "react";
 
 import { LoaderFunctionArgs, useNavigate } from "react-router-dom";
 
@@ -32,6 +34,8 @@ export default function TablePage() {
     const s = rowsParamsToSearchParams(newParams);
     navigate(`?${s}`);
   };
+
+  const [isFormSheetOpen, setFormSheetOpenState] = useState(false);
 
   return (
     <>
@@ -84,12 +88,19 @@ export default function TablePage() {
               sort: [newSortVal],
             });
           }}
+          onRowOpen={() => setFormSheetOpenState(true)}
         />
       </div>
 
       {error && (
         <div className="my-5 text-red-600 max-w-[750px]">{error.message}</div>
       )}
+
+      <FormSheet
+        table={table}
+        open={isFormSheetOpen}
+        onOpenChange={setFormSheetOpenState}
+      />
     </>
   );
 }
