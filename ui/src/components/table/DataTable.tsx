@@ -1,4 +1,3 @@
-import { ColumnSortable } from "@/components/ColumnSortable";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
@@ -9,6 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { fieldToString, PgTable, Row, RowField } from "@/lib/pgTypes";
+import { ColumnSortable } from "./ColumnSortable";
 
 interface DataTableProps {
   table: PgTable;

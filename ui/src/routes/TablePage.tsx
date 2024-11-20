@@ -4,9 +4,9 @@ import {
   parseQueryRowsParams,
   rowsParamsToSearchParams,
 } from "@/api/data";
-import { DataTable } from "@/components/DataTable";
-import { FiltersSearch } from "@/components/FiltersSearch";
-import { Pagination } from "@/components/Pagination";
+import { DataTable } from "@/components/table/DataTable";
+import { FiltersSearch } from "@/components/table/FiltersSearch";
+import { Pagination } from "@/components/table/Pagination";
 import { useLoaderDataTyped, useTablesMap } from "@/hooks/use-data";
 
 import { LoaderFunctionArgs, useNavigate } from "react-router-dom";
