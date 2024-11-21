@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
-	"text/template"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -35,7 +34,7 @@ func NewTablesRepository(db *pgxpool.Pool, schemaExtr SchemaExtractor, logger *s
 }
 
 // ---------------------- Universal Get Rows -------------------------------
-var GetRowsSQL *template.Template = sqlTempl(`
+var GetRowsSQL = sqlTempl(`
 	WITH q as (
 		SELECT {{ .Select }}
 		FROM "{{.From}}"
