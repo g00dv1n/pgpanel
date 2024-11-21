@@ -43,19 +43,30 @@ func (r TablesRepository) GetTable(name string) (*Table, error) {
 	return table, nil
 }
 
+func (r TablesRepository) QueryAsJson(sql string, args []any) (json.RawMessage, error) {
+	jsonSqlWrapper := fmt.Sprintf(`
+		WITH q as (%s)
+		SELECT 
+			COALESCE(json_agg(row_to_json(q)), '[]'::json) as result
+		FROM q
+	`, sql)
+
+	row := r.db.QueryRow(context.TODO(), jsonSqlWrapper, args...)
+
+	var result json.RawMessage
+	err := row.Scan(&result)
+
+	return result, err
+}
+
 // ---------------------- Universal Get Rows -------------------------------
 var getRowsSQL = sqlTempl(`
-	WITH q as (
-		SELECT {{ .Select }}
-		FROM {{.From}}
-		{{.Where}}
-		{{.OrderBy}}
-		LIMIT {{.Limit}}
-		OFFSET {{.Offset}}
-	)
-	SELECT 
-		COALESCE(json_agg(row_to_json(q)), '[]'::json) as result
-	FROM q
+	SELECT {{ .Select }}
+	FROM {{.From}}
+	{{.Where}}
+	{{.OrderBy}}
+	LIMIT {{.Limit}}
+	OFFSET {{.Offset}}
 `)
 
 func (r TablesRepository) GetRows(tableName string, params *GetRowsParams) (json.RawMessage, error) {
@@ -83,15 +94,7 @@ func (r TablesRepository) GetRows(tableName string, params *GetRowsParams) (json
 		"Offset":  params.Pagination.Offset,
 	})
 
-	row := r.db.QueryRow(context.TODO(), sql.String(), args...)
-
-	var data json.RawMessage
-
-	if err := row.Scan(&data); err != nil {
-		return nil, fmt.Errorf("query for %s failed: %w", table.Name, err)
-	}
-
-	return data, nil
+	return r.QueryAsJson(sql.String(), args)
 }
 
 // ---------------------- Universal Update Rows -------------------------------
@@ -116,15 +119,10 @@ func (f UpdateFields) ToSQL(paramsIndex int) (string, []any) {
 }
 
 var updateRowsSQL = sqlTempl(`
-	WITH q as (
-		UPDATE {{.TableName}}
-		SET {{.Updates}}
-		{{.Where}}
-		RETURNING *
-	)
-	SELECT 
-		COALESCE(json_agg(row_to_json(q)), '[]'::json) as result
-	FROM q
+	UPDATE {{.TableName}}
+	SET {{.Updates}}
+	{{.Where}}
+	RETURNING *
 `)
 
 func (r TablesRepository) UpdateRows(tableName string, filters Filters, updateFields UpdateFields) (json.RawMessage, error) {
@@ -146,13 +144,5 @@ func (r TablesRepository) UpdateRows(tableName string, filters Filters, updateFi
 		"Where":     where,
 	})
 
-	row := r.db.QueryRow(context.TODO(), sql.String(), args...)
-
-	var data json.RawMessage
-
-	if err := row.Scan(&data); err != nil {
-		return nil, fmt.Errorf("query for %s failed: %w", table.Name, err)
-	}
-
-	return data, nil
+	return r.QueryAsJson(sql.String(), args)
 }
