@@ -1,14 +1,12 @@
-import { Button } from "@/components/ui/button";
 import {
   Sheet,
-  SheetClose,
   SheetContent,
-  SheetDescription,
-  SheetFooter,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
 import { PgTable, Row } from "@/lib/pgTypes";
+
+import { RowForm } from "./RowForm";
 
 interface FormSheetProps {
   table: PgTable;
@@ -17,23 +15,19 @@ interface FormSheetProps {
   onOpenChange?: (open: boolean) => void;
 }
 
-export function FormSheet({ table, open, onOpenChange }: FormSheetProps) {
+export function FormSheet({ table, row, open, onOpenChange }: FormSheetProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="h-[calc(100vh-10%)]">
+      <SheetContent
+        side="bottom"
+        className="max-h-[calc(100vh-50px)] overflow-scroll"
+      >
         <SheetHeader>
           <SheetTitle>Edit {table.name} row</SheetTitle>
-          <SheetDescription>
-            Make changes to your {table.name} row here. Click save when you're
-            done.
-          </SheetDescription>
         </SheetHeader>
-        <div></div>
-        <SheetFooter>
-          <SheetClose asChild>
-            <Button type="submit">Save changes</Button>
-          </SheetClose>
-        </SheetFooter>
+        <div className="my-10">
+          <RowForm table={table} row={row} />
+        </div>
       </SheetContent>
     </Sheet>
   );

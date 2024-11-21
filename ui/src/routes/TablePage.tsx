@@ -9,6 +9,7 @@ import { DataTable } from "@/components/table/DataTable";
 import { FiltersSearch } from "@/components/table/FiltersSearch";
 import { Pagination } from "@/components/table/Pagination";
 import { useLoaderDataTyped, useTablesMap } from "@/hooks/use-data";
+import { Row } from "@/lib/pgTypes";
 import { useState } from "react";
 
 import { LoaderFunctionArgs, useNavigate } from "react-router-dom";
@@ -36,6 +37,12 @@ export default function TablePage() {
   };
 
   const [isFormSheetOpen, setFormSheetOpenState] = useState(false);
+  const [editRow, setEditRow] = useState<Row | undefined>(undefined);
+
+  const openEditRow = (row: Row) => {
+    setEditRow(row);
+    setFormSheetOpenState(true);
+  };
 
   return (
     <>
@@ -88,7 +95,7 @@ export default function TablePage() {
               sort: [newSortVal],
             });
           }}
-          onRowOpen={() => setFormSheetOpenState(true)}
+          onRowOpen={openEditRow}
         />
       </div>
 
@@ -98,6 +105,7 @@ export default function TablePage() {
 
       <FormSheet
         table={table}
+        row={editRow}
         open={isFormSheetOpen}
         onOpenChange={setFormSheetOpenState}
       />

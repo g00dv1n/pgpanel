@@ -115,12 +115,10 @@ export type DefaultInputType = "checkbox" | "input" | "textarea" | "datepicker";
 export type DefaultInputTypeLookup = {
   type: DefaultInputType;
   isArray?: boolean;
+  isJson?: boolean;
 };
 
-export const MainPgTypesOidMap: Record<
-  number,
-  { type: DefaultInputType; isArray?: boolean }
-> = {
+export const MainPgTypesOidMap: Record<number, DefaultInputTypeLookup> = {
   // Boolean
   [PgTypeOID.BoolOID]: { type: "checkbox" },
 
@@ -147,9 +145,9 @@ export const MainPgTypesOidMap: Record<
   [PgTypeOID.IntervalOID]: { type: "textarea" },
 
   // JSON
-  [PgTypeOID.JSONOID]: { type: "textarea" },
-  [PgTypeOID.JSONBOID]: { type: "textarea" },
-  [PgTypeOID.JSONPathOID]: { type: "textarea" },
+  [PgTypeOID.JSONOID]: { type: "textarea", isJson: true },
+  [PgTypeOID.JSONBOID]: { type: "textarea", isJson: true },
+  [PgTypeOID.JSONPathOID]: { type: "textarea", isJson: true },
 
   // Arrays
   [PgTypeOID.TextArrayOID]: { type: "input", isArray: true },
