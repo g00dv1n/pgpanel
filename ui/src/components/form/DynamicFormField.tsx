@@ -77,9 +77,8 @@ export function DynamicFormFieldArray({
     <div className="grid gap-3">
       {arrayValues.map((v, index) => {
         return (
-          <div className="flex gap-1">
+          <div className="flex gap-1" key={index}>
             <DynamicFormFieldSingle
-              key={index}
               initialValue={v}
               column={column}
               onChange={(elementValue) => {

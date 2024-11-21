@@ -60,3 +60,23 @@ export async function getTableRows(
 
   return { rows, error };
 }
+
+export async function updateTableRowByPrimaryKeys(
+  tableName: string,
+  pkeysMap: Row,
+  updateFileds: any
+) {
+  const filters = Object.entries(pkeysMap)
+    .map(([key, value]) => `${key}=${value}`)
+    .join(" AND ");
+
+  const { data: rows = [], error } = await fetchApiwithAuth<Row[]>(
+    `/api/data/${tableName}?filters=${filters}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(updateFileds),
+    }
+  );
+
+  return { rows, error };
+}

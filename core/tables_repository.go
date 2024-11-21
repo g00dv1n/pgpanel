@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"strings"
@@ -130,6 +131,10 @@ func (r TablesRepository) UpdateRows(tableName string, filters Filters, updateFi
 
 	if err != nil {
 		return nil, err
+	}
+
+	if len(updateFields) == 0 {
+		return nil, errors.New("can't update rows with empty updateFields")
 	}
 
 	where, whereArgs := filters.ToSQL(table)

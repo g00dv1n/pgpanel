@@ -1,3 +1,4 @@
+import { updateTableRowByPrimaryKeys } from "@/api/data";
 import { DynamicFormField } from "@/components/form/DynamicFormField";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -9,8 +10,17 @@ interface RowFormProps {
   row?: Row;
 }
 
-export function RowForm({ table, row: rowInit }: RowFormProps) {
-  const [row, setRow] = useState(rowInit || {});
+export function RowForm({ table, row }: RowFormProps) {
+  const [updatedRow, setUpdatedRow] = useState({});
+  const canSave = Object.keys(updatedRow).length > 0;
+
+  const saveChanges = () => {
+    const pkeysMap = table.primaryKeys.reduce((result, key) => {
+      return { ...result, [key]: row && row[key] };
+    }, {});
+
+    updateTableRowByPrimaryKeys(table.name, pkeysMap, updatedRow);
+  };
 
   return (
     <form
@@ -19,6 +29,7 @@ export function RowForm({ table, row: rowInit }: RowFormProps) {
         e.preventDefault();
 
         console.log(row);
+        saveChanges();
       }}
     >
       {table.columns.map((col) => {
@@ -30,14 +41,14 @@ export function RowForm({ table, row: rowInit }: RowFormProps) {
               column={col}
               initialValue={value}
               onChange={(val) => {
-                setRow({ ...row, [col.name]: val });
+                setUpdatedRow({ ...row, [col.name]: val });
               }}
             />
           </div>
         );
       })}
 
-      <Button className="ml-auto" size="lg" type="submit">
+      <Button className="ml-auto" size="lg" type="submit" disabled={!canSave}>
         Save changes
       </Button>
     </form>
