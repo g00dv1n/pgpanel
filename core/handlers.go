@@ -47,6 +47,25 @@ func (app *App) getRowsHandler(w http.ResponseWriter, r *http.Request) error {
 	return err
 }
 
+func (app *App) updateRowsHandler(w http.ResponseWriter, r *http.Request) error {
+	tableName := r.PathValue("table")
+	filters := ParseFiltersFromQuery(r.URL.Query())
+
+	var updateFields UpdateFields
+	if err := json.NewDecoder(r.Body).Decode(&updateFields); err != nil {
+		return NewApiError(http.StatusBadRequest, err)
+	}
+
+	data, err := app.CRUD.UpdateRows(tableName, filters, updateFields)
+
+	if err != nil {
+		return NewApiError(http.StatusBadRequest, err)
+	}
+
+	_, err = w.Write(data)
+	return err
+}
+
 // ---------------------- Admin API Handleers -------------------------------
 type LoginCreds struct {
 	Username string `json:"username"`
@@ -100,7 +119,9 @@ func (app *App) Routes() *http.ServeMux {
 
 	// --------------DATA API ENDPOINTS-------------------
 	api.Handle("GET /schema/tables", createApiHandler(app.getTablesHandler, AuthMiddleware))
+
 	api.Handle("GET /data/{table}", createApiHandler(app.getRowsHandler, AuthMiddleware))
+	api.Handle("PUT /data/{table}", createApiHandler(app.updateRowsHandler, AuthMiddleware))
 	// --------------ADMIN API ENDPOINTS-------------------
 	api.Handle("POST /admin/login", createApiHandler(app.adminLoginHandler))
 
