@@ -4,7 +4,7 @@ import {
   parseQueryRowsParams,
   rowsParamsToSearchParams,
 } from "@/api/data";
-import { FormSheet } from "@/components/form/FormSheet";
+import { RowSheet } from "@/components/form/RowSheet";
 import { DataTable } from "@/components/table/DataTable";
 import { FiltersSearch } from "@/components/table/FiltersSearch";
 import { Pagination } from "@/components/table/Pagination";
@@ -36,12 +36,16 @@ export default function TablePage() {
     navigate(`?${s}`);
   };
 
-  const [isFormSheetOpen, setFormSheetOpenState] = useState(false);
+  const refresh = () => {
+    onRowsParamsChange(rowsParams);
+  };
+
+  const [openRowSheet, setOpenRowSheet] = useState(false);
   const [editRow, setEditRow] = useState<Row | undefined>(undefined);
 
   const openEditRow = (row: Row) => {
     setEditRow(row);
-    setFormSheetOpenState(true);
+    setOpenRowSheet(true);
   };
 
   return (
@@ -103,11 +107,15 @@ export default function TablePage() {
         <div className="my-5 text-red-600 max-w-[750px]">{error.message}</div>
       )}
 
-      <FormSheet
+      <RowSheet
         table={table}
         row={editRow}
-        open={isFormSheetOpen}
-        onOpenChange={setFormSheetOpenState}
+        open={openRowSheet}
+        onSuccess={() => {
+          setOpenRowSheet(false);
+          refresh();
+        }}
+        onOpenChange={setOpenRowSheet}
       />
     </>
   );

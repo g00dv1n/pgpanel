@@ -25,6 +25,12 @@ export function DataTable({
   onSortChange,
   onRowOpen,
 }: DataTableProps) {
+  const openRow = (row: Row) => {
+    if (onRowOpen) {
+      onRowOpen(row, table);
+    }
+  };
+
   return (
     <Table>
       <TableHeader>
@@ -49,17 +55,18 @@ export function DataTable({
         {rows.map((row, i) => {
           const rowKey = `${table.name}_row_${i}`;
           return (
-            <TableRow
-              key={rowKey}
-              onClick={() => onRowOpen && onRowOpen(row, table)}
-            >
+            <TableRow className="cursor-pointer" key={rowKey}>
               <TableCell>
                 <Checkbox />
               </TableCell>
               {table.columns.map((c) => {
                 const cellKey = `${rowKey}_${c.name}`;
                 return (
-                  <TableCell key={cellKey}>
+                  <TableCell
+                    className="cursor-pointer"
+                    key={cellKey}
+                    onClick={() => openRow(row)}
+                  >
                     {printRowFieldSafe(row[c.name])}
                   </TableCell>
                 );

@@ -3,24 +3,26 @@ import { DynamicFormField } from "@/components/form/DynamicFormField";
 import { Button } from "@/components/ui/button";
 import { alert } from "@/components/ui/global-alert";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { PgTable, Row } from "@/lib/pgTypes";
 import { useState } from "react";
 
 interface RowFormProps {
   table: PgTable;
   row?: Row;
+  onRowUpdate?: (updatedRow: Row) => void;
 }
 
-export function RowForm({ table, row }: RowFormProps) {
+export function RowForm({ table, row, onRowUpdate }: RowFormProps) {
   const [updatedRow, setUpdatedRow] = useState({});
   const canSave = Object.keys(updatedRow).length > 0;
 
-  const saveChanges = async () => {
+  const update = async () => {
     const pkeysMap = table.primaryKeys.reduce((result, key) => {
       return { ...result, [key]: row && row[key] };
     }, {});
 
-    const { error } = await updateTableRowByPrimaryKeys(
+    const { rows, error } = await updateTableRowByPrimaryKeys(
       table.name,
       pkeysMap,
       updatedRow
@@ -28,9 +30,14 @@ export function RowForm({ table, row }: RowFormProps) {
 
     if (error) {
       alert.error(error.message);
-    } else {
-      alert.success("Updated");
+      return;
     }
+
+    if (onRowUpdate) {
+      onRowUpdate(rows[0]);
+    }
+
+    alert.success("Updated");
   };
 
   return (
@@ -38,9 +45,7 @@ export function RowForm({ table, row }: RowFormProps) {
       className="grid gap-4"
       onSubmit={(e) => {
         e.preventDefault();
-
-        console.log(row);
-        saveChanges();
+        update();
       }}
     >
       {table.columns.map((col) => {
@@ -59,7 +64,8 @@ export function RowForm({ table, row }: RowFormProps) {
         );
       })}
 
-      <Button className="ml-auto" size="lg" type="submit" disabled={!canSave}>
+      <Separator className="my-1" />
+      <Button className="ml-auto" size="sm" type="submit" disabled={!canSave}>
         Save changes
       </Button>
     </form>
