@@ -25,7 +25,7 @@ export function DynamicFormFieldSingle({
   const commonProps = {
     name,
     defaultValue,
-    placeholder: column.default || "NULL",
+    placeholder: `DEFAULT: ${column.default || "NULL"}`,
     required: column.isNullable === "NO" && !column.default,
   };
 

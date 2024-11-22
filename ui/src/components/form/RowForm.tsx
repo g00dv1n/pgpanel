@@ -73,7 +73,10 @@ export function RowForm({ mode, table, row, onRowUpdate }: RowFormProps) {
         const value = row && row[col.name];
         return (
           <div className="grid gap-2" key={col.name}>
-            <Label>{`${col.name} - ${col.udtName}`}</Label>
+            <Label>
+              {col.name}{" "}
+              <code className="text-gray-700 px-2">({col.udtName})</code>
+            </Label>
             <DynamicFormField
               column={col}
               initialValue={value}
