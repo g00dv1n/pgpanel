@@ -80,3 +80,15 @@ export async function updateTableRowByPrimaryKeys(
 
   return { rows, error };
 }
+
+export async function insertTableRow(tableName: string, row: any) {
+  const { data: rows = [], error } = await fetchApiwithAuth<Row[]>(
+    `/api/data/${tableName}`,
+    {
+      method: "POST",
+      body: JSON.stringify(row),
+    }
+  );
+
+  return { rows, error };
+}

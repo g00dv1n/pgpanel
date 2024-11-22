@@ -99,24 +99,23 @@ func (r TablesRepository) GetRows(tableName string, params *GetRowsParams) (json
 }
 
 // ---------------------- Universal Update Rows -------------------------------
-type UpdateFields map[string]any
+type RawRow map[string]any
 
-func (f UpdateFields) ToSQL(table *Table, paramsOffset int) (string, []any) {
-	i := 0
-	size := len(f)
+func (rr RawRow) ToUpdateSQL(table *Table, paramsOffset int) (string, []any) {
+	i := 1
 
-	args := make([]any, 0, size)
-	updates := make([]string, 0, size)
+	args := make([]any, 0, len(rr))
+	updates := make([]string, 0, len(rr))
 
-	for columnName, value := range f {
+	for columnName, value := range rr {
 		// Check if this column exists in table and skip if not exists
 		if _, validColumn := table.GetColumn(columnName); !validColumn {
 			continue
 		}
 
-		i += 1
 		updates = append(updates, fmt.Sprintf(`"%s" = $%d`, columnName, i+paramsOffset))
 		args = append(args, value)
+		i += 1
 	}
 
 	sql := strings.Join(updates, ", ")
@@ -131,7 +130,7 @@ var updateRowsSQL = sqlTempl(`
 	RETURNING *
 `)
 
-func (r TablesRepository) UpdateRows(tableName string, filters Filters, updateFields UpdateFields) (json.RawMessage, error) {
+func (r TablesRepository) UpdateRows(tableName string, filters Filters, row RawRow) (json.RawMessage, error) {
 	table, err := r.GetTable(tableName)
 
 	if err != nil {
@@ -139,10 +138,10 @@ func (r TablesRepository) UpdateRows(tableName string, filters Filters, updateFi
 	}
 
 	where, whereArgs := filters.ToSQL(table)
-	updates, updatesArgs := updateFields.ToSQL(table, len(whereArgs))
+	updates, updatesArgs := row.ToUpdateSQL(table, len(whereArgs))
 
 	if len(updates) == 0 {
-		return nil, errors.New("can't update rows with zero valid update fields.")
+		return nil, errors.New("can't update rows with zero valid columns.")
 	}
 
 	args := append(whereArgs, updatesArgs...)
@@ -152,6 +151,63 @@ func (r TablesRepository) UpdateRows(tableName string, filters Filters, updateFi
 		"TableName": table.SafeName(),
 		"Updates":   updates,
 		"Where":     where,
+	})
+
+	return r.QueryAsJson(sql.String(), args)
+}
+
+// ---------------------- Universal Insert Row -------------------------------
+func (rr RawRow) ToInsertSQL(table *Table, paramsOffset int) (string, string, []any) {
+	i := 1
+
+	insertColumns := make([]string, 0, len(rr))
+	insertValues := make([]string, 0, len(rr))
+	args := make([]any, 0, len(rr))
+
+	for columnName, value := range rr {
+		// Check if this column exists in table and skip if not exists
+		col, validColumn := table.GetColumn(columnName)
+		if !validColumn {
+			continue
+		}
+
+		insertColumns = append(insertColumns, col.SafeName())
+		insertValues = append(insertValues, fmt.Sprintf("$%d", i+paramsOffset))
+		args = append(args, value)
+		i += 1
+	}
+
+	if len(insertColumns) == 0 {
+		return "", "", nil
+	}
+
+	return fmt.Sprintf("(%s)", strings.Join(insertColumns, ",")), fmt.Sprintf("(%s)", strings.Join(insertValues, ",")), args
+}
+
+var insertRowSQL = sqlTempl(`
+	INSERT INTO {{.TableName}} {{.Columns}}
+	VALUES {{.Values}}
+	RETURNING *
+`)
+
+func (r TablesRepository) InsertRow(tableName string, row RawRow) (json.RawMessage, error) {
+	table, err := r.GetTable(tableName)
+
+	if err != nil {
+		return nil, err
+	}
+
+	insertColumns, insertValues, args := row.ToInsertSQL(table, 0)
+
+	if len(insertColumns) == 0 {
+		return nil, errors.New("can't insert row with zero valid columns.")
+	}
+
+	var sql strings.Builder
+	insertRowSQL.Execute(&sql, map[string]any{
+		"TableName": table.SafeName(),
+		"Columns":   insertColumns,
+		"Values":    insertValues,
 	})
 
 	return r.QueryAsJson(sql.String(), args)

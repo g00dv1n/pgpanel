@@ -1,4 +1,4 @@
-import { updateTableRowByPrimaryKeys } from "@/api/data";
+import { insertTableRow, updateTableRowByPrimaryKeys } from "@/api/data";
 import { DynamicFormField } from "@/components/form/DynamicFormField";
 import { Button } from "@/components/ui/button";
 import { alert } from "@/components/ui/global-alert";
@@ -9,11 +9,12 @@ import { useState } from "react";
 
 interface RowFormProps {
   table: PgTable;
+  mode: "insert" | "update";
   row?: Row;
   onRowUpdate?: (updatedRow: Row) => void;
 }
 
-export function RowForm({ table, row, onRowUpdate }: RowFormProps) {
+export function RowForm({ mode, table, row, onRowUpdate }: RowFormProps) {
   const [updatedRow, setUpdatedRow] = useState({});
   const canSave = Object.keys(updatedRow).length > 0;
 
@@ -40,12 +41,32 @@ export function RowForm({ table, row, onRowUpdate }: RowFormProps) {
     alert.success("Updated");
   };
 
+  const insert = async () => {
+    const { rows, error } = await insertTableRow(table.name, updatedRow);
+
+    if (error) {
+      alert.error(error.message);
+      return;
+    }
+
+    if (onRowUpdate) {
+      onRowUpdate(rows[0]);
+    }
+
+    alert.success("Inserted");
+  };
+
   return (
     <form
       className="grid gap-4"
       onSubmit={(e) => {
         e.preventDefault();
-        update();
+
+        if (mode === "insert") {
+          insert();
+        } else {
+          update();
+        }
       }}
     >
       {table.columns.map((col) => {
@@ -57,7 +78,7 @@ export function RowForm({ table, row, onRowUpdate }: RowFormProps) {
               column={col}
               initialValue={value}
               onChange={(val) => {
-                setUpdatedRow({ ...row, [col.name]: val });
+                setUpdatedRow({ ...updatedRow, [col.name]: val });
               }}
             />
           </div>

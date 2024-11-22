@@ -51,12 +51,30 @@ func (app *App) updateRowsHandler(w http.ResponseWriter, r *http.Request) error 
 	tableName := r.PathValue("table")
 	filters := ParseFiltersFromQuery(r.URL.Query())
 
-	var updateFields UpdateFields
-	if err := json.NewDecoder(r.Body).Decode(&updateFields); err != nil {
+	var row RawRow
+	if err := json.NewDecoder(r.Body).Decode(&row); err != nil {
 		return NewApiError(http.StatusBadRequest, err)
 	}
 
-	data, err := app.CRUD.UpdateRows(tableName, filters, updateFields)
+	data, err := app.CRUD.UpdateRows(tableName, filters, row)
+
+	if err != nil {
+		return NewApiError(http.StatusBadRequest, err)
+	}
+
+	_, err = w.Write(data)
+	return err
+}
+
+func (app *App) insertRowHandler(w http.ResponseWriter, r *http.Request) error {
+	tableName := r.PathValue("table")
+
+	var row RawRow
+	if err := json.NewDecoder(r.Body).Decode(&row); err != nil {
+		return NewApiError(http.StatusBadRequest, err)
+	}
+
+	data, err := app.CRUD.InsertRow(tableName, row)
 
 	if err != nil {
 		return NewApiError(http.StatusBadRequest, err)
@@ -121,6 +139,7 @@ func (app *App) Routes() *http.ServeMux {
 	api.Handle("GET /schema/tables", createApiHandler(app.getTablesHandler, AuthMiddleware))
 
 	api.Handle("GET /data/{table}", createApiHandler(app.getRowsHandler, AuthMiddleware))
+	api.Handle("POST /data/{table}", createApiHandler(app.insertRowHandler, AuthMiddleware))
 	api.Handle("PUT /data/{table}", createApiHandler(app.updateRowsHandler, AuthMiddleware))
 	// --------------ADMIN API ENDPOINTS-------------------
 	api.Handle("POST /admin/login", createApiHandler(app.adminLoginHandler))

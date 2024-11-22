@@ -26,7 +26,7 @@ export function DynamicFormFieldSingle({
     name,
     defaultValue,
     placeholder: column.default || "NULL",
-    required: column.isNullable === "NO",
+    required: column.isNullable === "NO" && !column.default,
   };
 
   switch (type) {

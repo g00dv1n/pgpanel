@@ -8,8 +8,10 @@ import { RowSheet } from "@/components/form/RowSheet";
 import { DataTable } from "@/components/table/DataTable";
 import { FiltersSearch } from "@/components/table/FiltersSearch";
 import { Pagination } from "@/components/table/Pagination";
+import { Button } from "@/components/ui/button";
 import { useLoaderDataTyped, useTablesMap } from "@/hooks/use-data";
 import { Row } from "@/lib/pgTypes";
+import { Plus } from "lucide-react";
 import { useState } from "react";
 
 import { LoaderFunctionArgs, useNavigate } from "react-router-dom";
@@ -48,13 +50,26 @@ export default function TablePage() {
     setOpenRowSheet(true);
   };
 
+  const openInsertRow = () => {
+    setEditRow(undefined);
+    setOpenRowSheet(true);
+  };
+
   return (
     <>
       <title>{`${table.name} - table `}</title>
-      <div className="flex">
+      <div className="flex items-center">
         <h1 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
           {table.name}
         </h1>
+        <Button
+          className="mx-5 p-0"
+          variant="outline"
+          size="icon"
+          onClick={() => openInsertRow()}
+        >
+          <Plus className="h-5 w-5" />
+        </Button>
         <Pagination
           tableName={table.name}
           offset={rowsParams.offset}

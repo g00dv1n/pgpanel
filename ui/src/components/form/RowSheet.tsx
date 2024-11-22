@@ -24,16 +24,25 @@ export function RowSheet({
   onOpenChange,
   onSuccess,
 }: RowSheetProps) {
+  const mode = row ? "update" : "insert";
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom">
         <SheetHeader className="pr-10 pl-2">
-          <SheetTitle>Update {table.name} row</SheetTitle>
+          <SheetTitle>
+            {mode} {table.name} row
+          </SheetTitle>
         </SheetHeader>
 
         <Separator className="mt-2 mb-5" />
         <div className="pr-10 pl-2 max-h-[80vh] overflow-scroll scroll-auto">
-          <RowForm table={table} row={row} onRowUpdate={onSuccess} />
+          <RowForm
+            table={table}
+            mode={mode}
+            row={row}
+            onRowUpdate={onSuccess}
+          />
         </div>
       </SheetContent>
     </Sheet>
