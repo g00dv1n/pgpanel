@@ -91,6 +91,7 @@ export function DynamicFormFieldArray({
               }}
             />
             <Button
+              type="button"
               variant="destructive"
               size="icon"
               onClick={() => {
@@ -106,6 +107,7 @@ export function DynamicFormFieldArray({
         );
       })}
       <Button
+        type="button"
         className="ml-auto"
         size="icon"
         onClick={() => {
