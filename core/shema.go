@@ -2,7 +2,6 @@ package core
 
 import (
 	"context"
-	"slices"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -44,15 +43,13 @@ func (t *Table) SafeColumnNames() []string {
 }
 
 func (t *Table) GetColumn(name string) (*Column, bool) {
-	i := slices.IndexFunc(t.Columns, func(col Column) bool {
-		return name == col.Name
-	})
-
-	if i == -1 {
-		return nil, false
+	for _, col := range t.Columns {
+		if col.Name == name {
+			return &col, true
+		}
 	}
 
-	return &t.Columns[i], true
+	return nil, false
 }
 
 // ---------------------- Schema -------------------------------
