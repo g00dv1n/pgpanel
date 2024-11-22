@@ -20,7 +20,7 @@ export function FormSheet({ table, row, open, onOpenChange }: FormSheetProps) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="bottom"
-        className="max-h-[calc(100vh-50px)] overflow-scroll"
+        className="max-h-[calc(100vh-120px)] overflow-scroll"
       >
         <SheetHeader>
           <SheetTitle>Edit {table.name} row</SheetTitle>

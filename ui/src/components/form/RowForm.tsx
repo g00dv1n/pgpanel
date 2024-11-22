@@ -1,6 +1,7 @@
 import { updateTableRowByPrimaryKeys } from "@/api/data";
 import { DynamicFormField } from "@/components/form/DynamicFormField";
 import { Button } from "@/components/ui/button";
+import { alert } from "@/components/ui/global-alert";
 import { Label } from "@/components/ui/label";
 import { PgTable, Row } from "@/lib/pgTypes";
 import { useState } from "react";
@@ -14,12 +15,22 @@ export function RowForm({ table, row }: RowFormProps) {
   const [updatedRow, setUpdatedRow] = useState({});
   const canSave = Object.keys(updatedRow).length > 0;
 
-  const saveChanges = () => {
+  const saveChanges = async () => {
     const pkeysMap = table.primaryKeys.reduce((result, key) => {
       return { ...result, [key]: row && row[key] };
     }, {});
 
-    updateTableRowByPrimaryKeys(table.name, pkeysMap, updatedRow);
+    const { error } = await updateTableRowByPrimaryKeys(
+      table.name,
+      pkeysMap,
+      updatedRow
+    );
+
+    if (error) {
+      alert.error(error.message);
+    } else {
+      alert.success("Updated");
+    }
   };
 
   return (
