@@ -25,21 +25,28 @@ export function DynamicFormFieldSingle({
   const commonProps = {
     name,
     defaultValue,
-    placeholder: `DEFAULT: ${column.default || "NULL"}`,
+    placeholder: column.default ? `DEFAULT: ${column.default}` : "NULL",
     required: column.isNullable === "NO" && !column.default,
   };
 
   switch (type) {
-    case "checkbox":
+    case "checkbox": {
+      const defaultChecked =
+        initialValue === undefined
+          ? column.default === "true"
+          : commonProps.defaultValue;
+
       return (
         <Checkbox
           {...commonProps}
-          defaultChecked={commonProps.defaultValue}
+          defaultChecked={defaultChecked}
           onCheckedChange={(checked) => {
             onChange(checked);
           }}
         />
       );
+    }
+
     case "input":
       return (
         <Input
