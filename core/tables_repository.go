@@ -101,7 +101,7 @@ func (r TablesRepository) GetRows(tableName string, params *GetRowsParams) (json
 // ---------------------- Universal Update Rows -------------------------------
 type UpdateFields map[string]any
 
-func (f UpdateFields) ToSQL(paramsIndex int) (string, []any) {
+func (f UpdateFields) ToSQL(table *Table, paramsOffset int) (string, []any) {
 	i := 0
 	size := len(f)
 
@@ -109,8 +109,13 @@ func (f UpdateFields) ToSQL(paramsIndex int) (string, []any) {
 	updates := make([]string, 0, size)
 
 	for columnName, value := range f {
+		// Check if this column exists in table and skip if not exists
+		if _, validColumn := table.GetColumn(columnName); !validColumn {
+			continue
+		}
+
 		i += 1
-		updates = append(updates, fmt.Sprintf(`"%s" = $%d`, columnName, i+paramsIndex))
+		updates = append(updates, fmt.Sprintf(`"%s" = $%d`, columnName, i+paramsOffset))
 		args = append(args, value)
 	}
 
@@ -133,12 +138,12 @@ func (r TablesRepository) UpdateRows(tableName string, filters Filters, updateFi
 		return nil, err
 	}
 
-	if len(updateFields) == 0 {
-		return nil, errors.New("can't update rows with empty updateFields")
-	}
-
 	where, whereArgs := filters.ToSQL(table)
-	updates, updatesArgs := updateFields.ToSQL(len(whereArgs))
+	updates, updatesArgs := updateFields.ToSQL(table, len(whereArgs))
+
+	if len(updates) == 0 {
+		return nil, errors.New("can't update rows with zero valid update fields.")
+	}
 
 	args := append(whereArgs, updatesArgs...)
 
