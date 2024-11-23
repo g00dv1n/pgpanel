@@ -212,3 +212,32 @@ func (r TablesRepository) InsertRow(tableName string, row RawRow) (json.RawMessa
 
 	return r.QueryAsJson(sql.String(), args)
 }
+
+// ---------------------- Universal Delete Rows -------------------------------
+var deleteRowsSQL = sqlTempl(`
+	DELETE FROM {{.TableName}} 
+	{{.Where}}
+	RETURNING *
+`)
+
+func (r TablesRepository) DeleteRows(tableName string, filters Filters) (json.RawMessage, error) {
+	table, err := r.GetTable(tableName)
+
+	if err != nil {
+		return nil, err
+	}
+
+	where, args := filters.ToSQL(table)
+
+	if len(where) == 0 {
+		return nil, errors.New("can't delete rows with empty filters.")
+	}
+
+	var sql strings.Builder
+	deleteRowsSQL.Execute(&sql, map[string]any{
+		"TableName": table.SafeName(),
+		"Where":     where,
+	})
+
+	return r.QueryAsJson(sql.String(), args)
+}

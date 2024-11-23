@@ -47,6 +47,24 @@ func (app *App) getRowsHandler(w http.ResponseWriter, r *http.Request) error {
 	return err
 }
 
+func (app *App) insertRowHandler(w http.ResponseWriter, r *http.Request) error {
+	tableName := r.PathValue("table")
+
+	var row RawRow
+	if err := json.NewDecoder(r.Body).Decode(&row); err != nil {
+		return NewApiError(http.StatusBadRequest, err)
+	}
+
+	data, err := app.CRUD.InsertRow(tableName, row)
+
+	if err != nil {
+		return NewApiError(http.StatusBadRequest, err)
+	}
+
+	_, err = w.Write(data)
+	return err
+}
+
 func (app *App) updateRowsHandler(w http.ResponseWriter, r *http.Request) error {
 	tableName := r.PathValue("table")
 	filters := ParseFiltersFromQuery(r.URL.Query())
@@ -66,15 +84,11 @@ func (app *App) updateRowsHandler(w http.ResponseWriter, r *http.Request) error 
 	return err
 }
 
-func (app *App) insertRowHandler(w http.ResponseWriter, r *http.Request) error {
+func (app *App) deleteRowsHandler(w http.ResponseWriter, r *http.Request) error {
 	tableName := r.PathValue("table")
+	filters := ParseFiltersFromQuery(r.URL.Query())
 
-	var row RawRow
-	if err := json.NewDecoder(r.Body).Decode(&row); err != nil {
-		return NewApiError(http.StatusBadRequest, err)
-	}
-
-	data, err := app.CRUD.InsertRow(tableName, row)
+	data, err := app.CRUD.DeleteRows(tableName, filters)
 
 	if err != nil {
 		return NewApiError(http.StatusBadRequest, err)
@@ -141,6 +155,7 @@ func (app *App) Routes() *http.ServeMux {
 	api.Handle("GET /data/{table}", createApiHandler(app.getRowsHandler, AuthMiddleware))
 	api.Handle("POST /data/{table}", createApiHandler(app.insertRowHandler, AuthMiddleware))
 	api.Handle("PUT /data/{table}", createApiHandler(app.updateRowsHandler, AuthMiddleware))
+	api.Handle("DELETE /data/{table}", createApiHandler(app.deleteRowsHandler, AuthMiddleware))
 	// --------------ADMIN API ENDPOINTS-------------------
 	api.Handle("POST /admin/login", createApiHandler(app.adminLoginHandler))
 
