@@ -14,6 +14,10 @@ type App struct {
 }
 
 func NewApp(db *pgxpool.Pool, logger *slog.Logger) App {
+	if logger == nil {
+		logger = slog.Default()
+	}
+
 	se := NewDbSchemaExtractor(db, nil)
 
 	crud, err := NewTablesRepository(db, &se, logger)
