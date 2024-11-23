@@ -2,7 +2,7 @@ import { adminLogin } from "@/api/auth";
 import { LoginForm } from "@/components/LoginForm";
 import { alert, GlobalAlert } from "@/components/ui/global-alert";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router";
 
 export default function LoginPage() {
   const [loginError, setLoginError] = useState<string | undefined>(undefined);

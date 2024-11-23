@@ -2,7 +2,7 @@ import AdminRoot, { loader as adminRootLoader } from "@/routes/AdminRoot";
 import LoginPage from "@/routes/LoginPage";
 import TablePage, { loader as tableLoader } from "@/routes/TablePage";
 
-import { createBrowserRouter, RouteObject } from "react-router-dom";
+import { createBrowserRouter, RouteObject } from "react-router";
 
 const routes: RouteObject[] = [
   {
@@ -23,6 +23,4 @@ const routes: RouteObject[] = [
   },
 ];
 
-export const router = createBrowserRouter(routes, {
-  future: {},
-});
+export const router = createBrowserRouter(routes);

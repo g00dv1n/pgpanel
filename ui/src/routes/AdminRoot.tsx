@@ -14,15 +14,14 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { useLoaderDataTyped } from "@/hooks/use-data";
-import { Link, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useLoaderData } from "react-router";
 
 export async function loader() {
   return getTables();
 }
 
 export default function AdminRoot() {
-  const { tablesMap = {} } = useLoaderDataTyped<typeof loader>();
+  const { tablesMap = {} } = useLoaderData<typeof loader>();
   const tables = Object.values(tablesMap);
 
   return (
@@ -46,9 +45,9 @@ export default function AdminRoot() {
                   {tables.map((t) => {
                     return (
                       <SidebarMenuButton key={t.name} asChild>
-                        <Link to={`/${t.name}`}>
+                        <NavLink to={`/${t.name}`}>
                           <span>{t.name}</span>
-                        </Link>
+                        </NavLink>
                       </SidebarMenuButton>
                     );
                   })}

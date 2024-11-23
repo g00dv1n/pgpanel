@@ -9,12 +9,12 @@ import { DataTable } from "@/components/table/DataTable";
 import { FiltersSearch } from "@/components/table/FiltersSearch";
 import { Pagination } from "@/components/table/Pagination";
 import { Button } from "@/components/ui/button";
-import { useLoaderDataTyped, useTablesMap } from "@/hooks/use-data";
+import { useTablesMap } from "@/hooks/use-data";
 import { Row } from "@/lib/pgTypes";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 
-import { LoaderFunctionArgs, useNavigate } from "react-router-dom";
+import { LoaderFunctionArgs, useLoaderData, useNavigate } from "react-router";
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const tableName = params.tableName || "";
@@ -26,8 +26,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 }
 
 export default function TablePage() {
-  const { tableName, rows, rowsParams, error } =
-    useLoaderDataTyped<typeof loader>();
+  const { tableName, rows, rowsParams, error } = useLoaderData<typeof loader>();
   const tablesMap = useTablesMap();
   const table = tablesMap[tableName];
 
