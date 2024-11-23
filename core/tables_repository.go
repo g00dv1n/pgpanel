@@ -31,7 +31,7 @@ func NewTablesRepository(db *pgxpool.Pool, schemaExtr SchemaExtractor, logger *s
 		tablesMap[t.Name] = &t
 	}
 
-	return &TablesRepository{db: db, tablesMap: tablesMap}, nil
+	return &TablesRepository{db: db, tablesMap: tablesMap, logger: logger}, nil
 }
 
 func (r TablesRepository) GetTable(name string) (*Table, error) {
