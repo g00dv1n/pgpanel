@@ -59,11 +59,12 @@ type SchemaExtractor interface {
 
 type DbSchemaExtractor struct {
 	db         *pgxpool.Pool
+	schemaName string
 	onlyTables []string
 }
 
-func NewDbSchemaExtractor(dbpool *pgxpool.Pool, onlyTables []string) DbSchemaExtractor {
-	return DbSchemaExtractor{db: dbpool, onlyTables: onlyTables}
+func NewDbSchemaExtractor(dbpool *pgxpool.Pool, schemaName string, onlyTables []string) DbSchemaExtractor {
+	return DbSchemaExtractor{db: dbpool, schemaName: schemaName, onlyTables: onlyTables}
 }
 
 func (e DbSchemaExtractor) GetTables() ([]Table, error) {
@@ -76,8 +77,8 @@ func (e DbSchemaExtractor) GetTables() ([]Table, error) {
 		rows, err := e.db.Query(ctx, `
 			SELECT table_name 
 			FROM information_schema.tables 
-			WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
-		`)
+			WHERE table_schema = $1 AND table_type = 'BASE TABLE'
+		`, e.schemaName)
 		if err != nil {
 			return nil, err
 		}

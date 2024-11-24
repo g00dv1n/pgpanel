@@ -18,7 +18,7 @@ func NewApp(db *pgxpool.Pool, logger *slog.Logger) App {
 		logger = slog.Default()
 	}
 
-	se := NewDbSchemaExtractor(db, nil)
+	se := NewDbSchemaExtractor(db, "public", nil)
 
 	tr, err := NewTablesRepository(db, &se, logger)
 
