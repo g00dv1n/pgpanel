@@ -8,9 +8,9 @@ import (
 )
 
 type App struct {
-	DB     *pgxpool.Pool
-	Logger *slog.Logger
-	CRUD   *TablesRepository
+	DB         *pgxpool.Pool
+	Logger     *slog.Logger
+	TablesRepo *TablesRepository
 }
 
 func NewApp(db *pgxpool.Pool, logger *slog.Logger) App {
@@ -20,7 +20,7 @@ func NewApp(db *pgxpool.Pool, logger *slog.Logger) App {
 
 	se := NewDbSchemaExtractor(db, nil)
 
-	crud, err := NewTablesRepository(db, &se, logger)
+	tr, err := NewTablesRepository(db, &se, logger)
 
 	if err != nil {
 		logger.Error("can't extract tables", "error", err)
@@ -28,8 +28,8 @@ func NewApp(db *pgxpool.Pool, logger *slog.Logger) App {
 	}
 
 	return App{
-		DB:     db,
-		Logger: logger,
-		CRUD:   crud,
+		DB:         db,
+		Logger:     logger,
+		TablesRepo: tr,
 	}
 }

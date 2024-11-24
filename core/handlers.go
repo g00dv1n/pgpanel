@@ -30,14 +30,14 @@ func (e ApiError) Error() string {
 
 // ---------------------- Data API Handleers -------------------------------
 func (app *App) getTablesHandler(w http.ResponseWriter, r *http.Request) error {
-	return json.NewEncoder(w).Encode(app.CRUD.tablesMap)
+	return json.NewEncoder(w).Encode(app.TablesRepo.tablesMap)
 }
 
 func (app *App) getRowsHandler(w http.ResponseWriter, r *http.Request) error {
 	tableName := r.PathValue("table")
 	params := ParseGetRowsParamsFromQuery(r.URL.Query())
 
-	data, err := app.CRUD.GetRows(tableName, params)
+	data, err := app.TablesRepo.GetRows(tableName, params)
 
 	if err != nil {
 		return NewApiError(http.StatusBadRequest, err)
@@ -55,7 +55,7 @@ func (app *App) insertRowHandler(w http.ResponseWriter, r *http.Request) error {
 		return NewApiError(http.StatusBadRequest, err)
 	}
 
-	data, err := app.CRUD.InsertRow(tableName, row)
+	data, err := app.TablesRepo.InsertRow(tableName, row)
 
 	if err != nil {
 		return NewApiError(http.StatusBadRequest, err)
@@ -74,7 +74,7 @@ func (app *App) updateRowsHandler(w http.ResponseWriter, r *http.Request) error 
 		return NewApiError(http.StatusBadRequest, err)
 	}
 
-	data, err := app.CRUD.UpdateRows(tableName, filters, row)
+	data, err := app.TablesRepo.UpdateRows(tableName, filters, row)
 
 	if err != nil {
 		return NewApiError(http.StatusBadRequest, err)
@@ -88,7 +88,7 @@ func (app *App) deleteRowsHandler(w http.ResponseWriter, r *http.Request) error 
 	tableName := r.PathValue("table")
 	filters := ParseFiltersFromQuery(r.URL.Query())
 
-	data, err := app.CRUD.DeleteRows(tableName, filters)
+	data, err := app.TablesRepo.DeleteRows(tableName, filters)
 
 	if err != nil {
 		return NewApiError(http.StatusBadRequest, err)
