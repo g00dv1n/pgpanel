@@ -15,7 +15,8 @@ interface DataTableProps {
   rows: Row[];
   sortValue?: string[];
   onSortChange?: (newSortVal: string) => void;
-  onRowOpen?: (row: Row, table: PgTable) => void;
+  onRowOpen?: (row: Row) => void;
+  onSelect?: (rows: Row[]) => void;
 }
 
 export function DataTable({
@@ -27,7 +28,7 @@ export function DataTable({
 }: DataTableProps) {
   const openRow = (row: Row) => {
     if (onRowOpen) {
-      onRowOpen(row, table);
+      onRowOpen(row);
     }
   };
 
