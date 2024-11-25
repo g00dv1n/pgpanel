@@ -9,7 +9,7 @@ build-ui:
 	@cd $(frontend_dir) && $(frontend_runner) run build
 
 build-server:
-	@go build -o ./bin/$(bin_name) main.go
+	@go build -ldflags="-s -w" -o ./bin/$(bin_name) main.go
 	@echo "go built ✓"
 
 run-server:
