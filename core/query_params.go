@@ -76,7 +76,7 @@ func (f TextSearchFilters) ToSQL(t *Table) (string, []any) {
 	}
 
 	if len(textColsExps) == 0 {
-		return "", nil
+		return "WHERE FALSE", nil
 	}
 
 	pattern := "%" + strings.ToLower(f.Text) + "%"
