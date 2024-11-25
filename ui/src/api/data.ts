@@ -1,5 +1,5 @@
 import { fetchApiwithAuth } from "@/api/auth";
-import { PgTable, Row } from "@/lib/pgTypes";
+import { PgTable, PkeysMap, Row } from "@/lib/pgTypes";
 import { createContext } from "react";
 
 export type PgTablesMap = Record<string, PgTable>;
@@ -63,15 +63,11 @@ export async function getTableRows(
 
 export async function updateTableRowByPrimaryKeys(
   tableName: string,
-  pkeysMap: Row,
+  pkeysMap: PkeysMap,
   updateFileds: any
 ) {
-  const filters = Object.entries(pkeysMap)
-    .map(([key, value]) => `${key}=${value}`)
-    .join(" AND ");
-
   const { data: rows = [], error } = await fetchApiwithAuth<Row[]>(
-    `/api/data/${tableName}?filters=${filters}`,
+    `/api/data/${tableName}?filters=${pkeysMapToFilters(pkeysMap)}`,
     {
       method: "PUT",
       body: JSON.stringify(updateFileds),
@@ -91,4 +87,14 @@ export async function insertTableRow(tableName: string, row: any) {
   );
 
   return { rows, error };
+}
+
+function pkeysMapToFilters(pkeysMap: PkeysMap) {
+  if (Object.keys(pkeysMap).length === 0) {
+    return "";
+  }
+
+  return Object.entries(pkeysMap)
+    .map(([key, value]) => `${key}=${value}`)
+    .join(" AND ");
 }

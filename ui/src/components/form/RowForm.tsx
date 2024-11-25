@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { alert } from "@/components/ui/global-alert";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { PgTable, Row } from "@/lib/pgTypes";
+import { getPKeys, PgTable, Row } from "@/lib/pgTypes";
 import { useState } from "react";
 
 interface RowFormProps {
@@ -19,13 +19,9 @@ export function RowForm({ mode, table, row, onRowUpdate }: RowFormProps) {
   const canSave = Object.keys(updatedRow).length > 0;
 
   const update = async () => {
-    const pkeysMap = table.primaryKeys.reduce((result, key) => {
-      return { ...result, [key]: row && row[key] };
-    }, {});
-
     const { rows, error } = await updateTableRowByPrimaryKeys(
       table.name,
-      pkeysMap,
+      getPKeys(table, row || {}),
       updatedRow
     );
 

@@ -244,3 +244,11 @@ export function fieldToString(value: RowField): string {
 
   return JSON.stringify("value");
 }
+
+export type PkeysMap = Record<string, string>;
+
+export function getPKeys(table: PgTable, row: Row): PkeysMap {
+  return table.primaryKeys.reduce((result, key) => {
+    return { ...result, [key]: row && row[key] };
+  }, {});
+}
