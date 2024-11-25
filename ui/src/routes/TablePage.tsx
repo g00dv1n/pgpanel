@@ -7,14 +7,12 @@ import {
 } from "@/api/data";
 import { RowSheet } from "@/components/form/RowSheet";
 import { DataTable } from "@/components/table/DataTable";
-import { DeleteRowsControls } from "@/components/table/DeleteRowsControls";
 import { FiltersSearch } from "@/components/table/FiltersSearch";
 import { Pagination } from "@/components/table/Pagination";
-import { Button } from "@/components/ui/button";
+import { RowsControls } from "@/components/table/RowsControls";
 import { alert } from "@/components/ui/global-alert";
 import { useTablesMap } from "@/hooks/use-data";
 import { getPKeys, getRowKey, Row } from "@/lib/pgTypes";
-import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { LoaderFunctionArgs, useLoaderData, useNavigate } from "react-router";
@@ -102,22 +100,16 @@ export default function TablePage() {
   return (
     <>
       <title>{`${table.name} - table `}</title>
-      <div className="flex items-center">
+      <div className="flex gap-5 items-center">
         <h1 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
           {table.name}
         </h1>
-        <Button
-          className="mx-5 p-0"
-          variant="outline"
-          size="icon"
-          onClick={() => openInsertRow()}
-        >
-          <Plus className="h-5 w-5" />
-        </Button>
-        <DeleteRowsControls
-          count={selectedRowsKeys.length}
-          onReset={() => setSelectedRowsKeys([])}
+
+        <RowsControls
+          selectedCount={selectedRowsKeys.length}
+          onInsert={openInsertRow}
           onDelete={onDeleteSelected}
+          onReset={() => setSelectedRowsKeys([])}
         />
         <Pagination
           tableName={table.name}
