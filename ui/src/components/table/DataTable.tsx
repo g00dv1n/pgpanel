@@ -7,24 +7,36 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { fieldToString, getPKeys, PgTable, Row, RowField } from "@/lib/pgTypes";
+import {
+  fieldToString,
+  getRowKey,
+  PgTable,
+  Row,
+  RowField,
+} from "@/lib/pgTypes";
 import { ColumnSortable } from "./ColumnSortable";
 
 interface DataTableProps {
   table: PgTable;
   rows: Row[];
   sortValue?: string[];
+  selectedRows?: string[];
+  isAllSelected?: boolean;
   onSortChange?: (newSortVal: string) => void;
   onRowOpen?: (row: Row) => void;
-  onSelect?: (rows: Row[]) => void;
+  onRowSelect?: (rowKey: string, selected: boolean) => void;
+  onAllRowsSelect?: (rowKeys: string[], selected: boolean) => void;
 }
 
 export function DataTable({
   table,
   rows,
   sortValue,
+  selectedRows = [],
   onSortChange,
   onRowOpen,
+  onRowSelect,
+  onAllRowsSelect,
 }: DataTableProps) {
   const openRow = (row: Row) => {
     if (onRowOpen) {
@@ -32,12 +44,24 @@ export function DataTable({
     }
   };
 
+  const isAllSelected = rows.length > 0 && selectedRows.length === rows.length;
+
   return (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead>
-            <Checkbox />
+            <Checkbox
+              checked={isAllSelected}
+              onCheckedChange={(checked) => {
+                if (onAllRowsSelect) {
+                  onAllRowsSelect(
+                    rows.map((r) => getRowKey(table, r)),
+                    Boolean(checked)
+                  );
+                }
+              }}
+            />
           </TableHead>
           {table.columns.map((c) => {
             return (
@@ -54,13 +78,21 @@ export function DataTable({
       </TableHeader>
       <TableBody>
         {rows.map((row) => {
-          const pk = getPKeys(table, row);
-          const rowKey = `${table.name}-${Object.values(pk).join("-")}`;
+          const rowKey = getRowKey(table, row);
+
+          const isRowSelected = isAllSelected || selectedRows.includes(rowKey);
 
           return (
-            <TableRow className="cursor-pointer" key={rowKey}>
+            <TableRow key={rowKey}>
               <TableCell>
-                <Checkbox />
+                <Checkbox
+                  checked={isRowSelected}
+                  onCheckedChange={(checked) => {
+                    if (onRowSelect) {
+                      onRowSelect(rowKey, Boolean(checked));
+                    }
+                  }}
+                />
               </TableCell>
               {table.columns.map((c) => {
                 const cellKey = `${rowKey}-${c.name}`;

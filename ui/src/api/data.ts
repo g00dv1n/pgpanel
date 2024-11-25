@@ -61,7 +61,7 @@ export async function getTableRows(
   return { rows, error };
 }
 
-export async function updateTableRowByPrimaryKeys(
+export async function updateTableRowByPKeys(
   tableName: string,
   pkeysMap: PkeysMap,
   updateFileds: any
@@ -71,6 +71,22 @@ export async function updateTableRowByPrimaryKeys(
     {
       method: "PUT",
       body: JSON.stringify(updateFileds),
+    }
+  );
+
+  return { rows, error };
+}
+
+export async function deleteTableRowsByPkeys(
+  tableName: string,
+  pkeys: PkeysMap[]
+) {
+  const filters = pkeys.map(pkeysMapToFilters).join(" OR ");
+
+  const { data: rows = [], error } = await fetchApiwithAuth<Row[]>(
+    `/api/data/${tableName}?filters=${filters}`,
+    {
+      method: "DELETE",
     }
   );
 

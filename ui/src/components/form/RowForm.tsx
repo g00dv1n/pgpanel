@@ -1,4 +1,4 @@
-import { insertTableRow, updateTableRowByPrimaryKeys } from "@/api/data";
+import { insertTableRow, updateTableRowByPKeys } from "@/api/data";
 import { DynamicFormField } from "@/components/form/DynamicFormField";
 import { Button } from "@/components/ui/button";
 import { alert } from "@/components/ui/global-alert";
@@ -19,7 +19,7 @@ export function RowForm({ mode, table, row, onRowUpdate }: RowFormProps) {
   const canSave = Object.keys(updatedRow).length > 0;
 
   const update = async () => {
-    const { rows, error } = await updateTableRowByPrimaryKeys(
+    const { rows, error } = await updateTableRowByPKeys(
       table.name,
       getPKeys(table, row || {}),
       updatedRow

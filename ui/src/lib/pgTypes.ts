@@ -252,3 +252,9 @@ export function getPKeys(table: PgTable, row: Row): PkeysMap {
     return { ...result, [key]: row && row[key] };
   }, {});
 }
+
+// Row key that can be used as universal Row Id
+export function getRowKey(table: PgTable, row: Row): string {
+  const pk = getPKeys(table, row);
+  return `${table.name}-${Object.values(pk).join("-")}`;
+}

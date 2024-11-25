@@ -1,18 +1,21 @@
 import {
-  GetTableRowsParams,
+  deleteTableRowsByPkeys,
   getTableRows,
+  GetTableRowsParams,
   parseQueryRowsParams,
   rowsParamsToSearchParams,
 } from "@/api/data";
 import { RowSheet } from "@/components/form/RowSheet";
 import { DataTable } from "@/components/table/DataTable";
+import { DeleteRowsControls } from "@/components/table/DeleteRowsControls";
 import { FiltersSearch } from "@/components/table/FiltersSearch";
 import { Pagination } from "@/components/table/Pagination";
 import { Button } from "@/components/ui/button";
+import { alert } from "@/components/ui/global-alert";
 import { useTablesMap } from "@/hooks/use-data";
-import { Row } from "@/lib/pgTypes";
+import { getPKeys, getRowKey, Row } from "@/lib/pgTypes";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { LoaderFunctionArgs, useLoaderData, useNavigate } from "react-router";
 
@@ -54,6 +57,48 @@ export default function TablePage() {
     setOpenRowSheet(true);
   };
 
+  // Rows selection logic
+  const [selectedRowsKeys, setSelectedRowsKeys] = useState<string[]>([]);
+
+  useEffect(() => {
+    setSelectedRowsKeys([]);
+  }, [tableName, rowsParams]);
+
+  const onRowSelect = (rowKey: string, selected: boolean) => {
+    if (selected) {
+      setSelectedRowsKeys([...selectedRowsKeys, rowKey]);
+    } else {
+      setSelectedRowsKeys(selectedRowsKeys.filter((rk) => rk !== rowKey));
+    }
+  };
+
+  const onAllRowsSelect = (rowKeys: string[], selected: boolean) => {
+    if (selected) {
+      setSelectedRowsKeys(rowKeys);
+    } else {
+      setSelectedRowsKeys([]);
+    }
+  };
+
+  const onDeleteSelected = async () => {
+    const selectedRowsPkeys = rows
+      .filter((r) => selectedRowsKeys.includes(getRowKey(table, r)))
+      .map((r) => getPKeys(table, r));
+
+    const { error } = await deleteTableRowsByPkeys(
+      tableName,
+      selectedRowsPkeys
+    );
+
+    if (error) {
+      alert.error(`Can't delete rows: ${error.message}`);
+    } else {
+      alert.success("Deleted successfully");
+      refresh();
+    }
+  };
+  ///
+
   return (
     <>
       <title>{`${table.name} - table `}</title>
@@ -69,6 +114,11 @@ export default function TablePage() {
         >
           <Plus className="h-5 w-5" />
         </Button>
+        <DeleteRowsControls
+          count={selectedRowsKeys.length}
+          onReset={() => setSelectedRowsKeys([])}
+          onDelete={onDeleteSelected}
+        />
         <Pagination
           tableName={table.name}
           offset={rowsParams.offset}
@@ -107,6 +157,7 @@ export default function TablePage() {
           table={table}
           rows={rows}
           sortValue={rowsParams.sort}
+          selectedRows={selectedRowsKeys}
           onSortChange={(newSortVal) => {
             onRowsParamsChange({
               ...rowsParams,
@@ -114,6 +165,8 @@ export default function TablePage() {
             });
           }}
           onRowOpen={openEditRow}
+          onRowSelect={onRowSelect}
+          onAllRowsSelect={onAllRowsSelect}
         />
       </div>
 

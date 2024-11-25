@@ -40,7 +40,7 @@ export function FiltersSearch({
   };
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex flex-shrink-0 items-center gap-1">
       {!sqlMode && (
         <Input
           type="search"
