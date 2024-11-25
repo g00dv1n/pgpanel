@@ -52,6 +52,7 @@ export function DataTable({
         <TableRow>
           <TableHead>
             <Checkbox
+              className="mr-5"
               checked={isAllSelected}
               onCheckedChange={(checked) => {
                 if (onAllRowsSelect) {
