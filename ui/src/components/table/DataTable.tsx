@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { fieldToString, PgTable, Row, RowField } from "@/lib/pgTypes";
+import { fieldToString, getPKeys, PgTable, Row, RowField } from "@/lib/pgTypes";
 import { ColumnSortable } from "./ColumnSortable";
 
 interface DataTableProps {
@@ -53,22 +53,24 @@ export function DataTable({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {rows.map((row, i) => {
-          const rowKey = `${table.name}_row_${i}`;
+        {rows.map((row) => {
+          const pk = getPKeys(table, row);
+          const rowKey = `${table.name}-${Object.values(pk).join("-")}`;
+
           return (
             <TableRow className="cursor-pointer" key={rowKey}>
               <TableCell>
                 <Checkbox />
               </TableCell>
               {table.columns.map((c) => {
-                const cellKey = `${rowKey}_${c.name}`;
+                const cellKey = `${rowKey}-${c.name}`;
                 return (
                   <TableCell
                     className="cursor-pointer"
                     key={cellKey}
                     onClick={() => openRow(row)}
                   >
-                    {printRowFieldSafe(row[c.name])}
+                    {cellValue(row[c.name])}
                   </TableCell>
                 );
               })}
@@ -80,7 +82,7 @@ export function DataTable({
   );
 }
 
-function printRowFieldSafe(field: RowField) {
+function cellValue(field: RowField) {
   const s = fieldToString(field);
 
   if (s.length < 80) {
