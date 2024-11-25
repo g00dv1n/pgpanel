@@ -21,6 +21,11 @@ func Handler() http.HandlerFunc {
 			filePath = "index.html"
 		}
 
+		// Cache non-html files
+		if !strings.HasSuffix(filePath, ".html") {
+			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		}
+
 		http.ServeFileFS(w, r, frontendFs, filePath)
 	}
 }
