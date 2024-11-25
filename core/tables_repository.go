@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
+	"text/template"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -85,8 +86,7 @@ func (r TablesRepository) GetRows(tableName string, params *GetRowsParams) (json
 	where, args := params.Filters.ToSQL(table)
 	orderBy := params.Sorting.ToSQL()
 
-	var sql strings.Builder
-	getRowsSQL.Execute(&sql, map[string]any{
+	sql := getRowsSQL.run(map[string]any{
 		"Select":  selectColumns,
 		"From":    table.SafeName(),
 		"Where":   where,
@@ -95,7 +95,7 @@ func (r TablesRepository) GetRows(tableName string, params *GetRowsParams) (json
 		"Offset":  params.Pagination.Offset,
 	})
 
-	return r.QueryAsJson(sql.String(), args)
+	return r.QueryAsJson(sql, args)
 }
 
 // ---------------------- Universal Update Rows -------------------------------
@@ -146,14 +146,13 @@ func (r TablesRepository) UpdateRows(tableName string, filters Filters, row RawR
 
 	args := append(whereArgs, updatesArgs...)
 
-	var sql strings.Builder
-	updateRowsSQL.Execute(&sql, map[string]any{
+	sql := updateRowsSQL.run(map[string]any{
 		"TableName": table.SafeName(),
 		"Updates":   updates,
 		"Where":     where,
 	})
 
-	return r.QueryAsJson(sql.String(), args)
+	return r.QueryAsJson(sql, args)
 }
 
 // ---------------------- Universal Insert Row -------------------------------
@@ -203,14 +202,13 @@ func (r TablesRepository) InsertRow(tableName string, row RawRow) (json.RawMessa
 		return nil, errors.New("can't insert row with zero valid columns.")
 	}
 
-	var sql strings.Builder
-	insertRowSQL.Execute(&sql, map[string]any{
+	sql := insertRowSQL.run(map[string]any{
 		"TableName": table.SafeName(),
 		"Columns":   insertColumns,
 		"Values":    insertValues,
 	})
 
-	return r.QueryAsJson(sql.String(), args)
+	return r.QueryAsJson(sql, args)
 }
 
 // ---------------------- Universal Delete Rows -------------------------------
@@ -233,11 +231,26 @@ func (r TablesRepository) DeleteRows(tableName string, filters Filters) (json.Ra
 		return nil, errors.New("can't delete rows with empty filters.")
 	}
 
-	var sql strings.Builder
-	deleteRowsSQL.Execute(&sql, map[string]any{
+	sql := deleteRowsSQL.run(map[string]any{
 		"TableName": table.SafeName(),
 		"Where":     where,
 	})
 
-	return r.QueryAsJson(sql.String(), args)
+	return r.QueryAsJson(sql, args)
+}
+
+// small utiliy to work with SQL temlates as STD Text Template
+type sqlTemplate struct {
+	t *template.Template
+}
+
+func sqlTempl(sql string) sqlTemplate {
+	return sqlTemplate{template.Must(template.New("sql").Parse(sql))}
+}
+
+func (st *sqlTemplate) run(data any) string {
+	var sql strings.Builder
+	st.t.Execute(&sql, data)
+
+	return sql.String()
 }
