@@ -170,7 +170,7 @@ export interface PgColumn {
   OID: PgTypeOID;
   regType: string;
   udtName: string;
-  isNullable: "YES" | "NO";
+  isNullable: boolean;
   default?: string | null;
 }
 

@@ -9,12 +9,16 @@ import { useState } from "react";
 interface DynamicFormFieldProps {
   column: PgColumn;
   initialValue?: any;
+  required?: boolean;
+  placeholder?: string;
   onChange?: (newVal: any) => void;
 }
 
 export function DynamicFormFieldSingle({
   initialValue,
   column,
+  required,
+  placeholder,
   onChange = () => {},
 }: DynamicFormFieldProps) {
   const { type } = getColumnDefaultInputType(column);
@@ -25,8 +29,8 @@ export function DynamicFormFieldSingle({
   const commonProps = {
     name,
     defaultValue,
-    placeholder: column.default ? `DEFAULT: ${column.default}` : "NULL",
-    required: column.isNullable === "NO" && !column.default,
+    placeholder,
+    required,
   };
 
   switch (type) {

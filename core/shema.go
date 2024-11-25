@@ -12,7 +12,7 @@ type Column struct {
 	OID        int     `json:"OID"`
 	RegType    string  `json:"regType"`
 	UdtName    string  `json:"udtName"`
-	IsNullable string  `json:"isNullable"`
+	IsNullable bool    `json:"isNullable"`
 	Default    *string `json:"default"`
 }
 
@@ -121,9 +121,12 @@ func (e DbSchemaExtractor) GetTables() ([]Table, error) {
 
 		for rows.Next() {
 			var col Column
-			if err := rows.Scan(&col.Name, &col.OID, &col.RegType, &col.UdtName, &col.IsNullable, &col.Default); err != nil {
+			var IsNullableRaw string
+			if err := rows.Scan(&col.Name, &col.OID, &col.RegType, &col.UdtName, &IsNullableRaw, &col.Default); err != nil {
 				return nil, err
 			}
+
+			col.IsNullable = IsNullableRaw == "YES"
 
 			tables[i].Columns = append(tables[i].Columns, col)
 		}

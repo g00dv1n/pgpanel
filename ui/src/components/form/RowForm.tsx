@@ -65,19 +65,29 @@ export function RowForm({ mode, table, row, onRowUpdate }: RowFormProps) {
         }
       }}
     >
-      {table.columns.map((col) => {
-        const value = row && row[col.name];
+      {table.columns.map((column) => {
+        const initialValue = row && row[column.name];
+
+        const placeholder = column.default
+          ? `DEFAULT: ${column.default}`
+          : "NULL";
+
+        const required = !(column.isNullable || column.default);
+
         return (
-          <div className="grid gap-2" key={col.name}>
+          <div className="grid gap-2" key={column.name}>
             <Label>
-              {col.name}{" "}
-              <code className="text-gray-700 px-2">({col.udtName})</code>
+              {required && <span className="text-red-500">* </span>}
+              {column.name}{" "}
+              <code className="text-gray-700 px-2">({column.udtName})</code>
             </Label>
             <DynamicFormField
-              column={col}
-              initialValue={value}
+              column={column}
+              placeholder={placeholder}
+              required={required}
+              initialValue={initialValue}
               onChange={(val) => {
-                setUpdatedRow({ ...updatedRow, [col.name]: val });
+                setUpdatedRow({ ...updatedRow, [column.name]: val });
               }}
             />
           </div>
