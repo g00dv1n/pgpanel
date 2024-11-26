@@ -45,6 +45,8 @@ func (app *App) Routes() *http.ServeMux {
 	api.Handle("POST /data/{table}", createApiHandler(app.insertRowHandler, AuthMiddleware))
 	api.Handle("PUT /data/{table}", createApiHandler(app.updateRowsHandler, AuthMiddleware))
 	api.Handle("DELETE /data/{table}", createApiHandler(app.deleteRowsHandler, AuthMiddleware))
+	// --------------SQL API ENDPOINTS-------------------
+	api.Handle("POST /sql/execute", createApiHandler(app.executeSQLHandler, AuthMiddleware))
 	// --------------ADMIN API ENDPOINTS-------------------
 	api.Handle("POST /admin/login", createApiHandler(app.adminLoginHandler))
 

@@ -10,6 +10,7 @@ func (app *App) getTablesHandler(w http.ResponseWriter, r *http.Request) error {
 	return sendJson(w, app.TablesRepo.tablesMap)
 }
 
+// ---------------------- Rows CRUD -------------------------------
 func (app *App) getRowsHandler(w http.ResponseWriter, r *http.Request) error {
 	tableName := r.PathValue("table")
 	params := ParseGetRowsParamsFromQuery(r.URL.Query())
@@ -70,3 +71,5 @@ func (app *App) deleteRowsHandler(w http.ResponseWriter, r *http.Request) error 
 
 	return sendJson(w, data)
 }
+
+// ---------------------- End of CRUD -------------------------------
