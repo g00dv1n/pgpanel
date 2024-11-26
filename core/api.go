@@ -26,6 +26,31 @@ func (e ApiError) Error() string {
 	return e.Message
 }
 
+// ------------------------- ALL APP Routes ---------------------------------
+func (app *App) Routes() *http.ServeMux {
+	root := http.NewServeMux()
+
+	//------- Register embeded fronted serving ------
+	root.Handle("/", ui.Handler())
+	//-----------------------------------------------
+
+	// -------Set Up API Roputer with /api prefix----
+	api := http.NewServeMux()
+	root.Handle("/api/", http.StripPrefix("/api", api))
+
+	// --------------DATA API ENDPOINTS-------------------
+	api.Handle("GET /schema/tables", createApiHandler(app.getTablesHandler, AuthMiddleware))
+
+	api.Handle("GET /data/{table}", createApiHandler(app.getRowsHandler, AuthMiddleware))
+	api.Handle("POST /data/{table}", createApiHandler(app.insertRowHandler, AuthMiddleware))
+	api.Handle("PUT /data/{table}", createApiHandler(app.updateRowsHandler, AuthMiddleware))
+	api.Handle("DELETE /data/{table}", createApiHandler(app.deleteRowsHandler, AuthMiddleware))
+	// --------------ADMIN API ENDPOINTS-------------------
+	api.Handle("POST /admin/login", createApiHandler(app.adminLoginHandler))
+
+	return root
+}
+
 // ------------------------- API helpers ---------------------------------
 func createApiHandler(handler ApiHandler, middlewares ...ApiMiddleware) http.HandlerFunc {
 	h := Chain(handler, middlewares...)
@@ -67,29 +92,4 @@ func sendJson(w http.ResponseWriter, data any) error {
 		// Fallback to JSON encoding for other types
 		return json.NewEncoder(w).Encode(data)
 	}
-}
-
-// ------------------------- ALL APP Routes ---------------------------------
-func (app *App) Routes() *http.ServeMux {
-	root := http.NewServeMux()
-
-	//------- Register embeded fronted serving ------
-	root.Handle("/", ui.Handler())
-	//-----------------------------------------------
-
-	// -------Set Up API Roputer with /api prefix----
-	api := http.NewServeMux()
-	root.Handle("/api/", http.StripPrefix("/api", api))
-
-	// --------------DATA API ENDPOINTS-------------------
-	api.Handle("GET /schema/tables", createApiHandler(app.getTablesHandler, AuthMiddleware))
-
-	api.Handle("GET /data/{table}", createApiHandler(app.getRowsHandler, AuthMiddleware))
-	api.Handle("POST /data/{table}", createApiHandler(app.insertRowHandler, AuthMiddleware))
-	api.Handle("PUT /data/{table}", createApiHandler(app.updateRowsHandler, AuthMiddleware))
-	api.Handle("DELETE /data/{table}", createApiHandler(app.deleteRowsHandler, AuthMiddleware))
-	// --------------ADMIN API ENDPOINTS-------------------
-	api.Handle("POST /admin/login", createApiHandler(app.adminLoginHandler))
-
-	return root
 }
