@@ -3,7 +3,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { DateTimePicker } from "@/components/ui/datetime-picker";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { getColumnDefaultInputType, PgColumn } from "@/lib/pgTypes";
+import { PgColumn } from "@/lib/pgTypes";
+import { getColumnDefaultInputType } from "@/lib/typesMapping";
 import { Plus, Trash } from "lucide-react";
 import { useState } from "react";
 
@@ -77,6 +78,30 @@ export function DynamicFormFieldSingle({
       );
     }
 
+    // @TODO timepicker
+    case "datepicker": {
+      const dateValue = commonProps.value
+        ? new Date(commonProps.value)
+        : undefined;
+
+      return (
+        <DateTimePicker
+          {...commonProps}
+          hourCycle={12}
+          granularity="day"
+          value={dateValue}
+          displayFormat={{
+            hour12: "PP",
+          }}
+          onChange={(newDate) => {
+            if (newDate) {
+              changeValue(newDate);
+            }
+          }}
+        />
+      );
+    }
+
     case "datetimepicker": {
       const dateTimeValue = commonProps.value
         ? new Date(commonProps.value)
@@ -85,6 +110,7 @@ export function DynamicFormFieldSingle({
       return (
         <DateTimePicker
           {...commonProps}
+          hourCycle={12}
           value={dateTimeValue}
           onChange={(newDate) => {
             if (newDate) {
