@@ -49,14 +49,24 @@ func createApiHandler(handler ApiHandler, middlewares ...ApiMiddleware) http.Han
 }
 
 func sendJson(w http.ResponseWriter, data any) error {
-	// Check if the data is of type json.RawMessage
-	if raw, ok := data.(json.RawMessage); ok {
-		_, err := w.Write(raw)
+	// Handle different input types
+	switch v := data.(type) {
+	case []byte:
+		// Direct write for byte slices
+		_, err := w.Write(v)
 		return err
+	case json.RawMessage:
+		// Direct write for JSON raw messages
+		_, err := w.Write(v)
+		return err
+	case string:
+		// Write string as bytes
+		_, err := w.Write([]byte(v))
+		return err
+	default:
+		// Fallback to JSON encoding for other types
+		return json.NewEncoder(w).Encode(data)
 	}
-
-	// Fallback to using json.NewEncoder for other types
-	return json.NewEncoder(w).Encode(data)
 }
 
 // ------------------------- ALL APP Routes ---------------------------------
