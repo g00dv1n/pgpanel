@@ -111,7 +111,12 @@ export enum PgTypeOID {
   Int8multirangeArrayOID = 6157,
 }
 
-export type DefaultInputType = "checkbox" | "input" | "textarea" | "datepicker";
+export type DefaultInputType =
+  | "checkbox"
+  | "input"
+  | "textarea"
+  | "datepicker"
+  | "datetimepicker";
 export type DefaultInputTypeLookup = {
   type: DefaultInputType;
   isArray?: boolean;
@@ -138,10 +143,10 @@ export const MainPgTypesOidMap: Record<number, DefaultInputTypeLookup> = {
 
   // Dates and Times
   [PgTypeOID.DateOID]: { type: "datepicker" },
-  [PgTypeOID.TimestampOID]: { type: "datepicker" },
-  [PgTypeOID.TimestamptzOID]: { type: "datepicker" },
-  [PgTypeOID.TimeOID]: { type: "datepicker" },
-  [PgTypeOID.TimetzOID]: { type: "datepicker" },
+  [PgTypeOID.TimestampOID]: { type: "datetimepicker" },
+  [PgTypeOID.TimestamptzOID]: { type: "datetimepicker" },
+  [PgTypeOID.TimeOID]: { type: "datetimepicker" },
+  [PgTypeOID.TimetzOID]: { type: "datetimepicker" },
   [PgTypeOID.IntervalOID]: { type: "textarea" },
 
   // JSON

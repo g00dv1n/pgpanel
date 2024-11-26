@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DateTimePicker } from "@/components/ui/datetime-picker";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { getColumnDefaultInputType, PgColumn } from "@/lib/pgTypes";
@@ -19,51 +20,80 @@ export function DynamicFormFieldSingle({
   column,
   required,
   placeholder,
-  onChange = () => {},
+  onChange,
 }: DynamicFormFieldProps) {
   const { type } = getColumnDefaultInputType(column);
   const { name } = column;
 
-  const defaultValue = initialValue;
+  const [value, setValue] = useState(initialValue);
+
+  const changeValue = (v: any) => {
+    setValue(v);
+    if (onChange) {
+      onChange(v);
+    }
+  };
 
   const commonProps = {
     name,
-    defaultValue,
+    value,
     placeholder,
     required,
   };
 
   switch (type) {
-    case "checkbox":
+    case "checkbox": {
       return (
         <Checkbox
           {...commonProps}
-          defaultChecked={commonProps.defaultValue}
+          checked={commonProps.value}
           onCheckedChange={(checked) => {
-            onChange(checked);
+            changeValue(checked);
           }}
         />
       );
+    }
 
-    case "input":
+    case "input": {
       return (
         <Input
           {...commonProps}
           onChange={(e) => {
-            onChange(e.target.value);
+            changeValue(e.target.value);
           }}
         />
       );
-    case "textarea":
+    }
+
+    case "textarea": {
       return (
         <Textarea
           {...commonProps}
           rows={3}
           onChange={(e) => {
-            onChange(e.target.value);
+            changeValue(e.target.value);
           }}
         />
       );
+    }
+
+    case "datetimepicker": {
+      const dateTimeValue = commonProps.value
+        ? new Date(commonProps.value)
+        : undefined;
+
+      return (
+        <DateTimePicker
+          {...commonProps}
+          value={dateTimeValue}
+          onChange={(newDate) => {
+            if (newDate) {
+              changeValue(newDate);
+            }
+          }}
+        />
+      );
+    }
   }
 
   return <div>Unsupported type</div>;
