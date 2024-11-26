@@ -48,7 +48,14 @@ func createApiHandler(handler ApiHandler, middlewares ...ApiMiddleware) http.Han
 	}
 }
 
-func sendJson[T any](w http.ResponseWriter, data T) error {
+func sendJson(w http.ResponseWriter, data any) error {
+	// Check if the data is of type json.RawMessage
+	if raw, ok := any(data).(json.RawMessage); ok {
+		_, err := w.Write(raw)
+		return err
+	}
+
+	// Fallback to using json.NewEncoder for other types
 	return json.NewEncoder(w).Encode(data)
 }
 
