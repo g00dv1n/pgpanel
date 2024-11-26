@@ -7,7 +7,7 @@ import (
 
 // ---------------------- Data API Handleers -------------------------------
 func (app *App) getTablesHandler(w http.ResponseWriter, r *http.Request) error {
-	return json.NewEncoder(w).Encode(app.TablesRepo.tablesMap)
+	return sendJson(w, app.TablesRepo.tablesMap)
 }
 
 func (app *App) getRowsHandler(w http.ResponseWriter, r *http.Request) error {
@@ -20,8 +20,7 @@ func (app *App) getRowsHandler(w http.ResponseWriter, r *http.Request) error {
 		return NewApiError(http.StatusBadRequest, err)
 	}
 
-	_, err = w.Write(data)
-	return err
+	return sendJson(w, data)
 }
 
 func (app *App) insertRowHandler(w http.ResponseWriter, r *http.Request) error {
@@ -38,8 +37,7 @@ func (app *App) insertRowHandler(w http.ResponseWriter, r *http.Request) error {
 		return NewApiError(http.StatusBadRequest, err)
 	}
 
-	_, err = w.Write(data)
-	return err
+	return sendJson(w, data)
 }
 
 func (app *App) updateRowsHandler(w http.ResponseWriter, r *http.Request) error {
@@ -57,8 +55,7 @@ func (app *App) updateRowsHandler(w http.ResponseWriter, r *http.Request) error 
 		return NewApiError(http.StatusBadRequest, err)
 	}
 
-	_, err = w.Write(data)
-	return err
+	return sendJson(w, data)
 }
 
 func (app *App) deleteRowsHandler(w http.ResponseWriter, r *http.Request) error {
@@ -71,6 +68,5 @@ func (app *App) deleteRowsHandler(w http.ResponseWriter, r *http.Request) error 
 		return NewApiError(http.StatusBadRequest, err)
 	}
 
-	_, err = w.Write(data)
-	return err
+	return sendJson(w, data)
 }

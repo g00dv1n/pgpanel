@@ -48,6 +48,10 @@ func createApiHandler(handler ApiHandler, middlewares ...ApiMiddleware) http.Han
 	}
 }
 
+func sendJson[T any](w http.ResponseWriter, data T) error {
+	return json.NewEncoder(w).Encode(data)
+}
+
 // ------------------------- ALL APP Routes ---------------------------------
 func (app *App) Routes() *http.ServeMux {
 	root := http.NewServeMux()
