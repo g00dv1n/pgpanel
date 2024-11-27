@@ -20,6 +20,8 @@ export function SqlPage() {
     SQLExecutionResponse | undefined
   >(undefined);
 
+  const showTable = sqlResponse && sqlResponse.columns.length > 0;
+
   const run = async () => {
     const res = await executeSQL(sqlQuery);
 
@@ -71,7 +73,7 @@ export function SqlPage() {
         />
       </div>
 
-      {sqlResponse && (
+      {showTable && (
         <SqlTable columns={sqlResponse.columns} rows={sqlResponse.rows} />
       )}
 
