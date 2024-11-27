@@ -51,7 +51,7 @@ export function SqlPage() {
         )}
       </div>
 
-      <div className="w-full my-5">
+      <div className="w-full my-5 border">
         <ReactCodeMirror
           height="200px"
           onChange={setSqlQuery}

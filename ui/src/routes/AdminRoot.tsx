@@ -15,7 +15,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { PgTablesMapContext } from "@/hooks/use-tables";
-import { SquareTerminal } from "lucide-react";
+import { SquareTerminal, Table2Icon } from "lucide-react";
 import { NavLink, Outlet, useLoaderData } from "react-router";
 
 export async function loader() {
@@ -57,7 +57,9 @@ export default function AdminRoot() {
                   {tables.map((t) => {
                     return (
                       <SidebarMenuButton key={t.name} asChild>
-                        <NavLink to={`/${t.name}`}>{t.name}</NavLink>
+                        <NavLink to={`/${t.name}`}>
+                          <Table2Icon /> {t.name}
+                        </NavLink>
                       </SidebarMenuButton>
                     );
                   })}
