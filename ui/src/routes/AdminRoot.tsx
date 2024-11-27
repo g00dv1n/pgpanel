@@ -1,4 +1,4 @@
-import { PgTablesMapContext, getTables } from "@/api/data";
+import { getTables } from "@/api/schema";
 import { GlobalAlert } from "@/components/ui/global-alert";
 import {
   Sidebar,
@@ -14,6 +14,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { PgTablesMapContext } from "@/hooks/use-tables";
 import { NavLink, Outlet, useLoaderData } from "react-router";
 
 export async function loader() {

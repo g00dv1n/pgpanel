@@ -1,4 +1,4 @@
-import { adminLogin } from "@/api/auth";
+import { adminLogin } from "@/api/admin";
 import { LoginForm } from "@/components/LoginForm";
 import { alert, GlobalAlert } from "@/components/ui/global-alert";
 import { useEffect, useState } from "react";

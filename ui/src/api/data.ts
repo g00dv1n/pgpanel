@@ -1,17 +1,5 @@
-import { fetchApiwithAuth } from "@/api/auth";
-import { PgTable, PkeysMap, Row } from "@/lib/pgTypes";
-import { createContext } from "react";
-
-export type PgTablesMap = Record<string, PgTable>;
-export const PgTablesMapContext = createContext({} as PgTablesMap);
-
-export async function getTables() {
-  const { data: tablesMap, error } = await fetchApiwithAuth<PgTablesMap>(
-    "/api/schema/tables"
-  );
-
-  return { tablesMap, error };
-}
+import { fetchApiwithAuth } from "@/api/admin";
+import { PkeysMap, Row } from "@/lib/pgTypes";
 
 export interface GetTableRowsParams {
   offset: number;

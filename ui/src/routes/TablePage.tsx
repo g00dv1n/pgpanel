@@ -11,7 +11,7 @@ import { FiltersSearch } from "@/components/table/FiltersSearch";
 import { Pagination } from "@/components/table/Pagination";
 import { RowsControls } from "@/components/table/RowsControls";
 import { alert } from "@/components/ui/global-alert";
-import { useTablesMap } from "@/hooks/use-data";
+import { useTablesMap } from "@/hooks/use-tables";
 import { getPKeys, getRowKey, Row } from "@/lib/pgTypes";
 import { useEffect, useState } from "react";
 
