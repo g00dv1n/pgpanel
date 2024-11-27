@@ -36,7 +36,7 @@ func (req *SQLExecutionRequest) Execute(db *pgxpool.Pool) (*SQLExecutionResponse
 	}
 	defer rows.Close()
 
-	var results []map[string]any
+	results := make([]map[string]any, 0)
 	fieldDescriptions := rows.FieldDescriptions()
 
 	var rowsCount int
