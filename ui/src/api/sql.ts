@@ -2,6 +2,7 @@ import { fetchApiwithAuth } from "@/api/admin";
 import { Row } from "@/lib/pgTypes";
 
 export interface SQLExecutionResponse {
+  columns: string[];
   rows: Row[];
   rowsAffected: number;
 }

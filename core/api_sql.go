@@ -18,6 +18,7 @@ type SQLExecutionRequest struct {
 }
 
 type SQLExecutionResponse struct {
+	Columns      []string         `json:"columns"`
 	Rows         []map[string]any `json:"rows"`
 	RowsAffected int64            `json:"rowsAffected"`
 }
@@ -57,7 +58,14 @@ func (req *SQLExecutionRequest) Execute(db *pgxpool.Pool) (*SQLExecutionResponse
 	rows.Close()
 	rowsAffected := rows.CommandTag().RowsAffected()
 
+	columns := make([]string, len(fieldDescriptions))
+
+	for i, fd := range fieldDescriptions {
+		columns[i] = fd.Name
+	}
+
 	return &SQLExecutionResponse{
+		Columns:      columns,
 		Rows:         results,
 		RowsAffected: rowsAffected,
 	}, nil
