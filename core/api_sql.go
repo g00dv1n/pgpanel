@@ -8,6 +8,10 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+const (
+	maxRowsLimit = 500
+)
+
 type SQLExecutionRequest struct {
 	Query string `json:"query"`
 	Args  []any  `json:"args"`
@@ -29,7 +33,12 @@ func (req *SQLExecutionRequest) Execute(db *pgxpool.Pool) (*SQLExecutionResponse
 	var results []map[string]any
 	fieldDescriptions := rows.FieldDescriptions()
 
+	var rowsCount int
 	for rows.Next() {
+		if rowsCount == maxRowsLimit {
+			break
+		}
+
 		rowValues, err := rows.Values()
 		if err != nil {
 			return nil, err
@@ -40,6 +49,8 @@ func (req *SQLExecutionRequest) Execute(db *pgxpool.Pool) (*SQLExecutionResponse
 			rowMap[fieldDescriptions[i].Name] = val
 		}
 		results = append(results, rowMap)
+
+		rowsCount += 1
 	}
 
 	// need to close rows before using CommandTag

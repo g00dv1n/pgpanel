@@ -15,6 +15,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { PgTablesMapContext } from "@/hooks/use-tables";
+import { SquareTerminal } from "lucide-react";
 import { NavLink, Outlet, useLoaderData } from "react-router";
 
 export async function loader() {
@@ -31,8 +32,18 @@ export default function AdminRoot() {
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton size="lg">
-                <span className="font-semibold">pgPanel</span>
+              <SidebarMenuButton size="lg" asChild>
+                <NavLink className="font-semibold" to="/">
+                  pgPanel
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <NavLink to="/sql">
+                  <SquareTerminal />
+                  SQL Editor
+                </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
@@ -46,9 +57,7 @@ export default function AdminRoot() {
                   {tables.map((t) => {
                     return (
                       <SidebarMenuButton key={t.name} asChild>
-                        <NavLink to={`/${t.name}`}>
-                          <span>{t.name}</span>
-                        </NavLink>
+                        <NavLink to={`/${t.name}`}>{t.name}</NavLink>
                       </SidebarMenuButton>
                     );
                   })}
