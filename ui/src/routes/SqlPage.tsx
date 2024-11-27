@@ -42,12 +42,13 @@ export function SqlPage() {
         <Button size="icon" variant="outline" onClick={() => run()}>
           <Play />
         </Button>
-        <div>
-          Rows affected:{" "}
-          <span className="text-green-600">
-            {sqlResponse?.rowsAffected || 0}
-          </span>
-        </div>
+
+        {sqlResponse && (
+          <div>
+            Rows affected:{" "}
+            <span className="text-green-600">{sqlResponse.rowsAffected}</span>
+          </div>
+        )}
       </div>
 
       <div className="w-full my-5">

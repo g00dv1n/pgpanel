@@ -18,7 +18,7 @@ export function SqlTable({ columns, rows }: SqlTableProps) {
     <Table className="border">
       <TableHeader>
         <TableRow>
-          <TableHead className="w-10 bg-slate-100">#</TableHead>
+          <TableHead className="w-10 bg-[#e2f2ff]">#</TableHead>
           {columns.map((columnName) => {
             return <TableHead key={columnName}>{columnName}</TableHead>;
           })}
@@ -28,7 +28,7 @@ export function SqlTable({ columns, rows }: SqlTableProps) {
         {rows.map((row, i) => {
           return (
             <TableRow key={i}>
-              <TableCell className="bg-slate-100">{i + 1}</TableCell>
+              <TableCell className="bg-[#e2f2ff]">{i + 1}</TableCell>
               {columns.map((columnName) => {
                 const value = row[columnName];
 
