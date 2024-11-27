@@ -1,4 +1,5 @@
 import { executeSQL, SQLExecutionResponse } from "@/api/sql";
+import { SqlTable } from "@/components/table/SqlTable";
 import { Button } from "@/components/ui/button";
 import { useTablesMap } from "@/hooks/use-tables";
 import { PgTable } from "@/lib/pgTypes";
@@ -18,8 +19,6 @@ export function SqlPage() {
   const [sqlResponse, setSqlResponse] = useState<
     SQLExecutionResponse | undefined
   >(undefined);
-
-  const { rowsAffected = 0 } = sqlResponse || {};
 
   const run = async () => {
     const res = await executeSQL(sqlQuery);
@@ -43,6 +42,12 @@ export function SqlPage() {
         <Button size="icon" variant="outline" onClick={() => run()}>
           <Play />
         </Button>
+        <div>
+          Rows affected:{" "}
+          <span className="text-green-600">
+            {sqlResponse?.rowsAffected || 0}
+          </span>
+        </div>
       </div>
 
       <div className="w-full my-5">
@@ -65,9 +70,9 @@ export function SqlPage() {
         />
       </div>
 
-      <div className="rounded-md border mt-5">
-        <span>Rows affected: {rowsAffected}</span>
-      </div>
+      {sqlResponse && (
+        <SqlTable columns={sqlResponse.columns} rows={sqlResponse.rows} />
+      )}
 
       {sqlError && (
         <div className="my-5 text-red-600 max-w-[750px]">{sqlError}</div>
