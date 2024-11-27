@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -24,6 +25,10 @@ type SQLExecutionResponse struct {
 }
 
 func (req *SQLExecutionRequest) Execute(db *pgxpool.Pool) (*SQLExecutionResponse, error) {
+	if len(req.Query) == 0 {
+		return nil, errors.New("empty query")
+	}
+
 	ctx := context.Background()
 	rows, err := db.Query(ctx, req.Query, req.Args...)
 	if err != nil {

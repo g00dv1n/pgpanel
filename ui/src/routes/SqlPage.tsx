@@ -2,7 +2,7 @@ import { executeSQL, SQLExecutionResponse } from "@/api/sql";
 import { Button } from "@/components/ui/button";
 import { useTablesMap } from "@/hooks/use-tables";
 import { PgTable } from "@/lib/pgTypes";
-import { sql, SQLNamespace } from "@codemirror/lang-sql";
+import { PostgreSQL, sql, SQLNamespace } from "@codemirror/lang-sql";
 import { githubLight } from "@uiw/codemirror-theme-github";
 import ReactCodeMirror from "@uiw/react-codemirror";
 import { Play } from "lucide-react";
@@ -57,6 +57,7 @@ export function SqlPage() {
           theme={githubLight}
           extensions={[
             sql({
+              dialect: PostgreSQL,
               schema: buildAutocompleteSqlSchema(tables),
               upperCaseKeywords: true,
             }),
@@ -79,7 +80,8 @@ function buildAutocompleteSqlSchema(tables: PgTable[]): SQLNamespace {
   const schema: SQLNamespace = {};
 
   for (const table of tables) {
-    schema[table.name] = table.columns.map((c) => c.name);
+    const columns = table.columns.map((c) => c.name);
+    schema[table.name] = columns;
   }
 
   return schema;
