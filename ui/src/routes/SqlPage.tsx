@@ -1,6 +1,6 @@
 import { executeSQL, SQLExecutionResponse } from "@/api/sql";
 import { SqlTable } from "@/components/table/SqlTable";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { useTablesMap } from "@/hooks/use-tables";
 import { PgTable } from "@/lib/pgTypes";
 import { PostgreSQL, sql, SQLNamespace } from "@codemirror/lang-sql";
@@ -20,10 +20,15 @@ export function SqlPage() {
     SQLExecutionResponse | undefined
   >(undefined);
 
-  const showTable = sqlResponse && sqlResponse.columns.length > 0;
+  const [isExecuting, setIsExecuting] = useState(false);
+
+  const showTable =
+    sqlResponse && sqlResponse.columns.length > 0 && !isExecuting;
+
+  const showRowsAffected = sqlResponse && !isExecuting;
 
   const run = async () => {
-    setSqlResponse(undefined);
+    setIsExecuting(true);
     const res = await executeSQL(sqlQuery);
 
     if (res.error) {
@@ -33,6 +38,7 @@ export function SqlPage() {
       setSqlError("");
       setSqlResponse(res.sqlResponse);
     }
+    setIsExecuting(false);
   };
 
   return (
@@ -42,11 +48,16 @@ export function SqlPage() {
         <h1 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
           SQL Editor
         </h1>
-        <Button size="icon" variant="outline" onClick={() => run()}>
+        <LoadingButton
+          loading={isExecuting}
+          size="icon"
+          variant="outline"
+          onClick={() => run()}
+        >
           <Play />
-        </Button>
+        </LoadingButton>
 
-        {sqlResponse && (
+        {showRowsAffected && (
           <div>
             Rows affected:{" "}
             <span className="text-green-600">{sqlResponse.rowsAffected}</span>
