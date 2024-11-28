@@ -23,6 +23,7 @@ export function SqlPage() {
   const showTable = sqlResponse && sqlResponse.columns.length > 0;
 
   const run = async () => {
+    setSqlResponse(undefined);
     const res = await executeSQL(sqlQuery);
 
     if (res.error) {
