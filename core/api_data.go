@@ -3,65 +3,67 @@ package core
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/g00dv1n/pgpanel/data"
 )
 
 func (app *App) getRowsHandler(w http.ResponseWriter, r *http.Request) error {
 	tableName := r.PathValue("table")
-	params := ParseGetRowsParamsFromQuery(r.URL.Query())
+	params := data.ParseGetRowsParamsFromQuery(r.URL.Query())
 
-	data, err := app.TablesRepo.GetRows(tableName, params)
+	rows, err := app.CRUD.GetRows(tableName, params)
 
 	if err != nil {
 		return NewApiError(http.StatusBadRequest, err)
 	}
 
-	return sendJson(w, data)
+	return sendJson(w, rows)
 }
 
 func (app *App) insertRowHandler(w http.ResponseWriter, r *http.Request) error {
 	tableName := r.PathValue("table")
 
-	var row RawRow
+	var row data.RawRow
 	if err := json.NewDecoder(r.Body).Decode(&row); err != nil {
 		return NewApiError(http.StatusBadRequest, err)
 	}
 
-	data, err := app.TablesRepo.InsertRow(tableName, row)
+	rows, err := app.CRUD.InsertRow(tableName, row)
 
 	if err != nil {
 		return NewApiError(http.StatusBadRequest, err)
 	}
 
-	return sendJson(w, data)
+	return sendJson(w, rows)
 }
 
 func (app *App) updateRowsHandler(w http.ResponseWriter, r *http.Request) error {
 	tableName := r.PathValue("table")
-	filters := ParseFiltersFromQuery(r.URL.Query())
+	filters := data.ParseFiltersFromQuery(r.URL.Query())
 
-	var row RawRow
+	var row data.RawRow
 	if err := json.NewDecoder(r.Body).Decode(&row); err != nil {
 		return NewApiError(http.StatusBadRequest, err)
 	}
 
-	data, err := app.TablesRepo.UpdateRows(tableName, filters, row)
+	rows, err := app.CRUD.UpdateRows(tableName, filters, row)
 
 	if err != nil {
 		return NewApiError(http.StatusBadRequest, err)
 	}
 
-	return sendJson(w, data)
+	return sendJson(w, rows)
 }
 
 func (app *App) deleteRowsHandler(w http.ResponseWriter, r *http.Request) error {
 	tableName := r.PathValue("table")
-	filters := ParseFiltersFromQuery(r.URL.Query())
+	filters := data.ParseFiltersFromQuery(r.URL.Query())
 
-	data, err := app.TablesRepo.DeleteRows(tableName, filters)
+	rows, err := app.CRUD.DeleteRows(tableName, filters)
 
 	if err != nil {
 		return NewApiError(http.StatusBadRequest, err)
 	}
 
-	return sendJson(w, data)
+	return sendJson(w, rows)
 }

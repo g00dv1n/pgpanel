@@ -1,4 +1,4 @@
-package core
+package data
 
 import (
 	"context"
@@ -9,43 +9,21 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/g00dv1n/pgpanel/db"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type TablesRepository struct {
+type CrudService struct {
 	db         *pgxpool.Pool
-	schemaExtr SchemaExtractor
-	tablesMap  map[string]*Table
+	schemaRepo *db.SchemaRepository
 	logger     *slog.Logger
 }
 
-func NewTablesRepository(db *pgxpool.Pool, schemaExtr SchemaExtractor, logger *slog.Logger) (*TablesRepository, error) {
-	tables, err := schemaExtr.GetTables()
-
-	if err != nil {
-		return nil, err
-	}
-
-	tablesMap := make(map[string]*Table, len(tables))
-
-	for _, t := range tables {
-		tablesMap[t.Name] = &t
-	}
-
-	return &TablesRepository{db: db, tablesMap: tablesMap, logger: logger}, nil
+func NewCrudService(db *pgxpool.Pool, schemaRepo *db.SchemaRepository, logger *slog.Logger) *CrudService {
+	return &CrudService{db: db, schemaRepo: schemaRepo, logger: logger}
 }
 
-func (r TablesRepository) GetTable(name string) (*Table, error) {
-	table := r.tablesMap[name]
-
-	if table == nil {
-		return nil, fmt.Errorf("can't lookup table: %s", name)
-	}
-
-	return table, nil
-}
-
-func (r TablesRepository) QueryAsJson(sql string, args []any) (json.RawMessage, error) {
+func (s CrudService) QueryAsJson(sql string, args []any) (json.RawMessage, error) {
 	jsonSqlWrapper := fmt.Sprintf(`
 		WITH q as (%s)
 		SELECT 
@@ -53,7 +31,7 @@ func (r TablesRepository) QueryAsJson(sql string, args []any) (json.RawMessage, 
 		FROM q
 	`, sql)
 
-	row := r.db.QueryRow(context.TODO(), jsonSqlWrapper, args...)
+	row := s.db.QueryRow(context.TODO(), jsonSqlWrapper, args...)
 
 	var result json.RawMessage
 	err := row.Scan(&result)
@@ -71,8 +49,8 @@ var getRowsSQL = sqlTempl(`
 	OFFSET {{.Offset}}
 `)
 
-func (r TablesRepository) GetRows(tableName string, params *GetRowsParams) (json.RawMessage, error) {
-	table, err := r.GetTable(tableName)
+func (s CrudService) GetRows(tableName string, params *GetRowsParams) (json.RawMessage, error) {
+	table, err := s.schemaRepo.GetTable(tableName)
 
 	if err != nil {
 		return nil, err
@@ -95,13 +73,13 @@ func (r TablesRepository) GetRows(tableName string, params *GetRowsParams) (json
 		"Offset":  params.Pagination.Offset,
 	})
 
-	return r.QueryAsJson(sql, args)
+	return s.QueryAsJson(sql, args)
 }
 
 // ---------------------- Universal Update Rows -------------------------------
 type RawRow map[string]any
 
-func (rr RawRow) ToUpdateSQL(table *Table, paramsOffset int) (string, []any) {
+func (rr RawRow) ToUpdateSQL(table *db.Table, paramsOffset int) (string, []any) {
 	i := 1
 
 	args := make([]any, 0, len(rr))
@@ -130,8 +108,8 @@ var updateRowsSQL = sqlTempl(`
 	RETURNING *
 `)
 
-func (r TablesRepository) UpdateRows(tableName string, filters Filters, row RawRow) (json.RawMessage, error) {
-	table, err := r.GetTable(tableName)
+func (s CrudService) UpdateRows(tableName string, filters Filters, row RawRow) (json.RawMessage, error) {
+	table, err := s.schemaRepo.GetTable(tableName)
 
 	if err != nil {
 		return nil, err
@@ -152,11 +130,11 @@ func (r TablesRepository) UpdateRows(tableName string, filters Filters, row RawR
 		"Where":     where,
 	})
 
-	return r.QueryAsJson(sql, args)
+	return s.QueryAsJson(sql, args)
 }
 
 // ---------------------- Universal Insert Row -------------------------------
-func (rr RawRow) ToInsertSQL(table *Table, paramsOffset int) (string, string, []any) {
+func (rr RawRow) ToInsertSQL(table *db.Table, paramsOffset int) (string, string, []any) {
 	i := 1
 
 	insertColumns := make([]string, 0, len(rr))
@@ -189,8 +167,8 @@ var insertRowSQL = sqlTempl(`
 	RETURNING *
 `)
 
-func (r TablesRepository) InsertRow(tableName string, row RawRow) (json.RawMessage, error) {
-	table, err := r.GetTable(tableName)
+func (s CrudService) InsertRow(tableName string, row RawRow) (json.RawMessage, error) {
+	table, err := s.schemaRepo.GetTable(tableName)
 
 	if err != nil {
 		return nil, err
@@ -208,7 +186,7 @@ func (r TablesRepository) InsertRow(tableName string, row RawRow) (json.RawMessa
 		"Values":    insertValues,
 	})
 
-	return r.QueryAsJson(sql, args)
+	return s.QueryAsJson(sql, args)
 }
 
 // ---------------------- Universal Delete Rows -------------------------------
@@ -218,8 +196,8 @@ var deleteRowsSQL = sqlTempl(`
 	RETURNING *
 `)
 
-func (r TablesRepository) DeleteRows(tableName string, filters Filters) (json.RawMessage, error) {
-	table, err := r.GetTable(tableName)
+func (s CrudService) DeleteRows(tableName string, filters Filters) (json.RawMessage, error) {
+	table, err := s.schemaRepo.GetTable(tableName)
 
 	if err != nil {
 		return nil, err
@@ -236,7 +214,7 @@ func (r TablesRepository) DeleteRows(tableName string, filters Filters) (json.Ra
 		"Where":     where,
 	})
 
-	return r.QueryAsJson(sql, args)
+	return s.QueryAsJson(sql, args)
 }
 
 // small utiliy to work with SQL temlates as STD Text Template

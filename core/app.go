@@ -4,32 +4,35 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/g00dv1n/pgpanel/data"
+	"github.com/g00dv1n/pgpanel/db"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type App struct {
-	DB         *pgxpool.Pool
-	Logger     *slog.Logger
-	TablesRepo *TablesRepository
+	DB     *pgxpool.Pool
+	Logger *slog.Logger
+	Schema *db.SchemaRepository
+	CRUD   *data.CrudService
 }
 
-func NewApp(db *pgxpool.Pool, logger *slog.Logger) App {
+func NewApp(pool *pgxpool.Pool, logger *slog.Logger) App {
 	if logger == nil {
 		logger = slog.Default()
 	}
 
-	se := NewDbSchemaExtractor(db, "public", nil)
-
-	tr, err := NewTablesRepository(db, &se, logger)
-
+	schema, err := db.NewSchemaRepository(pool, db.NewDbSchemaExtractor(pool, "public", nil), logger)
 	if err != nil {
 		logger.Error("can't extract tables", "error", err)
 		os.Exit(1)
 	}
 
+	crud := data.NewCrudService(pool, schema, logger)
+
 	return App{
-		DB:         db,
-		Logger:     logger,
-		TablesRepo: tr,
+		DB:     pool,
+		Logger: logger,
+		Schema: schema,
+		CRUD:   crud,
 	}
 }
