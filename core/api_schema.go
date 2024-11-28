@@ -3,5 +3,7 @@ package core
 import "net/http"
 
 func (app *App) getTablesHandler(w http.ResponseWriter, r *http.Request) error {
-	return sendJson(w, app.Schema.GetTablesMap())
+	reload := r.URL.Query().Get("reload") == "true"
+
+	return sendJson(w, app.Schema.GetTablesMap(reload))
 }

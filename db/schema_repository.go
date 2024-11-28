@@ -10,17 +10,55 @@ import (
 type TablesMap map[string]*Table
 
 type SchemaRepository struct {
-	db         *pgxpool.Pool
-	schemaExtr SchemaExtractor
-	tablesMap  TablesMap
-	logger     *slog.Logger
+	db *pgxpool.Pool
+
+	schemaExtr   SchemaExtractor
+	tablesMap    TablesMap
+	schemaLoaded bool
+
+	logger *slog.Logger
 }
 
 func NewSchemaRepository(db *pgxpool.Pool, schemaExtr SchemaExtractor, logger *slog.Logger) (*SchemaRepository, error) {
-	tables, err := schemaExtr.GetTables()
+	r := SchemaRepository{
+		db: db,
+
+		schemaExtr: schemaExtr,
+		tablesMap:  make(TablesMap),
+
+		logger: logger,
+	}
+
+	if err := r.loadTables(); err != nil {
+		return nil, err
+	}
+
+	return &r, nil
+}
+
+func (r *SchemaRepository) GetTablesMap(reloadTables bool) TablesMap {
+	if reloadTables {
+		r.loadTables()
+	}
+
+	return r.tablesMap
+}
+
+func (r *SchemaRepository) GetTable(name string) (*Table, error) {
+	table := r.tablesMap[name]
+
+	if table == nil {
+		return nil, fmt.Errorf("can't lookup table: %s", name)
+	}
+
+	return table, nil
+}
+
+func (r *SchemaRepository) loadTables() error {
+	tables, err := r.schemaExtr.GetTables()
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	tablesMap := make(map[string]*Table, len(tables))
@@ -29,19 +67,7 @@ func NewSchemaRepository(db *pgxpool.Pool, schemaExtr SchemaExtractor, logger *s
 		tablesMap[t.Name] = &t
 	}
 
-	return &SchemaRepository{db: db, tablesMap: tablesMap, logger: logger}, nil
-}
+	r.tablesMap = tablesMap
 
-func (r SchemaRepository) GetTablesMap() TablesMap {
-	return r.tablesMap
-}
-
-func (r SchemaRepository) GetTable(name string) (*Table, error) {
-	table := r.tablesMap[name]
-
-	if table == nil {
-		return nil, fmt.Errorf("can't lookup table: %s", name)
-	}
-
-	return table, nil
+	return nil
 }

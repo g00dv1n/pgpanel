@@ -1,5 +1,6 @@
 import { getTables } from "@/api/schema";
-import { GlobalAlert } from "@/components/ui/global-alert";
+import { Button } from "@/components/ui/button";
+import { alert, GlobalAlert } from "@/components/ui/global-alert";
 import {
   Sidebar,
   SidebarContent,
@@ -15,7 +16,8 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { PgTablesMapContext } from "@/hooks/use-tables";
-import { SquareTerminal, Table2Icon } from "lucide-react";
+import { RotateCcw, SquareTerminal, Table2Icon } from "lucide-react";
+import { useState } from "react";
 import { NavLink, Outlet, useLoaderData } from "react-router";
 
 export async function loader() {
@@ -23,8 +25,20 @@ export async function loader() {
 }
 
 export default function AdminRoot() {
-  const { tablesMap = {} } = useLoaderData<typeof loader>();
+  const loaderData = useLoaderData<typeof loader>();
+  const [tablesMap, setTablesMap] = useState(loaderData.tablesMap || {});
+
   const tables = Object.values(tablesMap);
+
+  const reloadTables = async () => {
+    const res = await getTables({ reload: true });
+
+    if (res.error) {
+      alert.error(res.error.message);
+    } else {
+      setTablesMap(res.tablesMap);
+    }
+  };
 
   return (
     <SidebarProvider>
@@ -50,7 +64,17 @@ export default function AdminRoot() {
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>Tables</SidebarGroupLabel>
+            <SidebarGroupLabel>
+              <span>Tables</span>
+              <Button
+                className="ml-auto"
+                variant="ghost"
+                size="icon"
+                onClick={() => reloadTables()}
+              >
+                <RotateCcw className="h-4 w-4" />
+              </Button>
+            </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
