@@ -36,7 +36,7 @@ export default function AdminRoot() {
     if (res.error) {
       alert.error(res.error.message);
     } else {
-      setTablesMap(res.tablesMap);
+      setTablesMap(res.tablesMap || {});
     }
   };
 
