@@ -59,7 +59,7 @@ func (app *App) AddRoute(pattern string, handler ApiHandler, middlewares ...ApiM
 
 // ------------------------- API helpers ---------------------------------
 func createApiHandler(handler ApiHandler, middlewares ...ApiMiddleware) http.HandlerFunc {
-	h := Chain(handler, middlewares...)
+	h := ChainMiddlewares(handler, middlewares...)
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := h(w, r); err != nil {

@@ -7,7 +7,7 @@ import (
 
 type ApiMiddleware func(next ApiHandler) ApiHandler
 
-func Chain(handler ApiHandler, middlewares ...ApiMiddleware) ApiHandler {
+func ChainMiddlewares(handler ApiHandler, middlewares ...ApiMiddleware) ApiHandler {
 	for i := len(middlewares) - 1; i >= 0; i-- {
 		handler = middlewares[i](handler)
 	}
