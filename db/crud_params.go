@@ -10,8 +10,15 @@ import (
 )
 
 const (
-	fieldsDelimiter = "|"
-	defaultLimit    = 50
+	TextFiltersQK = "textFilters"
+	FiltersQK     = "filters"
+	FiltersArgsQK = "filtersArgs"
+	OffsetQK      = "offset"
+	LimitQK       = "limit"
+	SortQK        = "sort"
+
+	QueryArgsDelimiter = "|"
+	DefaultRowsLimit   = 50
 )
 
 // ---------------------- General Filters Interface -------------------------------
@@ -20,14 +27,14 @@ type Filters interface {
 }
 
 func ParseFiltersFromQuery(q url.Values) Filters {
-	textFilters := q.Get("textFilters")
+	textFilters := q.Get(TextFiltersQK)
 
 	if len(textFilters) > 0 {
 		return TextSearchFilters{Text: textFilters}
 	}
 
-	filters := q.Get("filters")
-	rawArgs := q.Get("filtersArgs")
+	filters := q.Get(FiltersQK)
+	rawArgs := q.Get(FiltersArgsQK)
 
 	return ParseSQLFilters(filters, rawArgs)
 }
@@ -43,7 +50,7 @@ func ParseSQLFilters(statement string, rawArgs string) SQLFilters {
 		return SQLFilters{Statement: statement, Args: nil}
 	}
 
-	parsedArgs := strings.Split(rawArgs, fieldsDelimiter)
+	parsedArgs := strings.Split(rawArgs, QueryArgsDelimiter)
 	args := make([]any, len(parsedArgs), len(parsedArgs))
 
 	for i, v := range parsedArgs {
@@ -92,8 +99,8 @@ type Pagination struct {
 }
 
 func ParsePaginationFromQuery(q url.Values) Pagination {
-	offsetStr := q.Get("offset")
-	limitStr := q.Get("limit")
+	offsetStr := q.Get(OffsetQK)
+	limitStr := q.Get(LimitQK)
 
 	offset, offsetErr := strconv.Atoi(offsetStr)
 	if offsetErr != nil || offset < 0 {
@@ -102,7 +109,7 @@ func ParsePaginationFromQuery(q url.Values) Pagination {
 
 	limit, limitErr := strconv.Atoi(limitStr)
 	if limitErr != nil || limit < 1 {
-		limit = defaultLimit
+		limit = DefaultRowsLimit
 	}
 
 	return Pagination{Offset: offset, Limit: limit}
@@ -116,13 +123,13 @@ type SortingField struct {
 type Sorting []SortingField
 
 func ParseSortingFromQuery(q url.Values) Sorting {
-	sort := q.Get("sort")
+	sort := q.Get(SortQK)
 
 	if len(sort) == 0 {
 		return nil
 	}
 
-	fieldsRaw := strings.Split(sort, fieldsDelimiter)
+	fieldsRaw := strings.Split(sort, QueryArgsDelimiter)
 	fields := make([]SortingField, 0, len(fieldsRaw))
 
 	for _, fr := range fieldsRaw {
@@ -167,7 +174,7 @@ type GetRowsParams struct {
 
 func DefaultGetRowsParams() *GetRowsParams {
 	return &GetRowsParams{
-		Pagination: Pagination{Limit: defaultLimit, Offset: 0},
+		Pagination: Pagination{Limit: DefaultRowsLimit, Offset: 0},
 		Filters:    SQLFilters{},
 		Sorting:    Sorting{},
 	}
