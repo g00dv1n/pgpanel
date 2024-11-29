@@ -20,5 +20,5 @@ func (app *App) executeSQLHandler(w http.ResponseWriter, r *http.Request) error 
 		return NewApiError(http.StatusBadRequest, err)
 	}
 
-	return sendJson(w, res)
+	return WriteJson(w, res)
 }

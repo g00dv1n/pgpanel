@@ -43,5 +43,5 @@ func (app *App) adminLoginHandler(w http.ResponseWriter, r *http.Request) error 
 		Token: token,
 	}
 
-	return sendJson(w, &res)
+	return WriteJson(w, &res)
 }

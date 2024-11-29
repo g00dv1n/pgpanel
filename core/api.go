@@ -77,7 +77,7 @@ func createApiHandler(handler ApiHandler, middlewares ...ApiMiddleware) http.Han
 	}
 }
 
-func sendJson(w http.ResponseWriter, data any) error {
+func WriteJson(w http.ResponseWriter, data any) error {
 	w.Header().Set("Content-Type", "application/json")
 	// Handle different input types
 	switch v := data.(type) {
