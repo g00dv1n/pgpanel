@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"os"
 
-	"github.com/g00dv1n/pgpanel/core"
+	"github.com/g00dv1n/pgpanel"
+	"github.com/g00dv1n/pgpanel/api"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -21,7 +23,11 @@ func main() {
 	}
 	defer dbpool.Close()
 
-	app := core.NewApp(dbpool, logger)
+	app := pgpanel.New(dbpool, logger)
+
+	app.AddRoute("/random", func(w http.ResponseWriter, r *http.Request) error {
+		return api.WriteJson(w, `{"msg": "hello"}`)
+	})
 
 	app.Serve(3333)
 }

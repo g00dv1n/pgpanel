@@ -1,10 +1,12 @@
-package core
+package api
 
 import (
 	"encoding/json"
 	"errors"
 	"net/http"
 	"time"
+
+	"github.com/g00dv1n/pgpanel/core"
 )
 
 // ---------------------- Admin API Handleers -------------------------------
@@ -17,7 +19,7 @@ type LoginResponse struct {
 	Token string `json:"token"`
 }
 
-func (app *App) adminLoginHandler(w http.ResponseWriter, r *http.Request) error {
+func (app *Handlers) adminLoginHandler(w http.ResponseWriter, r *http.Request) error {
 	var creds LoginCreds
 	err := json.NewDecoder(r.Body).Decode(&creds)
 
@@ -33,7 +35,7 @@ func (app *App) adminLoginHandler(w http.ResponseWriter, r *http.Request) error 
 		return NewApiError(http.StatusUnauthorized, errors.New("invalid password"))
 	}
 
-	token, err := GenerateToken(creds.Username, 24*time.Hour)
+	token, err := core.GenerateToken(creds.Username, 24*time.Hour)
 
 	if err != nil {
 		return NewApiError(http.StatusUnauthorized, err)

@@ -1,4 +1,4 @@
-package core
+package api
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"github.com/g00dv1n/pgpanel/db"
 )
 
-func (app *App) executeSQLHandler(w http.ResponseWriter, r *http.Request) error {
+func (app *Handlers) executeSQLHandler(w http.ResponseWriter, r *http.Request) error {
 	var sqlReq db.SQLExecutionRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&sqlReq); err != nil {

@@ -1,4 +1,4 @@
-package core
+package api
 
 import (
 	"encoding/json"
@@ -105,7 +105,7 @@ func ParseGetRowsParamsFromQuery(q url.Values) *db.GetRowsParams {
 }
 
 // ---------------------- Data Handlers -------------------------------
-func (app *App) getRowsHandler(w http.ResponseWriter, r *http.Request) error {
+func (app *Handlers) getRowsHandler(w http.ResponseWriter, r *http.Request) error {
 	tableName := r.PathValue("table")
 	params := ParseGetRowsParamsFromQuery(r.URL.Query())
 
@@ -118,7 +118,7 @@ func (app *App) getRowsHandler(w http.ResponseWriter, r *http.Request) error {
 	return WriteJson(w, rows)
 }
 
-func (app *App) insertRowHandler(w http.ResponseWriter, r *http.Request) error {
+func (app *Handlers) insertRowHandler(w http.ResponseWriter, r *http.Request) error {
 	tableName := r.PathValue("table")
 
 	var row db.RawRow
@@ -135,7 +135,7 @@ func (app *App) insertRowHandler(w http.ResponseWriter, r *http.Request) error {
 	return WriteJson(w, rows)
 }
 
-func (app *App) updateRowsHandler(w http.ResponseWriter, r *http.Request) error {
+func (app *Handlers) updateRowsHandler(w http.ResponseWriter, r *http.Request) error {
 	tableName := r.PathValue("table")
 	filters := ParseFiltersFromQuery(r.URL.Query())
 
@@ -153,7 +153,7 @@ func (app *App) updateRowsHandler(w http.ResponseWriter, r *http.Request) error 
 	return WriteJson(w, rows)
 }
 
-func (app *App) deleteRowsHandler(w http.ResponseWriter, r *http.Request) error {
+func (app *Handlers) deleteRowsHandler(w http.ResponseWriter, r *http.Request) error {
 	tableName := r.PathValue("table")
 	filters := ParseFiltersFromQuery(r.URL.Query())
 
