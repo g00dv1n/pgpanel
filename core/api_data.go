@@ -86,9 +86,9 @@ func ParseSortingFromQuery(q url.Values) db.Sorting {
 		}
 
 		if strings.HasPrefix(fr, "-") {
-			fields = append(fields, db.SortingField{Name: strings.TrimPrefix(fr, "-"), Order: "DESC"})
+			fields = append(fields, db.SortingField{Name: strings.TrimPrefix(fr, "-"), Order: db.SortingOrderDESK})
 		} else {
-			fields = append(fields, db.SortingField{Name: fr, Order: "ASC"})
+			fields = append(fields, db.SortingField{Name: fr, Order: db.SortingOrderASK})
 		}
 	}
 

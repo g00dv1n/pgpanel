@@ -9,6 +9,9 @@ import (
 
 const (
 	DefaultPaginationLimit = 50
+
+	SortingOrderASK  = "ASK"
+	SortingOrderDESK = "DESK"
 )
 
 // ---------------------- General Filters Interface -------------------------------
