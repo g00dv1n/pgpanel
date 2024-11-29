@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	maxRowsLimit = 500
+	MaxSQLExecutionRowsLimit = 500
 )
 
 type SQLExecutionRequest struct {
@@ -39,7 +39,7 @@ func (req *SQLExecutionRequest) Execute(db *pgxpool.Pool) (*SQLExecutionResponse
 
 	var rowsCount int
 	for rows.Next() {
-		if rowsCount == maxRowsLimit {
+		if rowsCount == MaxSQLExecutionRowsLimit {
 			break
 		}
 
