@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/g00dv1n/pgpanel/core"
 	"github.com/g00dv1n/pgpanel/db"
 )
 
@@ -105,63 +106,70 @@ func ParseGetRowsParamsFromQuery(q url.Values) *db.GetRowsParams {
 }
 
 // ---------------------- Data Handlers -------------------------------
-func (app *Handlers) getRowsHandler(w http.ResponseWriter, r *http.Request) error {
-	tableName := r.PathValue("table")
-	params := ParseGetRowsParamsFromQuery(r.URL.Query())
+func getRowsHandler(app *core.App) ApiHandler {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		tableName := r.PathValue("table")
+		params := ParseGetRowsParamsFromQuery(r.URL.Query())
 
-	rows, err := app.CRUD.GetRows(tableName, params)
+		rows, err := app.CRUD.GetRows(tableName, params)
 
-	if err != nil {
-		return NewApiError(http.StatusBadRequest, err)
+		if err != nil {
+			return NewApiError(http.StatusBadRequest, err)
+		}
+
+		return WriteJson(w, rows)
 	}
+}
+func insertRowHandler(app *core.App) ApiHandler {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		tableName := r.PathValue("table")
 
-	return WriteJson(w, rows)
+		var row db.RawRow
+		if err := json.NewDecoder(r.Body).Decode(&row); err != nil {
+			return NewApiError(http.StatusBadRequest, err)
+		}
+
+		rows, err := app.CRUD.InsertRow(tableName, row)
+
+		if err != nil {
+			return NewApiError(http.StatusBadRequest, err)
+		}
+
+		return WriteJson(w, rows)
+	}
 }
 
-func (app *Handlers) insertRowHandler(w http.ResponseWriter, r *http.Request) error {
-	tableName := r.PathValue("table")
+func updateRowsHandler(app *core.App) ApiHandler {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		tableName := r.PathValue("table")
+		filters := ParseFiltersFromQuery(r.URL.Query())
 
-	var row db.RawRow
-	if err := json.NewDecoder(r.Body).Decode(&row); err != nil {
-		return NewApiError(http.StatusBadRequest, err)
+		var row db.RawRow
+		if err := json.NewDecoder(r.Body).Decode(&row); err != nil {
+			return NewApiError(http.StatusBadRequest, err)
+		}
+
+		rows, err := app.CRUD.UpdateRows(tableName, filters, row)
+
+		if err != nil {
+			return NewApiError(http.StatusBadRequest, err)
+		}
+
+		return WriteJson(w, rows)
 	}
-
-	rows, err := app.CRUD.InsertRow(tableName, row)
-
-	if err != nil {
-		return NewApiError(http.StatusBadRequest, err)
-	}
-
-	return WriteJson(w, rows)
 }
 
-func (app *Handlers) updateRowsHandler(w http.ResponseWriter, r *http.Request) error {
-	tableName := r.PathValue("table")
-	filters := ParseFiltersFromQuery(r.URL.Query())
+func deleteRowsHandler(app *core.App) ApiHandler {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		tableName := r.PathValue("table")
+		filters := ParseFiltersFromQuery(r.URL.Query())
 
-	var row db.RawRow
-	if err := json.NewDecoder(r.Body).Decode(&row); err != nil {
-		return NewApiError(http.StatusBadRequest, err)
+		rows, err := app.CRUD.DeleteRows(tableName, filters)
+
+		if err != nil {
+			return NewApiError(http.StatusBadRequest, err)
+		}
+
+		return WriteJson(w, rows)
 	}
-
-	rows, err := app.CRUD.UpdateRows(tableName, filters, row)
-
-	if err != nil {
-		return NewApiError(http.StatusBadRequest, err)
-	}
-
-	return WriteJson(w, rows)
-}
-
-func (app *Handlers) deleteRowsHandler(w http.ResponseWriter, r *http.Request) error {
-	tableName := r.PathValue("table")
-	filters := ParseFiltersFromQuery(r.URL.Query())
-
-	rows, err := app.CRUD.DeleteRows(tableName, filters)
-
-	if err != nil {
-		return NewApiError(http.StatusBadRequest, err)
-	}
-
-	return WriteJson(w, rows)
 }
