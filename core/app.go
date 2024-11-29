@@ -1,7 +1,9 @@
 package core
 
 import (
+	"fmt"
 	"log/slog"
+	"net/http"
 	"os"
 
 	"github.com/g00dv1n/pgpanel/data"
@@ -10,10 +12,11 @@ import (
 )
 
 type App struct {
-	DB     *pgxpool.Pool
-	Logger *slog.Logger
-	Schema *db.SchemaRepository
-	CRUD   *data.CrudService
+	DB      *pgxpool.Pool
+	Logger  *slog.Logger
+	Schema  *db.SchemaRepository
+	CRUD    *data.CrudService
+	rootMux *http.ServeMux
 }
 
 func NewApp(pool *pgxpool.Pool, logger *slog.Logger) App {
@@ -29,10 +32,29 @@ func NewApp(pool *pgxpool.Pool, logger *slog.Logger) App {
 
 	crud := data.NewCrudService(pool, schema, logger)
 
-	return App{
+	app := App{
 		DB:     pool,
 		Logger: logger,
 		Schema: schema,
 		CRUD:   crud,
+	}
+
+	app.initRoutes()
+
+	return app
+}
+
+func (app *App) Serve(port int) {
+	if app.rootMux == nil {
+		fmt.Fprintf(os.Stderr, "APP routes are not inited")
+		os.Exit(1)
+	}
+
+	addr := fmt.Sprintf(":%d", port)
+
+	app.Logger.Info("Running server on http://" + addr)
+	if err := http.ListenAndServe(addr, app.rootMux); err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to ListenAndServe: %v\n", err)
+		os.Exit(1)
 	}
 }

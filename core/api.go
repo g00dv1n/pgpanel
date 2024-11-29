@@ -27,7 +27,7 @@ func (e ApiError) Error() string {
 }
 
 // ------------------------- ALL APP Routes ---------------------------------
-func (app *App) Routes() *http.ServeMux {
+func (app *App) initRoutes() {
 	root := http.NewServeMux()
 
 	//------- Register embeded fronted serving ------
@@ -50,7 +50,13 @@ func (app *App) Routes() *http.ServeMux {
 	// --------------ADMIN API ENDPOINTS-------------------
 	api.Handle("POST /admin/login", createApiHandler(app.adminLoginHandler))
 
-	return root
+	// save all routes to app
+	app.rootMux = root
+}
+
+// ------------------------- Public method to add custom route ---------------------------------
+func (app *App) AddRoute(pattern string, handler ApiHandler, middlewares ...ApiMiddleware) {
+	app.rootMux.Handle(pattern, createApiHandler(handler, middlewares...))
 }
 
 // ------------------------- API helpers ---------------------------------
@@ -58,9 +64,6 @@ func createApiHandler(handler ApiHandler, middlewares ...ApiMiddleware) http.Han
 	h := Chain(handler, middlewares...)
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		// In api we always return json (for error as well)
-		w.Header().Add("Content-Type", "application/json")
-
 		if err := h(w, r); err != nil {
 			apiErr, ok := err.(ApiError)
 			if !ok {
@@ -68,6 +71,7 @@ func createApiHandler(handler ApiHandler, middlewares ...ApiMiddleware) http.Han
 			}
 
 			w.WriteHeader(apiErr.Code)
+			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(&apiErr)
 
 			return
@@ -76,6 +80,7 @@ func createApiHandler(handler ApiHandler, middlewares ...ApiMiddleware) http.Han
 }
 
 func sendJson(w http.ResponseWriter, data any) error {
+	w.Header().Set("Content-Type", "application/json")
 	// Handle different input types
 	switch v := data.(type) {
 	case []byte:

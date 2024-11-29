@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"net/http"
 	"os"
 
 	"github.com/g00dv1n/pgpanel/core"
@@ -23,13 +22,8 @@ func main() {
 	defer dbpool.Close()
 
 	app := core.NewApp(dbpool, logger)
-	addr := ":3333"
 
-	app.Logger.Info("Running server on http://127.0.0.1" + addr)
-	if err := http.ListenAndServe(addr, app.Routes()); err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to ListenAndServe: %v\n", err)
-		os.Exit(1)
-	}
+	app.Serve(3333)
 }
 
 // INIT istance of logger, set it as default accros all program and return pointer to this logger
