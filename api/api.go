@@ -3,20 +3,9 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-
-	"github.com/g00dv1n/pgpanel/core"
 )
 
-// Main Handlers Container with embedded App
-type Handlers struct {
-	*core.App
-}
-
-func NewHandlers(app *core.App) *Handlers {
-	return &Handlers{app}
-}
-
-// ---------------------- API types -------------------------------
+// ---------------------- Main API types -------------------------------
 
 // The improved STD handler that can return error
 type ApiHandler func(w http.ResponseWriter, r *http.Request) error
