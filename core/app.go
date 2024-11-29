@@ -1,4 +1,4 @@
-package app
+package core
 
 import (
 	"fmt"
@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/g00dv1n/pgpanel/data"
 	"github.com/g00dv1n/pgpanel/db"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -15,11 +14,11 @@ type App struct {
 	DB     *pgxpool.Pool
 	Logger *slog.Logger
 	Schema *db.SchemaRepository
-	CRUD   *data.CrudService
+	CRUD   *db.CrudService
 	mux    *http.ServeMux
 }
 
-func New(pool *pgxpool.Pool, logger *slog.Logger) App {
+func NewApp(pool *pgxpool.Pool, logger *slog.Logger) App {
 	if logger == nil {
 		logger = slog.Default()
 	}
@@ -30,7 +29,7 @@ func New(pool *pgxpool.Pool, logger *slog.Logger) App {
 		os.Exit(1)
 	}
 
-	crud := data.NewCrudService(pool, schema, logger)
+	crud := db.NewCrudService(pool, schema, logger)
 
 	app := App{
 		DB:     pool,

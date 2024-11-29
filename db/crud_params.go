@@ -1,4 +1,4 @@
-package data
+package db
 
 import (
 	"fmt"
@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/g00dv1n/pgpanel/db"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -17,7 +16,7 @@ const (
 
 // ---------------------- General Filters Interface -------------------------------
 type Filters interface {
-	ToSQL(table *db.Table) (string, []any)
+	ToSQL(table *Table) (string, []any)
 }
 
 func ParseFiltersFromQuery(q url.Values) Filters {
@@ -54,7 +53,7 @@ func ParseSQLFilters(statement string, rawArgs string) SQLFilters {
 	return SQLFilters{Statement: statement, Args: args}
 }
 
-func (f SQLFilters) ToSQL(t *db.Table) (string, []any) {
+func (f SQLFilters) ToSQL(t *Table) (string, []any) {
 	if len(f.Statement) == 0 {
 		return "", nil
 	}
@@ -67,7 +66,7 @@ type TextSearchFilters struct {
 	Text string
 }
 
-func (f TextSearchFilters) ToSQL(t *db.Table) (string, []any) {
+func (f TextSearchFilters) ToSQL(t *Table) (string, []any) {
 	var textColsExps []string
 
 	for _, col := range t.Columns {

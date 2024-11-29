@@ -1,15 +1,15 @@
-package app
+package core
 
 import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/g00dv1n/pgpanel/data"
+	"github.com/g00dv1n/pgpanel/db"
 )
 
 func (app *App) getRowsHandler(w http.ResponseWriter, r *http.Request) error {
 	tableName := r.PathValue("table")
-	params := data.ParseGetRowsParamsFromQuery(r.URL.Query())
+	params := db.ParseGetRowsParamsFromQuery(r.URL.Query())
 
 	rows, err := app.CRUD.GetRows(tableName, params)
 
@@ -23,7 +23,7 @@ func (app *App) getRowsHandler(w http.ResponseWriter, r *http.Request) error {
 func (app *App) insertRowHandler(w http.ResponseWriter, r *http.Request) error {
 	tableName := r.PathValue("table")
 
-	var row data.RawRow
+	var row db.RawRow
 	if err := json.NewDecoder(r.Body).Decode(&row); err != nil {
 		return NewApiError(http.StatusBadRequest, err)
 	}
@@ -39,9 +39,9 @@ func (app *App) insertRowHandler(w http.ResponseWriter, r *http.Request) error {
 
 func (app *App) updateRowsHandler(w http.ResponseWriter, r *http.Request) error {
 	tableName := r.PathValue("table")
-	filters := data.ParseFiltersFromQuery(r.URL.Query())
+	filters := db.ParseFiltersFromQuery(r.URL.Query())
 
-	var row data.RawRow
+	var row db.RawRow
 	if err := json.NewDecoder(r.Body).Decode(&row); err != nil {
 		return NewApiError(http.StatusBadRequest, err)
 	}
@@ -57,7 +57,7 @@ func (app *App) updateRowsHandler(w http.ResponseWriter, r *http.Request) error 
 
 func (app *App) deleteRowsHandler(w http.ResponseWriter, r *http.Request) error {
 	tableName := r.PathValue("table")
-	filters := data.ParseFiltersFromQuery(r.URL.Query())
+	filters := db.ParseFiltersFromQuery(r.URL.Query())
 
 	rows, err := app.CRUD.DeleteRows(tableName, filters)
 

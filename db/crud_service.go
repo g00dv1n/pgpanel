@@ -1,4 +1,4 @@
-package data
+package db
 
 import (
 	"context"
@@ -9,17 +9,16 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/g00dv1n/pgpanel/db"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type CrudService struct {
 	db         *pgxpool.Pool
-	schemaRepo *db.SchemaRepository
+	schemaRepo *SchemaRepository
 	logger     *slog.Logger
 }
 
-func NewCrudService(db *pgxpool.Pool, schemaRepo *db.SchemaRepository, logger *slog.Logger) *CrudService {
+func NewCrudService(db *pgxpool.Pool, schemaRepo *SchemaRepository, logger *slog.Logger) *CrudService {
 	return &CrudService{db: db, schemaRepo: schemaRepo, logger: logger}
 }
 
@@ -79,7 +78,7 @@ func (s CrudService) GetRows(tableName string, params *GetRowsParams) (json.RawM
 // ---------------------- Universal Update Rows -------------------------------
 type RawRow map[string]any
 
-func (rr RawRow) ToUpdateSQL(table *db.Table, paramsOffset int) (string, []any) {
+func (rr RawRow) ToUpdateSQL(table *Table, paramsOffset int) (string, []any) {
 	i := 1
 
 	args := make([]any, 0, len(rr))
@@ -134,7 +133,7 @@ func (s CrudService) UpdateRows(tableName string, filters Filters, row RawRow) (
 }
 
 // ---------------------- Universal Insert Row -------------------------------
-func (rr RawRow) ToInsertSQL(table *db.Table, paramsOffset int) (string, string, []any) {
+func (rr RawRow) ToInsertSQL(table *Table, paramsOffset int) (string, string, []any) {
 	i := 1
 
 	insertColumns := make([]string, 0, len(rr))
