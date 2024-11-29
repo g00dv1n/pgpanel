@@ -11,7 +11,7 @@ import (
 	"github.com/g00dv1n/pgpanel/db"
 )
 
-// ---------------- Query Keys For parsing Filter, Pagination and Sorting -----------------
+// Query Keys For parsing Filter, Pagination and Sorting
 const (
 	TextFiltersQK = "textFilters"
 	FiltersQK     = "filters"
@@ -23,7 +23,7 @@ const (
 	QueryArgsDelimiter = "|"
 )
 
-// ---------------------- Parse Filters -------------------------------
+// Parse Filters
 func ParseFiltersFromQuery(q url.Values) db.Filters {
 	textFilters := q.Get(TextFiltersQK)
 
@@ -52,7 +52,7 @@ func ParseSQLFilters(statement string, rawArgs string) db.SQLFilters {
 	return db.SQLFilters{Statement: statement, Args: args}
 }
 
-// ---------------------- Parse Pagination -------------------------------
+// Parse Pagination
 func ParsePaginationFromQuery(q url.Values) db.Pagination {
 	offsetStr := q.Get(OffsetQK)
 	limitStr := q.Get(LimitQK)
@@ -70,7 +70,7 @@ func ParsePaginationFromQuery(q url.Values) db.Pagination {
 	return db.Pagination{Offset: offset, Limit: limit}
 }
 
-// ---------------------- Parse Sorting -------------------------------
+// Parse Sorting
 func ParseSortingFromQuery(q url.Values) db.Sorting {
 	sort := q.Get(SortQK)
 
@@ -96,7 +96,7 @@ func ParseSortingFromQuery(q url.Values) db.Sorting {
 	return fields
 }
 
-// ---------------------- Parse GetRowsParams  -------------------------------
+// Parse GetRowsParams with combined ParseFiltersFromQuery, ParsePaginationFromQuery, ParseSortingFromQuery
 func ParseGetRowsParamsFromQuery(q url.Values) *db.GetRowsParams {
 	return &db.GetRowsParams{
 		Filters:    ParseFiltersFromQuery(q),
@@ -105,7 +105,8 @@ func ParseGetRowsParamsFromQuery(q url.Values) *db.GetRowsParams {
 	}
 }
 
-// ---------------------- Data Handlers -------------------------------
+// ---------------------- Handlers -------------------------------
+
 func getRowsHandler(app *core.App) ApiHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		tableName := r.PathValue("table")

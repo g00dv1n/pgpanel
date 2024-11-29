@@ -9,7 +9,6 @@ import (
 	"github.com/g00dv1n/pgpanel/core"
 )
 
-// ---------------------- Admin API Handleers -------------------------------
 type LoginCreds struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
