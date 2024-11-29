@@ -9,11 +9,15 @@ import ReactCodeMirror from "@uiw/react-codemirror";
 import { Play } from "lucide-react";
 import { useState } from "react";
 
+const LastQueryKey = "pgpanel_last_sql_query";
+
 export function SqlPage() {
   const tablesMap = useTablesMap();
   const tables = Object.values(tablesMap);
 
-  const [sqlQuery, setSqlQuery] = useState("");
+  const [sqlQuery, setSqlQuery] = useState(
+    localStorage.getItem(LastQueryKey) || ""
+  );
 
   const [sqlError, setSqlError] = useState("");
   const [sqlResponse, setSqlResponse] = useState<
@@ -37,6 +41,7 @@ export function SqlPage() {
     } else {
       setSqlError("");
       setSqlResponse(res.sqlResponse);
+      localStorage.setItem(LastQueryKey, sqlQuery);
     }
     setIsExecuting(false);
   };
@@ -68,6 +73,7 @@ export function SqlPage() {
       <div className="w-full my-5 border">
         <ReactCodeMirror
           height="200px"
+          value={sqlQuery}
           onChange={setSqlQuery}
           indentWithTab={false}
           inputMode="search"

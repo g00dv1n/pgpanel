@@ -158,11 +158,9 @@ export function fieldToString(value: RowField): string {
     }
 
     // Check if it's an array of objects
-    if (typeof value[0] === "object" && !Array.isArray(value[0])) {
+    if (typeof value[0] === "object") {
       // Convert array of objects to stringified JSON with a newline between elements
-      return value
-        .map((obj) => JSON.stringify(obj, null, 2))
-        .join("\n\n---\n\n"); // Add separator for readability
+      return JSON.stringify(value, null, 2);
     }
 
     // For arrays of primitives
