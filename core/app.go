@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+// Universal App struct to store important state and different helpers
 type App struct {
 	DB     *pgxpool.Pool
 	Logger *slog.Logger
