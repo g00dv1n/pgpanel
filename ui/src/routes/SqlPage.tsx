@@ -9,7 +9,7 @@ import ReactCodeMirror from "@uiw/react-codemirror";
 import { Play } from "lucide-react";
 import { useState } from "react";
 
-const LastQueryKey = "pgpanel_last_sql_query";
+const LastQueryKey = "pgpanel_lastSqlQuery";
 
 export function SqlPage() {
   const tablesMap = useTablesMap();

@@ -1,6 +1,7 @@
 package pgpanel
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -18,9 +19,21 @@ type PgPanel struct {
 	mux *http.ServeMux
 }
 
-func New(pool *pgxpool.Pool, logger *slog.Logger) *PgPanel {
+func New(connString string) *PgPanel {
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+
+	pool, err := pgxpool.New(context.Background(), connString)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		os.Exit(1)
+	}
+
 	app := core.NewApp(pool, logger)
 
+	return NewWithApp(app)
+}
+
+func NewWithApp(app *core.App) *PgPanel {
 	mux := http.NewServeMux()
 
 	// Register embeded fronted serving
@@ -39,6 +52,8 @@ func (panel *PgPanel) AddRoute(pattern string, handler api.ApiHandler, middlewar
 }
 
 func (panel *PgPanel) Serve(port int) {
+	defer panel.DB.Close()
+
 	addr := fmt.Sprintf(":%d", port)
 
 	panel.Logger.Info("Running server on http://127.0.0.1" + addr)
