@@ -1,4 +1,4 @@
-package core
+package app
 
 import (
 	"fmt"
@@ -12,14 +12,14 @@ import (
 )
 
 type App struct {
-	DB      *pgxpool.Pool
-	Logger  *slog.Logger
-	Schema  *db.SchemaRepository
-	CRUD    *data.CrudService
-	rootMux *http.ServeMux
+	DB     *pgxpool.Pool
+	Logger *slog.Logger
+	Schema *db.SchemaRepository
+	CRUD   *data.CrudService
+	mux    *http.ServeMux
 }
 
-func NewApp(pool *pgxpool.Pool, logger *slog.Logger) App {
+func New(pool *pgxpool.Pool, logger *slog.Logger) App {
 	if logger == nil {
 		logger = slog.Default()
 	}
@@ -45,15 +45,15 @@ func NewApp(pool *pgxpool.Pool, logger *slog.Logger) App {
 }
 
 func (app *App) Serve(port int) {
-	if app.rootMux == nil {
+	if app.mux == nil {
 		fmt.Fprintf(os.Stderr, "APP routes are not inited")
 		os.Exit(1)
 	}
 
 	addr := fmt.Sprintf(":%d", port)
 
-	app.Logger.Info("Running server on http://" + addr)
-	if err := http.ListenAndServe(addr, app.rootMux); err != nil {
+	app.Logger.Info("Running server on http://127.0.0.1" + addr)
+	if err := http.ListenAndServe(addr, app.mux); err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to ListenAndServe: %v\n", err)
 		os.Exit(1)
 	}

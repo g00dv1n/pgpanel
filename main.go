@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/g00dv1n/pgpanel/core"
+	"github.com/g00dv1n/pgpanel/app"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -21,7 +21,7 @@ func main() {
 	}
 	defer dbpool.Close()
 
-	app := core.NewApp(dbpool, logger)
+	app := app.New(dbpool, logger)
 
 	app.Serve(3333)
 }

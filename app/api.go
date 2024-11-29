@@ -1,4 +1,4 @@
-package core
+package app
 
 import (
 	"encoding/json"
@@ -28,15 +28,15 @@ func (e ApiError) Error() string {
 
 // ------------------------- ALL APP Routes ---------------------------------
 func (app *App) initRoutes() {
-	root := http.NewServeMux()
+	app.mux = http.NewServeMux()
 
 	//------- Register embeded fronted serving ------
-	root.Handle("/", ui.Handler())
+	app.mux.Handle("/", ui.Handler())
 	//-----------------------------------------------
 
 	// -------Set Up API Roputer with /api prefix----
 	api := http.NewServeMux()
-	root.Handle("/api/", http.StripPrefix("/api", api))
+	app.mux.Handle("/api/", http.StripPrefix("/api", api))
 
 	// --------------DATA API ENDPOINTS-------------------
 	api.Handle("GET /schema/tables", createApiHandler(app.getTablesHandler, AuthMiddleware))
@@ -50,13 +50,11 @@ func (app *App) initRoutes() {
 	// --------------ADMIN API ENDPOINTS-------------------
 	api.Handle("POST /admin/login", createApiHandler(app.adminLoginHandler))
 
-	// save all routes to app
-	app.rootMux = root
 }
 
 // ------------------------- Public method to add custom route ---------------------------------
 func (app *App) AddRoute(pattern string, handler ApiHandler, middlewares ...ApiMiddleware) {
-	app.rootMux.Handle(pattern, createApiHandler(handler, middlewares...))
+	app.mux.Handle(pattern, createApiHandler(handler, middlewares...))
 }
 
 // ------------------------- API helpers ---------------------------------
