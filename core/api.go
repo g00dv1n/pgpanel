@@ -38,9 +38,9 @@ func (app *App) initRoutes() {
 	api := http.NewServeMux()
 	app.mux.Handle("/api/", http.StripPrefix("/api", api))
 
-	// --------------DATA API ENDPOINTS-------------------
+	// --------------SCHEMA API ENDPOINTS-------------------
 	api.Handle("GET /schema/tables", createApiHandler(app.getTablesHandler, AuthMiddleware))
-
+	// --------------DATA REST API ENDPOINTS-------------------
 	api.Handle("GET /data/{table}", createApiHandler(app.getRowsHandler, AuthMiddleware))
 	api.Handle("POST /data/{table}", createApiHandler(app.insertRowHandler, AuthMiddleware))
 	api.Handle("PUT /data/{table}", createApiHandler(app.updateRowsHandler, AuthMiddleware))
