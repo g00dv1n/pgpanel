@@ -36,11 +36,8 @@ func New(connString string) *PgPanel {
 func NewWithApp(app *core.App) *PgPanel {
 	mux := http.NewServeMux()
 
-	// Register embeded fronted serving
-	mux.Handle("/", ui.Handler())
-
-	// Mount all api
-	api.MountRoutes(app, mux)
+	// Mount all routes
+	api.MountRoutes(app, mux, ui.Handler())
 
 	return &PgPanel{App: app, mux: mux}
 }

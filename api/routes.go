@@ -8,7 +8,12 @@ import (
 
 const UrlPrefix = "/api"
 
-func MountRoutes(app *core.App, mux *http.ServeMux) {
+func MountRoutes(app *core.App, mux *http.ServeMux, ui http.Handler) {
+	// Register embeded fronted serving (can skip ui seving if needed)
+	if ui != nil {
+		mux.Handle("/", ui)
+	}
+
 	// -------Set Up API Router with API prefix----
 	api := http.NewServeMux()
 	mux.Handle(UrlPrefix+"/", http.StripPrefix(UrlPrefix, api))
