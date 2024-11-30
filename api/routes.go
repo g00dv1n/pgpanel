@@ -9,7 +9,7 @@ import (
 const UrlPrefix = "/api"
 
 func MountRoutes(app *core.App, mux *http.ServeMux, ui http.Handler) {
-	// Register embeded fronted serving (can skip ui seving if needed)
+	// Register embeded fronted serving (can skip ui serving if needed)
 	if ui != nil {
 		mux.Handle("/", ui)
 	}
