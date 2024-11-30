@@ -4,7 +4,6 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/g00dv1n/pgpanel/db"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -12,8 +11,8 @@ import (
 type App struct {
 	DB     *pgxpool.Pool
 	Logger *slog.Logger
-	Schema *db.SchemaRepository
-	CRUD   *db.CrudService
+	Schema *SchemaRepository
+	CRUD   *CrudService
 }
 
 func NewApp(pool *pgxpool.Pool, logger *slog.Logger) *App {
@@ -21,13 +20,13 @@ func NewApp(pool *pgxpool.Pool, logger *slog.Logger) *App {
 		logger = slog.Default()
 	}
 
-	schema, err := db.NewSchemaRepository(pool, db.NewDbSchemaExtractor(pool, "public", nil), logger)
+	schema, err := NewSchemaRepository(pool, NewDbSchemaExtractor(pool, "public", nil), logger)
 	if err != nil {
 		logger.Error("can't extract tables", "error", err)
 		os.Exit(1)
 	}
 
-	crud := db.NewCrudService(pool, schema, logger)
+	crud := NewCrudService(pool, schema, logger)
 
 	return &App{
 		DB:     pool,

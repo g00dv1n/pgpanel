@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/g00dv1n/pgpanel/core"
-	"github.com/g00dv1n/pgpanel/db"
 )
 
 // Query Keys For parsing Filter, Pagination and Sorting
@@ -24,11 +23,11 @@ const (
 )
 
 // Parse Filters
-func ParseFiltersFromQuery(q url.Values) db.Filters {
+func ParseFiltersFromQuery(q url.Values) core.Filters {
 	textFilters := q.Get(TextFiltersQK)
 
 	if len(textFilters) > 0 {
-		return db.TextSearchFilters{Text: textFilters}
+		return core.TextSearchFilters{Text: textFilters}
 	}
 
 	filters := q.Get(FiltersQK)
@@ -37,9 +36,9 @@ func ParseFiltersFromQuery(q url.Values) db.Filters {
 	return ParseSQLFilters(filters, rawArgs)
 }
 
-func ParseSQLFilters(statement string, rawArgs string) db.SQLFilters {
+func ParseSQLFilters(statement string, rawArgs string) core.SQLFilters {
 	if len(rawArgs) == 0 {
-		return db.SQLFilters{Statement: statement, Args: nil}
+		return core.SQLFilters{Statement: statement, Args: nil}
 	}
 
 	parsedArgs := strings.Split(rawArgs, QueryArgsDelimiter)
@@ -49,11 +48,11 @@ func ParseSQLFilters(statement string, rawArgs string) db.SQLFilters {
 		args[i] = v
 	}
 
-	return db.SQLFilters{Statement: statement, Args: args}
+	return core.SQLFilters{Statement: statement, Args: args}
 }
 
 // Parse Pagination
-func ParsePaginationFromQuery(q url.Values) db.Pagination {
+func ParsePaginationFromQuery(q url.Values) core.Pagination {
 	offsetStr := q.Get(OffsetQK)
 	limitStr := q.Get(LimitQK)
 
@@ -64,14 +63,14 @@ func ParsePaginationFromQuery(q url.Values) db.Pagination {
 
 	limit, limitErr := strconv.Atoi(limitStr)
 	if limitErr != nil || limit < 1 {
-		limit = db.DefaultPaginationLimit
+		limit = core.DefaultPaginationLimit
 	}
 
-	return db.Pagination{Offset: offset, Limit: limit}
+	return core.Pagination{Offset: offset, Limit: limit}
 }
 
 // Parse Sorting
-func ParseSortingFromQuery(q url.Values) db.Sorting {
+func ParseSortingFromQuery(q url.Values) core.Sorting {
 	sort := q.Get(SortQK)
 
 	if len(sort) == 0 {
@@ -79,7 +78,7 @@ func ParseSortingFromQuery(q url.Values) db.Sorting {
 	}
 
 	fieldsRaw := strings.Split(sort, QueryArgsDelimiter)
-	fields := make([]db.SortingField, 0, len(fieldsRaw))
+	fields := make([]core.SortingField, 0, len(fieldsRaw))
 
 	for _, fr := range fieldsRaw {
 		if len(fr) == 0 {
@@ -87,9 +86,9 @@ func ParseSortingFromQuery(q url.Values) db.Sorting {
 		}
 
 		if strings.HasPrefix(fr, "-") {
-			fields = append(fields, db.SortingField{Name: strings.TrimPrefix(fr, "-"), Order: db.SortingOrderDESK})
+			fields = append(fields, core.SortingField{Name: strings.TrimPrefix(fr, "-"), Order: core.SortingOrderDESK})
 		} else {
-			fields = append(fields, db.SortingField{Name: fr, Order: db.SortingOrderASK})
+			fields = append(fields, core.SortingField{Name: fr, Order: core.SortingOrderASK})
 		}
 	}
 
@@ -97,8 +96,8 @@ func ParseSortingFromQuery(q url.Values) db.Sorting {
 }
 
 // Parse GetRowsParams with combined ParseFiltersFromQuery, ParsePaginationFromQuery, ParseSortingFromQuery
-func ParseGetRowsParamsFromQuery(q url.Values) *db.GetRowsParams {
-	return &db.GetRowsParams{
+func ParseGetRowsParamsFromQuery(q url.Values) *core.GetRowsParams {
+	return &core.GetRowsParams{
 		Filters:    ParseFiltersFromQuery(q),
 		Pagination: ParsePaginationFromQuery(q),
 		Sorting:    ParseSortingFromQuery(q),
@@ -125,7 +124,7 @@ func insertRowHandler(app *core.App) ApiHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		tableName := r.PathValue("table")
 
-		var row db.RawRow
+		var row core.RawRow
 		if err := json.NewDecoder(r.Body).Decode(&row); err != nil {
 			return NewApiError(http.StatusBadRequest, err)
 		}
@@ -145,7 +144,7 @@ func updateRowsHandler(app *core.App) ApiHandler {
 		tableName := r.PathValue("table")
 		filters := ParseFiltersFromQuery(r.URL.Query())
 
-		var row db.RawRow
+		var row core.RawRow
 		if err := json.NewDecoder(r.Body).Decode(&row); err != nil {
 			return NewApiError(http.StatusBadRequest, err)
 		}
