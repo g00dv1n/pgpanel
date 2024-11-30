@@ -15,7 +15,7 @@ func AuthMiddleware(next ApiHandler) ApiHandler {
 			return NewApiError(http.StatusForbidden, err)
 		}
 
-		claims, err := core.ValidateToken(token)
+		claims, err := core.ValidateJwtToken(token)
 
 		if err != nil {
 			return NewApiError(http.StatusForbidden, err)

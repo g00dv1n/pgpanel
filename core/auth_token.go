@@ -25,8 +25,8 @@ type AdminClaims struct {
 	jwt.RegisteredClaims
 }
 
-// GenerateToken creates a new JWT token
-func GenerateToken(username string, ttl time.Duration) (string, error) {
+// GenerateJwtToken creates a new JWT token
+func GenerateJwtToken(username string, ttl time.Duration) (string, error) {
 	// Set token expiration
 	expirationTime := time.Now().Add(ttl)
 
@@ -47,8 +47,8 @@ func GenerateToken(username string, ttl time.Duration) (string, error) {
 	return token.SignedString(secretKey)
 }
 
-// ValidateToken checks if the token is valid
-func ValidateToken(tokenString string) (*AdminClaims, error) {
+// ValidateJwtToken checks if the token is valid
+func ValidateJwtToken(tokenString string) (*AdminClaims, error) {
 	var claims AdminClaims
 	token, err := jwt.ParseWithClaims(tokenString, &claims, func(t *jwt.Token) (interface{}, error) {
 		// Validate the signing method (optional but recommended)
