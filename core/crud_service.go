@@ -72,8 +72,6 @@ func (s CrudService) GetRows(tableName string, params *GetRowsParams) (json.RawM
 		"Offset":  params.Pagination.Offset,
 	})
 
-	fmt.Println(sql)
-
 	return s.queryAsJson(sql, args)
 }
 
