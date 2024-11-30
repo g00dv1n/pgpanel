@@ -22,7 +22,7 @@ func NewCrudService(db *pgxpool.Pool, schema *SchemaRepository, logger *slog.Log
 	return &CrudService{db: db, schema: schema, logger: logger}
 }
 
-func (s CrudService) QueryAsJson(sql string, args []any) (json.RawMessage, error) {
+func (s CrudService) queryAsJson(sql string, args []any) (json.RawMessage, error) {
 	jsonSqlWrapper := fmt.Sprintf(`
 		WITH q as (%s)
 		SELECT 
@@ -72,7 +72,7 @@ func (s CrudService) GetRows(tableName string, params *GetRowsParams) (json.RawM
 		"Offset":  params.Pagination.Offset,
 	})
 
-	return s.QueryAsJson(sql, args)
+	return s.queryAsJson(sql, args)
 }
 
 // ---------------------- Universal Update Rows -------------------------------
@@ -129,7 +129,7 @@ func (s CrudService) UpdateRows(tableName string, filters Filters, row RawRow) (
 		"Where":     where,
 	})
 
-	return s.QueryAsJson(sql, args)
+	return s.queryAsJson(sql, args)
 }
 
 // ---------------------- Universal Insert Row -------------------------------
@@ -185,7 +185,7 @@ func (s CrudService) InsertRow(tableName string, row RawRow) (json.RawMessage, e
 		"Values":    insertValues,
 	})
 
-	return s.QueryAsJson(sql, args)
+	return s.queryAsJson(sql, args)
 }
 
 // ---------------------- Universal Delete Rows -------------------------------
@@ -213,7 +213,7 @@ func (s CrudService) DeleteRows(tableName string, filters Filters) (json.RawMess
 		"Where":     where,
 	})
 
-	return s.QueryAsJson(sql, args)
+	return s.queryAsJson(sql, args)
 }
 
 // small utiliy to work with SQL temlates as STD Text Template

@@ -9,10 +9,12 @@ import (
 
 // Universal App struct to store important state and different helpers
 type App struct {
+	// embed important App level helpers/services
+	*SchemaRepository
+	*CrudService
+
 	DB     *pgxpool.Pool
 	Logger *slog.Logger
-	Schema *SchemaRepository
-	Crud   *CrudService
 }
 
 func NewApp(pool *pgxpool.Pool, logger *slog.Logger) *App {
@@ -20,7 +22,12 @@ func NewApp(pool *pgxpool.Pool, logger *slog.Logger) *App {
 		logger = slog.Default()
 	}
 
-	schema, err := NewSchemaRepository(pool, NewDbSchemaExtractor(pool, "public", nil), logger)
+	schema, err := NewSchemaRepository(
+		pool,
+		NewDbSchemaExtractor(pool, "public", nil),
+		logger,
+	)
+
 	if err != nil {
 		logger.Error("can't extract tables", "error", err)
 		os.Exit(1)
@@ -29,10 +36,11 @@ func NewApp(pool *pgxpool.Pool, logger *slog.Logger) *App {
 	crud := NewCrudService(pool, schema, logger)
 
 	return &App{
+		SchemaRepository: schema,
+		CrudService:      crud,
+
 		DB:     pool,
 		Logger: logger,
-		Schema: schema,
-		Crud:   crud,
 	}
 }
 
