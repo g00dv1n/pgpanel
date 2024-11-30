@@ -18,7 +18,7 @@ type LoginResponse struct {
 	Token string `json:"token"`
 }
 
-func adminLoginHandler() ApiHandler {
+func adminLoginHandler(app *core.App) ApiHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		var creds LoginCreds
 		err := json.NewDecoder(r.Body).Decode(&creds)

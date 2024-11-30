@@ -8,28 +8,52 @@ import (
 
 const UrlPrefix = "/api"
 
+type routeConfig struct {
+	pattern string
+	hw      func(app *core.App) ApiHandler
+	auth    bool
+}
+
+const (
+	authEnabled  = true
+	authDisabled = false
+)
+
+// ALL API routes
+var routes = []routeConfig{
+	// Schema API endpoints
+	{"GET /schema/tables", getTablesHandler, authEnabled},
+
+	// Data REST API endpoints
+	{"GET /data/{table}", getRowsHandler, authEnabled},
+	{"POST /data/{table}", insertRowHandler, authEnabled},
+	{"PUT /data/{table}", updateRowsHandler, authEnabled},
+	{"DELETE /data/{table}", deleteRowsHandler, authEnabled},
+
+	// SQL API endpoints
+	{"POST /sql/execute", executeSQLHandler, authEnabled},
+
+	// Admin API endpoints
+	{"POST /admin/login", adminLoginHandler, authDisabled},
+}
+
 func MountRoutes(app *core.App, mux *http.ServeMux, ui http.Handler) {
 	// Register embeded fronted serving (can skip ui serving if needed)
 	if ui != nil {
 		mux.Handle("/", ui)
 	}
-
 	// -------Set Up API Router with API prefix----
 	api := http.NewServeMux()
 	mux.Handle(UrlPrefix+"/", http.StripPrefix(UrlPrefix, api))
 
-	// --------------SCHEMA API ENDPOINTS-------------------
-	api.Handle("GET /schema/tables", CreateHandler(getTablesHandler(app), AuthMiddleware))
+	// Mount all routes
+	for _, route := range routes {
+		var middlewares []ApiMiddleware
 
-	// --------------DATA REST API ENDPOINTS-------------------
-	api.Handle("GET /data/{table}", CreateHandler(getRowsHandler(app), AuthMiddleware))
-	api.Handle("POST /data/{table}", CreateHandler(insertRowHandler(app), AuthMiddleware))
-	api.Handle("PUT /data/{table}", CreateHandler(updateRowsHandler(app), AuthMiddleware))
-	api.Handle("DELETE /data/{table}", CreateHandler(deleteRowsHandler(app), AuthMiddleware))
+		if route.auth == authEnabled {
+			middlewares = append(middlewares, AuthMiddleware)
+		}
 
-	// --------------SQL API ENDPOINTS-------------------
-	api.Handle("POST /sql/execute", CreateHandler(executeSQLHandler(app), AuthMiddleware))
-
-	// --------------ADMIN API ENDPOINTS-------------------
-	api.Handle("POST /admin/login", CreateHandler(adminLoginHandler()))
+		api.Handle(route.pattern, CreateHandler(route.hw(app), middlewares...))
+	}
 }
