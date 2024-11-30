@@ -40,3 +40,7 @@ func NewApp(pool *pgxpool.Pool, logger *slog.Logger) *App {
 func (app *App) Close() {
 	app.DB.Close()
 }
+
+func (app *App) ExecuteSQL(req *SQLExecutionRequest) (*SQLExecutionResponse, error) {
+	return req.Execute(app.DB)
+}

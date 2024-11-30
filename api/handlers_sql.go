@@ -15,7 +15,7 @@ func executeSQLHandler(app *core.App) ApiHandler {
 			return NewApiError(http.StatusBadRequest, err)
 		}
 
-		res, err := sqlReq.Execute(app.DB)
+		res, err := app.ExecuteSQL(&sqlReq)
 		if err != nil {
 			return NewApiError(http.StatusBadRequest, err)
 		}
