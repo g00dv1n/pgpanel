@@ -12,7 +12,7 @@ type App struct {
 	DB     *pgxpool.Pool
 	Logger *slog.Logger
 	Schema *SchemaRepository
-	CRUD   *CrudService
+	Crud   *CrudService
 }
 
 func NewApp(pool *pgxpool.Pool, logger *slog.Logger) *App {
@@ -32,7 +32,7 @@ func NewApp(pool *pgxpool.Pool, logger *slog.Logger) *App {
 		DB:     pool,
 		Logger: logger,
 		Schema: schema,
-		CRUD:   crud,
+		Crud:   crud,
 	}
 }
 
