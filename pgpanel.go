@@ -48,7 +48,7 @@ func (panel *PgPanel) AddRoute(pattern string, handler api.ApiHandler, middlewar
 }
 
 func (panel *PgPanel) Serve(port int) {
-	defer panel.DB.Close()
+	defer panel.Close()
 
 	addr := fmt.Sprintf(":%d", port)
 

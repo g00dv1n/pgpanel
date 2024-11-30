@@ -36,3 +36,8 @@ func NewApp(pool *pgxpool.Pool, logger *slog.Logger) *App {
 		CRUD:   crud,
 	}
 }
+
+// close pool connections and potentially otrher stuff
+func (app *App) Close() {
+	app.DB.Close()
+}
