@@ -13,13 +13,13 @@ import (
 )
 
 type CrudService struct {
-	db         *pgxpool.Pool
-	schemaRepo *SchemaRepository
-	logger     *slog.Logger
+	db     *pgxpool.Pool
+	schema *SchemaRepository
+	logger *slog.Logger
 }
 
-func NewCrudService(db *pgxpool.Pool, schemaRepo *SchemaRepository, logger *slog.Logger) *CrudService {
-	return &CrudService{db: db, schemaRepo: schemaRepo, logger: logger}
+func NewCrudService(db *pgxpool.Pool, schema *SchemaRepository, logger *slog.Logger) *CrudService {
+	return &CrudService{db: db, schema: schema, logger: logger}
 }
 
 func (s CrudService) QueryAsJson(sql string, args []any) (json.RawMessage, error) {
@@ -49,7 +49,7 @@ var getRowsSQL = sqlTempl(`
 `)
 
 func (s CrudService) GetRows(tableName string, params *GetRowsParams) (json.RawMessage, error) {
-	table, err := s.schemaRepo.GetTable(tableName)
+	table, err := s.schema.GetTable(tableName)
 
 	if err != nil {
 		return nil, err
@@ -108,7 +108,7 @@ var updateRowsSQL = sqlTempl(`
 `)
 
 func (s CrudService) UpdateRows(tableName string, filters Filters, row RawRow) (json.RawMessage, error) {
-	table, err := s.schemaRepo.GetTable(tableName)
+	table, err := s.schema.GetTable(tableName)
 
 	if err != nil {
 		return nil, err
@@ -167,7 +167,7 @@ var insertRowSQL = sqlTempl(`
 `)
 
 func (s CrudService) InsertRow(tableName string, row RawRow) (json.RawMessage, error) {
-	table, err := s.schemaRepo.GetTable(tableName)
+	table, err := s.schema.GetTable(tableName)
 
 	if err != nil {
 		return nil, err
@@ -196,7 +196,7 @@ var deleteRowsSQL = sqlTempl(`
 `)
 
 func (s CrudService) DeleteRows(tableName string, filters Filters) (json.RawMessage, error) {
-	table, err := s.schemaRepo.GetTable(tableName)
+	table, err := s.schema.GetTable(tableName)
 
 	if err != nil {
 		return nil, err
