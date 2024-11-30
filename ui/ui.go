@@ -8,10 +8,10 @@ import (
 )
 
 //go:embed all:dist
-var reactFiles embed.FS
+var embedDir embed.FS
 
 func Handler() http.HandlerFunc {
-	frontendFs, _ := fs.Sub(reactFiles, "dist")
+	frontendFs, _ := fs.Sub(embedDir, "dist")
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		filePath := strings.TrimPrefix(r.URL.Path, "/")
