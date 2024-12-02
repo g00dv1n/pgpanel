@@ -25,7 +25,7 @@ export async function loader() {
   return getTables();
 }
 
-export default function AdminRoot() {
+export function AdminRoot() {
   const loaderData = useLoaderData<typeof loader>();
   const [tablesMap, setTablesMap] = useState(loaderData.tablesMap || {});
 

@@ -26,7 +26,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   return { tableName, rowsParams, rows, error };
 }
 
-export default function TablePage() {
+export function TablePage() {
   const { tableName, rows, rowsParams, error } = useLoaderData<typeof loader>();
   const tablesMap = useTablesMap();
   const table = tablesMap[tableName];

@@ -4,7 +4,7 @@ import { alert, GlobalAlert } from "@/components/ui/global-alert";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
 
-export default function LoginPage() {
+export function LoginPage() {
   const [loginError, setLoginError] = useState<string | undefined>(undefined);
   const [searchParams] = useSearchParams();
 
