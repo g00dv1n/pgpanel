@@ -10,6 +10,7 @@ const routes: RouteObject[] = [
     path: "/",
     element: <AdminRoot />,
     loader: adminRootLoader,
+    hydrateFallbackElement: <></>, // @TODO render some [Loading...] element here
     children: [
       {
         path: ":tableName",
