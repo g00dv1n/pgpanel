@@ -1,41 +1,40 @@
+import { CommonInputProps } from "@/components/form/custom-inputs/common";
+import { DateTimeInput } from "@/components/form/custom-inputs/DateTimeInput";
+import { TimeInput } from "@/components/form/custom-inputs/TimeInput";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { DateTimePicker } from "@/components/ui/datetime-picker";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { PgColumn } from "@/lib/pgTypes";
-import { getColumnDefaultInputType } from "@/lib/typesMapping";
+import { DefaultInputType } from "@/lib/typesMapping";
 import { Plus, Trash } from "lucide-react";
 import { useState } from "react";
 
-interface DynamicFormFieldProps {
-  column: PgColumn;
+export interface DynamicInputProps {
+  name: string;
+  type: DefaultInputType;
+  isArray?: boolean;
   initialValue?: any;
   required?: boolean;
   placeholder?: string;
   onChange?: (newVal: any) => void;
 }
 
-export function DynamicFormFieldSingle({
+export function DynamicInputSingle({
   initialValue,
-  column,
+  name,
   required,
   placeholder,
-  onChange,
-}: DynamicFormFieldProps) {
-  const { type } = getColumnDefaultInputType(column);
-  const { name } = column;
-
-  const [value, setValue] = useState(initialValue);
+  type,
+  onChange = () => {},
+}: DynamicInputProps) {
+  const [value, setValue] = useState(normalizeVal(initialValue));
 
   const changeValue = (v: any) => {
     setValue(v);
-    if (onChange) {
-      onChange(v);
-    }
+    onChange(v);
   };
 
-  const commonProps = {
+  const commonProps: CommonInputProps = {
     name,
     value,
     placeholder,
@@ -78,58 +77,35 @@ export function DynamicFormFieldSingle({
       );
     }
 
-    // @TODO timepicker
     case "datepicker": {
-      const dateValue = commonProps.value
-        ? new Date(commonProps.value)
-        : undefined;
-
       return (
-        <DateTimePicker
-          {...commonProps}
-          hourCycle={12}
-          granularity="day"
-          value={dateValue}
-          displayFormat={{
-            hour12: "PP",
-          }}
-          onChange={(newDate) => {
-            if (newDate) {
-              changeValue(newDate);
-            }
-          }}
+        <DateTimeInput
+          onlyDate={true}
+          commonProps={commonProps}
+          changeValue={changeValue}
         />
       );
     }
-
     case "datetimepicker": {
-      const dateTimeValue = commonProps.value
-        ? new Date(commonProps.value)
-        : undefined;
-
       return (
-        <DateTimePicker
-          {...commonProps}
-          hourCycle={12}
-          value={dateTimeValue}
-          onChange={(newDate) => {
-            if (newDate) {
-              changeValue(newDate);
-            }
-          }}
-        />
+        <DateTimeInput commonProps={commonProps} changeValue={changeValue} />
       );
+    }
+
+    case "timepicker": {
+      return <TimeInput commonProps={commonProps} changeValue={changeValue} />;
     }
   }
 
   return <div>Unsupported type</div>;
 }
 
-export function DynamicFormFieldArray({
+export function DynamicInputArray({
   initialValue,
-  column,
+  name,
+  type,
   onChange = () => {},
-}: DynamicFormFieldProps) {
+}: DynamicInputProps) {
   const [arrayValues, setArrayValues] = useState<any[]>(
     initialValue ? initialValue : []
   );
@@ -139,9 +115,10 @@ export function DynamicFormFieldArray({
       {arrayValues.map((v, index) => {
         return (
           <div className="flex gap-1" key={index}>
-            <DynamicFormFieldSingle
+            <DynamicInputSingle
               initialValue={v}
-              column={column}
+              name={name}
+              type={type}
               onChange={(elementValue) => {
                 const newValues = [...arrayValues];
                 newValues[index] = elementValue;
@@ -180,12 +157,16 @@ export function DynamicFormFieldArray({
   );
 }
 
-export function DynamicFormField(props: DynamicFormFieldProps) {
-  const { isArray } = getColumnDefaultInputType(props.column);
-
-  if (isArray) {
-    return <DynamicFormFieldArray {...props} />;
+export function DynamicInput(props: DynamicInputProps) {
+  if (props.isArray) {
+    return <DynamicInputArray {...props} />;
   }
 
-  return <DynamicFormFieldSingle {...props} />;
+  return <DynamicInputSingle {...props} />;
+}
+
+function normalizeVal(val: any) {
+  if (val === null) return undefined;
+
+  return val;
 }

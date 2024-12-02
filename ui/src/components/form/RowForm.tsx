@@ -1,10 +1,11 @@
 import { insertTableRow, updateTableRowByPKeys } from "@/api/data";
-import { DynamicFormField } from "@/components/form/DynamicFormField";
+import { DynamicInput } from "@/components/form/DynamicInput";
 import { Button } from "@/components/ui/button";
 import { alert } from "@/components/ui/global-alert";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { getPKeys, PgTable, Row } from "@/lib/pgTypes";
+import { getColumnDefaultInputType } from "@/lib/typesMapping";
 import { useState } from "react";
 
 interface RowFormProps {
@@ -67,6 +68,7 @@ export function RowForm({ mode, table, row, onRowUpdate }: RowFormProps) {
     >
       {table.columns.map((column) => {
         const initialValue = row && row[column.name];
+        const { type, isArray } = getColumnDefaultInputType(column);
 
         const placeholder = column.default
           ? `DEFAULT: ${column.default}`
@@ -81,8 +83,10 @@ export function RowForm({ mode, table, row, onRowUpdate }: RowFormProps) {
               {column.name}{" "}
               <code className="text-gray-700 px-2">({column.udtName})</code>
             </Label>
-            <DynamicFormField
-              column={column}
+            <DynamicInput
+              type={type}
+              isArray={isArray}
+              name={column.name}
               placeholder={placeholder}
               required={required}
               initialValue={initialValue}

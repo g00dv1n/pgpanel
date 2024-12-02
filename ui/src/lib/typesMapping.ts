@@ -11,7 +11,6 @@ export type DefaultInputType =
 export type DefaultInputTypeLookup = {
   type: DefaultInputType;
   isArray?: boolean;
-  isJson?: boolean;
 };
 
 export const MainPgTypesOidMap: Record<number, DefaultInputTypeLookup> = {
@@ -41,9 +40,9 @@ export const MainPgTypesOidMap: Record<number, DefaultInputTypeLookup> = {
   [PgTypeOID.IntervalOID]: { type: "textarea" },
 
   // JSON
-  [PgTypeOID.JSONOID]: { type: "textarea", isJson: true },
-  [PgTypeOID.JSONBOID]: { type: "textarea", isJson: true },
-  [PgTypeOID.JSONPathOID]: { type: "textarea", isJson: true },
+  [PgTypeOID.JSONOID]: { type: "textarea" },
+  [PgTypeOID.JSONBOID]: { type: "textarea" },
+  [PgTypeOID.JSONPathOID]: { type: "textarea" },
 
   // Arrays
   [PgTypeOID.TextArrayOID]: { type: "input", isArray: true },
