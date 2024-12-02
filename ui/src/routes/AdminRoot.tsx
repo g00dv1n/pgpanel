@@ -1,4 +1,5 @@
 import { getTables } from "@/api/schema";
+import { RowSheetProvider } from "@/components/form/RowSheet";
 import { Button } from "@/components/ui/button";
 import { alert, GlobalAlert } from "@/components/ui/global-alert";
 import {
@@ -98,7 +99,9 @@ export default function AdminRoot() {
       <main className="container overflow-hidden mx-auto flex flex-col min-h-screen py-10 px-4">
         <GlobalAlert />
         <PgTablesMapContext.Provider value={tablesMap}>
-          <Outlet />
+          <RowSheetProvider>
+            <Outlet />
+          </RowSheetProvider>
         </PgTablesMapContext.Provider>
       </main>
     </SidebarProvider>

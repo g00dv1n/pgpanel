@@ -5,7 +5,7 @@ import {
   parseQueryRowsParams,
   rowsParamsToSearchParams,
 } from "@/api/data";
-import { RowSheet } from "@/components/form/RowSheet";
+import { useRowSheet } from "@/components/form/RowSheet";
 import { DataTable } from "@/components/table/DataTable";
 import { FiltersSearch } from "@/components/table/FiltersSearch";
 import { Pagination } from "@/components/table/Pagination";
@@ -42,17 +42,16 @@ export default function TablePage() {
     onRowsParamsChange(rowsParams);
   };
 
-  const [openRowSheet, setOpenRowSheet] = useState(false);
-  const [editRow, setEditRow] = useState<Row | undefined>(undefined);
+  const { openRowSheet } = useRowSheet();
+
+  const onRowSuccess = () => refresh();
 
   const openEditRow = (row: Row) => {
-    setEditRow(row);
-    setOpenRowSheet(true);
+    openRowSheet(table, onRowSuccess, row);
   };
 
   const openInsertRow = () => {
-    setEditRow(undefined);
-    setOpenRowSheet(true);
+    openRowSheet(table, onRowSuccess);
   };
 
   // Rows selection logic
@@ -165,17 +164,6 @@ export default function TablePage() {
       {error && (
         <div className="my-5 text-red-600 max-w-[750px]">{error.message}</div>
       )}
-
-      <RowSheet
-        table={table}
-        row={editRow}
-        open={openRowSheet}
-        onSuccess={() => {
-          setOpenRowSheet(false);
-          refresh();
-        }}
-        onOpenChange={setOpenRowSheet}
-      />
     </>
   );
 }
