@@ -1,18 +1,12 @@
 import { CommonInputProps } from "@/components/form/custom-inputs/common";
-import { DateTimeInput } from "@/components/form/custom-inputs/DateTimeInput";
-import { JsonTextarea } from "@/components/form/custom-inputs/JsonTextarea";
-import { TimeInput } from "@/components/form/custom-inputs/TimeInput";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { DefaultInputType } from "@/lib/typesMapping";
 import { Plus, Trash } from "lucide-react";
 import { useState } from "react";
+import { InputType, resolveInputElementByType } from "./InputsRegistry";
 
 export interface DynamicInputProps {
   name: string;
-  type: DefaultInputType;
+  type: InputType;
   isArray?: boolean;
   initialValue?: any;
   required?: boolean;
@@ -42,69 +36,7 @@ export function DynamicInputSingle({
     required,
   };
 
-  switch (type) {
-    case "checkbox": {
-      return (
-        <Checkbox
-          {...commonProps}
-          checked={commonProps.value}
-          onCheckedChange={(checked) => {
-            changeValue(checked);
-          }}
-        />
-      );
-    }
-
-    case "input": {
-      return (
-        <Input
-          {...commonProps}
-          onChange={(e) => {
-            changeValue(e.target.value);
-          }}
-        />
-      );
-    }
-
-    case "textarea": {
-      return (
-        <Textarea
-          {...commonProps}
-          rows={3}
-          onChange={(e) => {
-            changeValue(e.target.value);
-          }}
-        />
-      );
-    }
-
-    case "jsontextarea": {
-      return (
-        <JsonTextarea commonProps={commonProps} changeValue={changeValue} />
-      );
-    }
-
-    case "datepicker": {
-      return (
-        <DateTimeInput
-          onlyDate={true}
-          commonProps={commonProps}
-          changeValue={changeValue}
-        />
-      );
-    }
-    case "datetimepicker": {
-      return (
-        <DateTimeInput commonProps={commonProps} changeValue={changeValue} />
-      );
-    }
-
-    case "timepicker": {
-      return <TimeInput commonProps={commonProps} changeValue={changeValue} />;
-    }
-  }
-
-  return <div>Unsupported type</div>;
+  return resolveInputElementByType(type, commonProps, changeValue);
 }
 
 export function DynamicInputArray({

@@ -5,8 +5,8 @@ import { alert } from "@/components/ui/global-alert";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { getPKeys, PgTable, Row } from "@/lib/pgTypes";
-import { getColumnDefaultInputType } from "@/lib/typesMapping";
 import { useState } from "react";
+import { resolveDefaultInputType } from "./InputsRegistry";
 
 interface RowFormProps {
   table: PgTable;
@@ -68,7 +68,7 @@ export function RowForm({ mode, table, row, onRowUpdate }: RowFormProps) {
     >
       {table.columns.map((column) => {
         const initialValue = row && row[column.name];
-        const { type, isArray } = getColumnDefaultInputType(column);
+        const { type, isArray } = resolveDefaultInputType(column);
 
         const placeholder = column.default
           ? `DEFAULT: ${column.default}`
