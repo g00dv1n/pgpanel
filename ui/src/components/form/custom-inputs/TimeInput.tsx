@@ -8,6 +8,7 @@ export function TimeInput({ commonProps, changeValue }: CustomInputProps) {
 
   const onChange = (newTime?: Date) => {
     if (newTime) {
+      newTime.setMilliseconds(0);
       changeValue(formatToPostgreSQLTime(newTime));
     }
   };
