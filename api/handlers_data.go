@@ -12,7 +12,7 @@ func getRowsHandler(app *core.App) ApiHandler {
 		tableName := r.PathValue("table")
 		params := core.ParseGetRowsParamsFromQuery(r.URL.Query())
 
-		rows, err := app.GetRows(tableName, &params)
+		rows, err := app.CrudService.GetRows(tableName, &params)
 
 		if err != nil {
 			return NewApiError(http.StatusBadRequest, err)
@@ -30,7 +30,7 @@ func insertRowHandler(app *core.App) ApiHandler {
 			return NewApiError(http.StatusBadRequest, err)
 		}
 
-		rows, err := app.InsertRow(tableName, row)
+		rows, err := app.CrudService.InsertRow(tableName, row)
 
 		if err != nil {
 			return NewApiError(http.StatusBadRequest, err)
@@ -50,7 +50,7 @@ func updateRowsHandler(app *core.App) ApiHandler {
 			return NewApiError(http.StatusBadRequest, err)
 		}
 
-		rows, err := app.UpdateRows(tableName, filters, row)
+		rows, err := app.CrudService.UpdateRows(tableName, filters, row)
 
 		if err != nil {
 			return NewApiError(http.StatusBadRequest, err)
@@ -65,7 +65,7 @@ func deleteRowsHandler(app *core.App) ApiHandler {
 		tableName := r.PathValue("table")
 		filters := core.ParseFiltersFromQuery(r.URL.Query())
 
-		rows, err := app.DeleteRows(tableName, filters)
+		rows, err := app.CrudService.DeleteRows(tableName, filters)
 
 		if err != nil {
 			return NewApiError(http.StatusBadRequest, err)

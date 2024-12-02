@@ -9,12 +9,10 @@ import (
 
 // Universal App struct to store important state and different helpers
 type App struct {
-	// embed important App level helpers/services
-	*SchemaRepository
-	*CrudService
-
-	DB     *pgxpool.Pool
-	Logger *slog.Logger
+	DB               *pgxpool.Pool
+	Logger           *slog.Logger
+	SchemaRepository *SchemaRepository
+	CrudService      *CrudService
 }
 
 func NewApp(pool *pgxpool.Pool, logger *slog.Logger) *App {
@@ -36,11 +34,10 @@ func NewApp(pool *pgxpool.Pool, logger *slog.Logger) *App {
 	crud := NewCrudService(pool, schema, logger)
 
 	return &App{
+		DB:               pool,
+		Logger:           logger,
 		SchemaRepository: schema,
 		CrudService:      crud,
-
-		DB:     pool,
-		Logger: logger,
 	}
 }
 

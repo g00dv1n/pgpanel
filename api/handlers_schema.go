@@ -10,6 +10,6 @@ func getTablesHandler(app *core.App) ApiHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		reload := r.URL.Query().Get("reload") == "true"
 
-		return WriteJson(w, app.GetTablesMap(reload))
+		return WriteJson(w, app.SchemaRepository.GetTablesMap(reload))
 	}
 }
