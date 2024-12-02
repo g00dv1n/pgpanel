@@ -1,5 +1,6 @@
 import { CommonInputProps } from "@/components/form/custom-inputs/common";
 import { DateTimeInput } from "@/components/form/custom-inputs/DateTimeInput";
+import { JsonTextarea } from "@/components/form/custom-inputs/JsonTextarea";
 import { TimeInput } from "@/components/form/custom-inputs/TimeInput";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -74,6 +75,12 @@ export function DynamicInputSingle({
             changeValue(e.target.value);
           }}
         />
+      );
+    }
+
+    case "jsontextarea": {
+      return (
+        <JsonTextarea commonProps={commonProps} changeValue={changeValue} />
       );
     }
 

@@ -4,6 +4,7 @@ export type DefaultInputType =
   | "checkbox"
   | "input"
   | "textarea"
+  | "jsontextarea"
   | "datepicker"
   | "timepicker"
   | "datetimepicker";
@@ -40,9 +41,9 @@ export const MainPgTypesOidMap: Record<number, DefaultInputTypeLookup> = {
   [PgTypeOID.IntervalOID]: { type: "textarea" },
 
   // JSON
-  [PgTypeOID.JSONOID]: { type: "textarea" },
-  [PgTypeOID.JSONBOID]: { type: "textarea" },
-  [PgTypeOID.JSONPathOID]: { type: "textarea" },
+  [PgTypeOID.JSONOID]: { type: "jsontextarea" },
+  [PgTypeOID.JSONBOID]: { type: "jsontextarea" },
+  [PgTypeOID.JSONPathOID]: { type: "jsontextarea" },
 
   // Arrays
   [PgTypeOID.TextArrayOID]: { type: "input", isArray: true },
