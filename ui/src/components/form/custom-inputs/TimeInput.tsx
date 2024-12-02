@@ -4,7 +4,7 @@ import { CustomInputProps } from "./common";
 export function TimeInput({ commonProps, changeValue }: CustomInputProps) {
   const value = commonProps.value
     ? parsePostgreSQLTime(commonProps.value)
-    : new Date();
+    : undefined;
 
   const onChange = (newTime?: Date) => {
     if (newTime) {
