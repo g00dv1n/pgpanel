@@ -1,10 +1,15 @@
 package main
 
 import (
+	"os"
+
 	"github.com/g00dv1n/pgpanel"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	panel := pgpanel.New("postgres://postgres:qwerty12@localhost/hackers_tools")
+	godotenv.Load()
+
+	panel := pgpanel.New(os.Getenv("DATABASE_URL"))
 	panel.Serve(3333)
 }
