@@ -52,6 +52,16 @@ func NewAppWithConfig(config *Config) *App {
 	return NewApp(pool, nil)
 }
 
+func NewAppWithEnvConfig() *App {
+	config, err := ParseConfigFromEnv()
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to parse app config from env %v\n", err)
+		os.Exit(1)
+	}
+	return NewAppWithConfig(config)
+}
+
 // close pool connections and potentially otrher stuff
 func (app *App) Close() {
 	app.DB.Close()

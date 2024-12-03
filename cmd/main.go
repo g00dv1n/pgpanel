@@ -9,7 +9,7 @@ import (
 func main() {
 	godotenv.Load()
 
-	config, _ := core.ParseConfigFromEnv()
-	panel := pgpanel.NewWithConfig(config)
-	panel.Serve(3333)
+	app := core.NewAppWithEnvConfig()
+
+	pgpanel.New(app).Serve()
 }
