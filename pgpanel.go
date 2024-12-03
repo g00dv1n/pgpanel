@@ -1,16 +1,13 @@
 package pgpanel
 
 import (
-	"context"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"os"
 
 	"github.com/g00dv1n/pgpanel/api"
 	"github.com/g00dv1n/pgpanel/core"
 	"github.com/g00dv1n/pgpanel/ui"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type PgPanel struct {
@@ -19,17 +16,8 @@ type PgPanel struct {
 	mux *http.ServeMux
 }
 
-func New(connString string) *PgPanel {
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
-
-	pool, err := pgxpool.New(context.Background(), connString)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
-		os.Exit(1)
-	}
-
-	app := core.NewApp(pool, logger)
-
+func NewWithConfig(config *core.Config) *PgPanel {
+	app := core.NewAppWithConfig(config)
 	return NewWithApp(app)
 }
 

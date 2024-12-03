@@ -1,6 +1,8 @@
 package core
 
 import (
+	"context"
+	"fmt"
 	"log/slog"
 	"os"
 
@@ -17,7 +19,7 @@ type App struct {
 
 func NewApp(pool *pgxpool.Pool, logger *slog.Logger) *App {
 	if logger == nil {
-		logger = slog.Default()
+		logger = DefaultLogger()
 	}
 
 	schema, err := NewSchemaRepository(
@@ -39,6 +41,15 @@ func NewApp(pool *pgxpool.Pool, logger *slog.Logger) *App {
 		SchemaRepository: schema,
 		CrudService:      crud,
 	}
+}
+
+func NewAppWithConfig(config *Config) *App {
+	pool, err := pgxpool.New(context.Background(), config.DatabaseUrl)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		os.Exit(1)
+	}
+	return NewApp(pool, nil)
 }
 
 // close pool connections and potentially otrher stuff
