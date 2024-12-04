@@ -1,21 +1,27 @@
 import { Button } from "@/components/ui/button";
-import { Plus, Trash, X } from "lucide-react";
+import { Plus, Settings, Trash, X } from "lucide-react";
 
-interface RowsControlsProps {
+interface ControlsProps {
   selectedCount: number;
+  onSettings: () => void;
   onInsert: () => void;
   onDelete: () => void;
   onReset: () => void;
 }
 
-export function RowsControls({
+export function Controls({
   selectedCount,
+  onSettings,
   onInsert,
   onDelete,
   onReset,
-}: RowsControlsProps) {
+}: ControlsProps) {
   return (
     <div className="flex gap-2">
+      <Button variant="outline" size="icon" onClick={() => onSettings()}>
+        <Settings />
+      </Button>
+
       <Button variant="outline" size="icon" onClick={() => onInsert()}>
         <Plus />
       </Button>

@@ -6,10 +6,11 @@ import {
   rowsParamsToSearchParams,
 } from "@/api/data";
 import { useRowSheet } from "@/components/form/RowSheet";
+import { useTableSheet } from "@/components/form/TableSheet";
+import { Controls } from "@/components/table/Controls";
 import { DataTable } from "@/components/table/DataTable";
 import { FiltersSearch } from "@/components/table/FiltersSearch";
 import { Pagination } from "@/components/table/Pagination";
-import { RowsControls } from "@/components/table/RowsControls";
 import { alert } from "@/components/ui/global-alert";
 import { useTablesMap } from "@/hooks/use-tables";
 import { getPKeys, getRowKey, Row } from "@/lib/pgTypes";
@@ -42,6 +43,7 @@ export function TablePage() {
     onRowsParamsChange(rowsParams);
   };
 
+  // INSERT & EDIT
   const { openRowSheet } = useRowSheet();
 
   const onRowSuccess = () => refresh();
@@ -94,7 +96,12 @@ export function TablePage() {
       refresh();
     }
   };
-  ///
+  //
+
+  // Table settings
+  const { openTableSheet } = useTableSheet();
+
+  const openTableSettings = () => openTableSheet(table);
 
   return (
     <>
@@ -104,8 +111,9 @@ export function TablePage() {
           {table.name}
         </h1>
 
-        <RowsControls
+        <Controls
           selectedCount={selectedRowsKeys.length}
+          onSettings={openTableSettings}
           onInsert={openInsertRow}
           onDelete={onDeleteSelected}
           onReset={() => setSelectedRowsKeys([])}
