@@ -1,8 +1,10 @@
 package core
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
+	"slices"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -64,10 +66,47 @@ func (r *SchemaRepository) loadTables() error {
 	tablesMap := make(map[string]*Table, len(tables))
 
 	for _, t := range tables {
+		// don't expose admin tables
+		if slices.Contains(adminTables, t.Name) {
+			continue
+		}
+
 		tablesMap[t.Name] = &t
 	}
 
 	r.tablesMap = tablesMap
 
 	return nil
+}
+
+var createAdminTablesSql = `
+	CREATE TABLE IF NOT EXISTS pgpanel_metadata (
+    id SERIAL PRIMARY KEY,
+		config JSONB
+	);
+
+
+	CREATE TABLE IF NOT EXISTS pgpanel_admins (
+		id SERIAL PRIMARY KEY,
+		username TEXT,
+		password_hash TEXT
+	);
+`
+
+var adminTables = []string{"pgpanel_metadata", "pgpanel_admins"}
+
+func (r *SchemaRepository) CreateAdminTables() error {
+	_, err := r.db.Exec(context.Background(), createAdminTablesSql)
+
+	return err
+}
+
+var dropAdminTablesSql = `
+	DROP TABLE IF EXISTS pgpanel_metadata, pgpanel_admins;
+`
+
+func (r *SchemaRepository) DropAdminTables() error {
+	_, err := r.db.Exec(context.Background(), dropAdminTablesSql)
+
+	return err
 }

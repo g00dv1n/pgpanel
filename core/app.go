@@ -33,6 +33,13 @@ func NewApp(pool *pgxpool.Pool, logger *slog.Logger) *App {
 		os.Exit(1)
 	}
 
+	err = schema.CreateAdminTables()
+
+	if err != nil {
+		logger.Error("can't create admin tables", "error", err)
+		os.Exit(1)
+	}
+
 	crud := NewCrudService(pool, schema, logger)
 
 	return &App{
