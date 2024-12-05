@@ -53,19 +53,16 @@ export function RowForm({ mode, table, row, onRowUpdate }: RowFormProps) {
     alert.success("Inserted");
   };
 
-  return (
-    <form
-      className="grid gap-4"
-      onSubmit={(e) => {
-        e.preventDefault();
+  const saveChanges = () => {
+    if (mode === "insert") {
+      insert();
+    } else {
+      update();
+    }
+  };
 
-        if (mode === "insert") {
-          insert();
-        } else {
-          update();
-        }
-      }}
-    >
+  return (
+    <form className="grid gap-4" action={saveChanges}>
       {table.columns.map((column) => {
         const initialValue = row && row[column.name];
         const { type, isArray } = resolveDefaultInputType(column);

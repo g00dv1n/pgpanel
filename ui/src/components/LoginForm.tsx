@@ -15,6 +15,13 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ error, onSubmit }: LoginFormProps) {
+  const submit = (formData: FormData) => {
+    onSubmit({
+      username: stringFormField(formData, "username"),
+      password: stringFormField(formData, "password"),
+    });
+  };
+
   return (
     <Card className="mx-auto max-w-sm">
       <CardHeader>
@@ -24,18 +31,7 @@ export function LoginForm({ error, onSubmit }: LoginFormProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form
-          className="grid gap-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-
-            const formData = new FormData(e.currentTarget);
-            onSubmit({
-              username: stringFormField(formData, "username"),
-              password: stringFormField(formData, "password"),
-            });
-          }}
-        >
+        <form className="grid gap-4" action={submit}>
           <div className="grid gap-2">
             <Label htmlFor="username">Username</Label>
             <Input name="username" type="text" required />
