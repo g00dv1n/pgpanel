@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"slices"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -66,10 +65,6 @@ func (r *SchemaRepository) loadTables() error {
 	tablesMap := make(map[string]*Table, len(tables))
 
 	for _, t := range tables {
-		// don't expose admin tables
-		if slices.Contains(adminTables, t.Name) {
-			continue
-		}
 
 		tablesMap[t.Name] = &t
 	}
@@ -80,20 +75,19 @@ func (r *SchemaRepository) loadTables() error {
 }
 
 var createAdminTablesSql = `
-	CREATE TABLE IF NOT EXISTS pgpanel_metadata (
+CREATE SCHEMA IF NOT EXISTS pgpanel;
+
+CREATE TABLE IF NOT EXISTS pgpanel.metadata (
     id SERIAL PRIMARY KEY,
-		config JSONB
-	);
+    config JSONB
+);
 
-
-	CREATE TABLE IF NOT EXISTS pgpanel_admins (
-		id SERIAL PRIMARY KEY,
-		username TEXT,
-		password_hash TEXT
-	);
+CREATE TABLE IF NOT EXISTS pgpanel.admins (
+    id SERIAL PRIMARY KEY,
+    username TEXT,
+    password_hash TEXT
+);
 `
-
-var adminTables = []string{"pgpanel_metadata", "pgpanel_admins"}
 
 func (r *SchemaRepository) CreateAdminTables() error {
 	_, err := r.db.Exec(context.Background(), createAdminTablesSql)
@@ -102,11 +96,44 @@ func (r *SchemaRepository) CreateAdminTables() error {
 }
 
 var dropAdminTablesSql = `
-	DROP TABLE IF EXISTS pgpanel_metadata, pgpanel_admins;
+DROP SCHEMA IF EXISTS pgpanel CASCADE
 `
 
 func (r *SchemaRepository) DropAdminTables() error {
 	_, err := r.db.Exec(context.Background(), dropAdminTablesSql)
 
 	return err
+}
+
+var getSchemaNamesSql = `
+SELECT nspname 
+FROM pg_catalog.pg_namespace 
+WHERE nspname NOT IN (
+  'pg_catalog', 
+  'pg_toast', 
+  'information_schema'
+)
+`
+
+func (r *SchemaRepository) GetSchemaNames() ([]string, error) {
+	rows, err := r.db.Query(context.Background(), getSchemaNamesSql)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var schemas []string
+	for rows.Next() {
+		var schemaName string
+		if err := rows.Scan(&schemaName); err != nil {
+			return nil, err
+		}
+		schemas = append(schemas, schemaName)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return schemas, nil
 }
