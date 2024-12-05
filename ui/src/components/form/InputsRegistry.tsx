@@ -83,7 +83,7 @@ export function resolveInputElementByType(
   type: InputType,
   commonProps: CommonInputProps,
   changeValue: (newVal: any) => void
-): JSX.Element {
+) {
   switch (type) {
     case "checkbox": {
       return (
