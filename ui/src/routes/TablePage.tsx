@@ -12,7 +12,6 @@ import { DataTable } from "@/components/table/DataTable";
 import { FiltersSearch } from "@/components/table/FiltersSearch";
 import { Pagination } from "@/components/table/Pagination";
 import { alert } from "@/components/ui/global-alert";
-import { useNavigating } from "@/hooks/use-navigating";
 import { useTablesMap } from "@/hooks/use-tables";
 import { getPKeys, getRowKey, Row } from "@/lib/pgTypes";
 import { useEffect, useState } from "react";
@@ -29,13 +28,13 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 }
 
 export function TablePage() {
-  const { tableName, rows, rowsParams, rowsError } =
-    useLoaderData<typeof loader>();
+  const loaderData = useLoaderData<typeof loader>();
+  const { tableName, rowsParams, rowsError, rows } = loaderData;
+
   const tablesMap = useTablesMap();
   const table = tablesMap[tableName];
 
   const navigate = useNavigate();
-  const isNavigating = useNavigating(); // Will be true during loader exexution
 
   const onRowsParamsChange = (newParams: GetTableRowsParams) => {
     const s = rowsParamsToSearchParams(newParams);
@@ -156,7 +155,6 @@ export function TablePage() {
 
       <div className="mt-5">
         <DataTable
-          isLoading={isNavigating}
           table={table}
           rows={rows}
           sortValue={rowsParams.sort}

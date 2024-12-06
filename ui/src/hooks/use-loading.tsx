@@ -1,6 +1,7 @@
 import { useNavigation } from "react-router";
 
-export function useNavigating() {
+export function useLoaderLoading() {
   const navigation = useNavigation();
-  return Boolean(navigation.location);
+
+  return navigation.state === "loading";
 }
