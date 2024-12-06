@@ -77,15 +77,22 @@ func (r *SchemaRepository) loadTables() error {
 var createAdminTablesSql = `
 CREATE SCHEMA IF NOT EXISTS pgpanel;
 
-CREATE TABLE IF NOT EXISTS pgpanel.metadata (
+CREATE TABLE IF NOT EXISTS pgpanel.settings (
     id SERIAL PRIMARY KEY,
-    config JSONB NOT NULL DEFAULT '{}'::jsonb
+		type TEXT NOT NULL,
+		key TEXT NOT NULL,
+    config JSONB DEFAULT '{}'::jsonb,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS pgpanel.admins (
     id SERIAL PRIMARY KEY,
-    username TEXT,
-    password_hash TEXT
+    username TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    email TEXT UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 `
 
