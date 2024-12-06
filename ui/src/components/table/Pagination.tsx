@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { LoadingButton } from "@/components/ui/loading-button";
+import { useLoaderLoading } from "@/hooks/use-loading";
 import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -16,6 +18,8 @@ export function Pagination({
   limit: initLimit,
   onChange,
 }: PaginationProps) {
+  const isLoaderLoading = useLoaderLoading();
+
   const [offset, setOffset] = useState(initOffset);
   const [limit, setLimit] = useState(initLimit);
 
@@ -85,14 +89,17 @@ export function Pagination({
       >
         <ChevronRight className="h-6 w-6" />
       </Button>
-      <Button
+      <LoadingButton
+        loading={isLoaderLoading}
         className="ml-5"
         variant="outline"
         size="icon"
-        onClick={() => onChange(offset, limit)}
+        onClick={() => {
+          onChange(offset, limit);
+        }}
       >
         <RotateCcw className="h-5 w-5" />
-      </Button>
+      </LoadingButton>
     </div>
   );
 }
