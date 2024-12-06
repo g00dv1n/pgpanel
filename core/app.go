@@ -29,7 +29,7 @@ func NewApp(config *Config) *App {
 	schema, err := NewSchemaRepository(
 		pool,
 		logger,
-		config.SchemaName,
+		config.GetSchemaName(),
 		config.IncludedTables,
 	)
 

@@ -35,9 +35,6 @@ func ParseConfigFromEnv() (*Config, error) {
 	}
 
 	config.SchemaName = os.Getenv("SCHEMA_NAME")
-	if config.SchemaName == "" {
-		config.SchemaName = "public" // Set public schema as default
-	}
 
 	includedTablesEnv := os.Getenv("INCLUDED_TABLES")
 	if len(includedTablesEnv) > 0 {
@@ -60,6 +57,14 @@ func (c *Config) GetPool() (*pgxpool.Pool, error) {
 	}
 
 	return pool, err
+}
+
+func (c *Config) GetSchemaName() string {
+	if c.SchemaName == "" {
+		return DefaultSchemaName
+	}
+
+	return c.SchemaName
 }
 
 func (c *Config) GetLogger() *slog.Logger {
