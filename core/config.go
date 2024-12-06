@@ -19,7 +19,7 @@ type Config struct {
 	DatabaseUrl string
 	Pool        *pgxpool.Pool
 
-	// optional
+	// optional fields
 	Logger         *slog.Logger
 	SchemaName     string
 	IncludedTables []string
