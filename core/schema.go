@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -23,13 +24,14 @@ func (c *Column) SafeName() string {
 
 type Table struct {
 	Name        string   `json:"name"`
+	Schema      string   `json:"schema"`
 	Columns     []Column `json:"columns"`
 	PrimaryKeys []string `json:"primaryKeys"`
 }
 
 // Safe name to use in SQL
 func (t *Table) SafeName() string {
-	return `"` + t.Name + `"`
+	return fmt.Sprintf(`"%s"."%s"`, t.Schema, t.Name)
 }
 
 func (t *Table) SafeColumnNames() []string {
@@ -89,11 +91,11 @@ func (e DbSchemaExtractor) GetTables() ([]Table, error) {
 			if err := rows.Scan(&tableName); err != nil {
 				return nil, err
 			}
-			tables = append(tables, Table{Name: tableName})
+			tables = append(tables, Table{Name: tableName, Schema: e.schemaName})
 		}
 	} else {
 		for _, tableName := range e.onlyTables {
-			tables = append(tables, Table{Name: tableName})
+			tables = append(tables, Table{Name: tableName, Schema: e.schemaName})
 		}
 	}
 

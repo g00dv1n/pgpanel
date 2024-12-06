@@ -122,6 +122,7 @@ export interface PgColumn {
 
 export interface PgTable {
   name: string;
+  schema: string;
   columns: PgColumn[];
   primaryKeys: string[];
 }
