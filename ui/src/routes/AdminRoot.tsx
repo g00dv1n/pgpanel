@@ -1,8 +1,8 @@
 import { getTables } from "@/api/schema";
 import { RowSheetProvider } from "@/components/form/RowSheet";
 import { TableSheetProvider } from "@/components/form/TableSheet";
-import { Button } from "@/components/ui/button";
 import { alert, GlobalAlert } from "@/components/ui/global-alert";
+import { LoadingButton } from "@/components/ui/loading-button";
 import {
   Sidebar,
   SidebarContent,
@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/sidebar";
 import { PgTablesMapContext } from "@/hooks/use-tables";
 import { RotateCcw, SquareTerminal, Table2Icon } from "lucide-react";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { NavLink, Outlet, useLoaderData } from "react-router";
 
 export async function loader() {
@@ -27,19 +27,23 @@ export async function loader() {
 }
 
 export function AdminRoot() {
+  const [isTablesReloading, startTransition] = useTransition();
+
   const loaderData = useLoaderData<typeof loader>();
   const [tablesMap, setTablesMap] = useState(loaderData.tablesMap || {});
 
-  const tables = Object.values(tablesMap);
+  const tables = isTablesReloading ? [] : Object.values(tablesMap);
 
-  const reloadTables = async () => {
-    const res = await getTables({ reload: true });
+  const reloadTables = () => {
+    startTransition(async () => {
+      const res = await getTables({ reload: true });
 
-    if (res.error) {
-      alert.error(res.error.message);
-    } else {
-      setTablesMap(res.tablesMap || {});
-    }
+      if (res.error) {
+        alert.error(res.error.message);
+      } else {
+        setTablesMap(res.tablesMap || {});
+      }
+    });
   };
 
   return (
@@ -68,14 +72,15 @@ export function AdminRoot() {
           <SidebarGroup>
             <SidebarGroupLabel>
               <span>Tables</span>
-              <Button
+              <LoadingButton
+                loading={isTablesReloading}
                 className="ml-auto"
                 variant="ghost"
                 size="icon"
                 onClick={() => reloadTables()}
               >
                 <RotateCcw className="h-4 w-4" />
-              </Button>
+              </LoadingButton>
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>

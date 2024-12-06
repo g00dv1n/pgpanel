@@ -1,4 +1,4 @@
-import { executeSQL, SQLExecutionResponse } from "@/api/sql";
+import { executeSQL, SQLExecutionApiResponse } from "@/api/sql";
 import { SqlTable } from "@/components/table/SqlTable";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { useTablesMap } from "@/hooks/use-tables";
@@ -7,7 +7,7 @@ import { PostgreSQL, sql, SQLNamespace } from "@codemirror/lang-sql";
 import { githubLight } from "@uiw/codemirror-theme-github";
 import ReactCodeMirror from "@uiw/react-codemirror";
 import { Play } from "lucide-react";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 
 const LastQueryKey = "pgpanel_lastSqlQuery";
 
@@ -19,31 +19,24 @@ export function SqlPage() {
     localStorage.getItem(LastQueryKey) || ""
   );
 
-  const [sqlError, setSqlError] = useState("");
-  const [sqlResponse, setSqlResponse] = useState<
-    SQLExecutionResponse | undefined
-  >(undefined);
+  const [response, setResponse] = useState<SQLExecutionApiResponse>({});
+  const { sqlResponse, error: sqlError } = response;
 
-  const [isExecuting, setIsExecuting] = useState(false);
+  const [isExecuting, startTransition] = useTransition();
 
   const showTable =
     sqlResponse && sqlResponse.columns.length > 0 && !isExecuting;
 
   const showRowsAffected = sqlResponse && !isExecuting;
 
-  const run = async () => {
-    setIsExecuting(true);
-    const res = await executeSQL(sqlQuery);
-
-    if (res.error) {
-      setSqlError(res.error.message);
-      setSqlResponse(undefined);
-    } else {
-      setSqlError("");
-      setSqlResponse(res.sqlResponse);
-      localStorage.setItem(LastQueryKey, sqlQuery);
-    }
-    setIsExecuting(false);
+  const run = () => {
+    startTransition(async () => {
+      const res = await executeSQL(sqlQuery);
+      if (!res.error) {
+        localStorage.setItem(LastQueryKey, sqlQuery);
+      }
+      setResponse(res);
+    });
   };
 
   return (
@@ -96,7 +89,9 @@ export function SqlPage() {
       )}
 
       {sqlError && (
-        <div className="my-5 text-red-600 max-w-[750px]">{sqlError}</div>
+        <div className="my-5 text-red-600 max-w-[750px]">
+          {sqlError.message}
+        </div>
       )}
     </>
   );

@@ -1,10 +1,16 @@
 import { fetchApiwithAuth } from "@/api/admin";
+import { ApiError } from "@/lib/fetchApi";
 import { Row } from "@/lib/pgTypes";
 
 export interface SQLExecutionResponse {
   columns: string[];
   rows: Row[];
   rowsAffected: number;
+}
+
+export interface SQLExecutionApiResponse {
+  sqlResponse?: SQLExecutionResponse;
+  error?: ApiError;
 }
 
 export async function executeSQL(query: string, args?: any[]) {

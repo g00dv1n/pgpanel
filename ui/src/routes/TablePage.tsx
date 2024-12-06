@@ -12,6 +12,7 @@ import { DataTable } from "@/components/table/DataTable";
 import { FiltersSearch } from "@/components/table/FiltersSearch";
 import { Pagination } from "@/components/table/Pagination";
 import { alert } from "@/components/ui/global-alert";
+import { useNavigating } from "@/hooks/use-navigating";
 import { useTablesMap } from "@/hooks/use-tables";
 import { getPKeys, getRowKey, Row } from "@/lib/pgTypes";
 import { useEffect, useState } from "react";
@@ -22,17 +23,19 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   const tableName = params.tableName || "";
   const url = new URL(request.url);
   const rowsParams = parseQueryRowsParams(url);
-  const { rows, error } = await getTableRows(tableName, rowsParams);
+  const { rows, error: rowsError } = await getTableRows(tableName, rowsParams);
 
-  return { tableName, rowsParams, rows, error };
+  return { tableName, rowsParams, rows, rowsError };
 }
 
 export function TablePage() {
-  const { tableName, rows, rowsParams, error } = useLoaderData<typeof loader>();
+  const { tableName, rows, rowsParams, rowsError } =
+    useLoaderData<typeof loader>();
   const tablesMap = useTablesMap();
   const table = tablesMap[tableName];
 
   const navigate = useNavigate();
+  const isNavigating = useNavigating(); // Will be true during loader exexution
 
   const onRowsParamsChange = (newParams: GetTableRowsParams) => {
     const s = rowsParamsToSearchParams(newParams);
@@ -151,8 +154,9 @@ export function TablePage() {
         />
       </div>
 
-      <div className="rounded-md border mt-5">
+      <div className="mt-5">
         <DataTable
+          isLoading={isNavigating}
           table={table}
           rows={rows}
           sortValue={rowsParams.sort}
@@ -169,8 +173,10 @@ export function TablePage() {
         />
       </div>
 
-      {error && (
-        <div className="my-5 text-red-600 max-w-[750px]">{error.message}</div>
+      {rowsError && (
+        <div className="my-5 text-red-600 max-w-[750px]">
+          {rowsError.message}
+        </div>
       )}
     </>
   );
