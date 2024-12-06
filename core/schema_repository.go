@@ -11,23 +11,26 @@ import (
 type TablesMap map[string]*Table
 
 type SchemaRepository struct {
-	db *pgxpool.Pool
+	SchemaName string
 
-	schemaExtr   SchemaExtractor
-	tablesMap    TablesMap
-	schemaLoaded bool
-
-	logger *slog.Logger
+	db             *pgxpool.Pool
+	includedTables []string
+	tablesMap      TablesMap
+	logger         *slog.Logger
 }
 
-func NewSchemaRepository(db *pgxpool.Pool, schemaExtr SchemaExtractor, logger *slog.Logger) (*SchemaRepository, error) {
+func NewSchemaRepository(db *pgxpool.Pool, logger *slog.Logger, schemaName string, includedTables []string) (*SchemaRepository, error) {
+	if schemaName == "" {
+		schemaName = DefaultSchemaName
+	}
+
 	r := SchemaRepository{
-		db: db,
+		SchemaName: schemaName,
 
-		schemaExtr: schemaExtr,
-		tablesMap:  make(TablesMap),
-
-		logger: logger,
+		db:             db,
+		includedTables: includedTables,
+		tablesMap:      make(TablesMap),
+		logger:         logger,
 	}
 
 	if err := r.loadTables(); err != nil {
@@ -56,7 +59,7 @@ func (r *SchemaRepository) GetTable(name string) (*Table, error) {
 }
 
 func (r *SchemaRepository) loadTables() error {
-	tables, err := r.schemaExtr.GetTables()
+	tables, err := GetTablesFromDB(r.db, r.SchemaName, r.includedTables)
 
 	if err != nil {
 		return err

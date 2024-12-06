@@ -54,33 +54,20 @@ func (t *Table) GetColumn(name string) (*Column, bool) {
 	return nil, false
 }
 
-// ---------------------- Schema -------------------------------
-type SchemaExtractor interface {
-	GetTables() ([]Table, error)
-}
+// ---------------------- GetTables -------------------------------
 
-type DbSchemaExtractor struct {
-	db         *pgxpool.Pool
-	schemaName string
-	onlyTables []string
-}
-
-func NewDbSchemaExtractor(dbpool *pgxpool.Pool, schemaName string, onlyTables []string) DbSchemaExtractor {
-	return DbSchemaExtractor{db: dbpool, schemaName: schemaName, onlyTables: onlyTables}
-}
-
-func (e DbSchemaExtractor) GetTables() ([]Table, error) {
+func GetTablesFromDB(db *pgxpool.Pool, schemaName string, includedTables []string) ([]Table, error) {
 	ctx := context.Background()
 
 	var tables []Table
 
-	if len(e.onlyTables) == 0 {
+	if len(includedTables) == 0 {
 		// Get all tables
-		rows, err := e.db.Query(ctx, `
+		rows, err := db.Query(ctx, `
 			SELECT table_name 
 			FROM information_schema.tables 
 			WHERE table_schema = $1 AND table_type = 'BASE TABLE'
-		`, e.schemaName)
+		`, schemaName)
 		if err != nil {
 			return nil, err
 		}
@@ -91,17 +78,17 @@ func (e DbSchemaExtractor) GetTables() ([]Table, error) {
 			if err := rows.Scan(&tableName); err != nil {
 				return nil, err
 			}
-			tables = append(tables, Table{Name: tableName, Schema: e.schemaName})
+			tables = append(tables, Table{Name: tableName, Schema: schemaName})
 		}
 	} else {
-		for _, tableName := range e.onlyTables {
-			tables = append(tables, Table{Name: tableName, Schema: e.schemaName})
+		for _, tableName := range includedTables {
+			tables = append(tables, Table{Name: tableName, Schema: schemaName})
 		}
 	}
 
 	// Get columns for each table
 	for i, table := range tables {
-		rows, err := e.db.Query(ctx, `
+		rows, err := db.Query(ctx, `
 			SELECT 
 				column_name,
 				udt_name::regtype::oid::int AS oid,
@@ -136,7 +123,7 @@ func (e DbSchemaExtractor) GetTables() ([]Table, error) {
 
 	// Get primary keys for each table
 	for i, table := range tables {
-		rows, err := e.db.Query(ctx, `
+		rows, err := db.Query(ctx, `
 			SELECT
 				kc.column_name
 			FROM 

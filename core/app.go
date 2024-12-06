@@ -1,7 +1,6 @@
 package core
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 	"os"
@@ -17,15 +16,21 @@ type App struct {
 	CrudService      *CrudService
 }
 
-func NewApp(pool *pgxpool.Pool, logger *slog.Logger) *App {
-	if logger == nil {
-		logger = DefaultLogger()
+func NewApp(config *Config) *App {
+	pool, err := config.GetPool()
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		os.Exit(1)
 	}
+
+	logger := config.GetLogger()
 
 	schema, err := NewSchemaRepository(
 		pool,
-		NewDbSchemaExtractor(pool, "public", nil),
 		logger,
+		config.SchemaName,
+		config.IncludedTables,
 	)
 
 	if err != nil {
@@ -50,15 +55,6 @@ func NewApp(pool *pgxpool.Pool, logger *slog.Logger) *App {
 	}
 }
 
-func NewAppWithConfig(config *Config) *App {
-	pool, err := pgxpool.New(context.Background(), config.DatabaseUrl)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
-		os.Exit(1)
-	}
-	return NewApp(pool, nil)
-}
-
 func NewAppWithEnvConfig() *App {
 	config, err := ParseConfigFromEnv()
 
@@ -66,7 +62,7 @@ func NewAppWithEnvConfig() *App {
 		fmt.Fprintf(os.Stderr, "Unable to parse app config from env %v\n", err)
 		os.Exit(1)
 	}
-	return NewAppWithConfig(config)
+	return NewApp(config)
 }
 
 // close pool connections and potentially otrher stuff
