@@ -2,7 +2,6 @@ package core
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -147,11 +146,6 @@ func (r *SchemaRepository) GetSchemaNames() ([]string, error) {
 	return schemas, nil
 }
 
-type TableSettings struct {
-	Table  *Table          `json:"table"`
-	Config json.RawMessage `json:"config"`
-}
-
 func (r *SchemaRepository) GetTableSettings(tableName string) (*TableSettings, error) {
 	table, err := r.GetTable(tableName)
 
@@ -165,19 +159,19 @@ func (r *SchemaRepository) GetTableSettings(tableName string) (*TableSettings, e
 		LIMIT 1
 	`
 
-	var config json.RawMessage
+	var config TableConfig
 
 	row := r.db.QueryRow(context.Background(), sql, tableName)
 	err = row.Scan(&config)
 
 	if errors.Is(err, pgx.ErrNoRows) {
-		config = json.RawMessage("{}")
+		// skip
 	} else if err != nil {
 		return nil, err
 	}
 
 	return &TableSettings{
 		Table:  table,
-		Config: config,
+		Config: &config,
 	}, nil
 }
