@@ -79,7 +79,7 @@ CREATE SCHEMA IF NOT EXISTS pgpanel;
 
 CREATE TABLE IF NOT EXISTS pgpanel.metadata (
     id SERIAL PRIMARY KEY,
-    config JSONB
+    config JSONB NOT NULL DEFAULT '{}'::jsonb
 );
 
 CREATE TABLE IF NOT EXISTS pgpanel.admins (
