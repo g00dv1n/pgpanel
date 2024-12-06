@@ -2,6 +2,7 @@ import { AdminRoot, loader as adminRootLoader } from "@/routes/AdminRoot";
 import { LoginPage } from "@/routes/LoginPage";
 import { SqlPage } from "@/routes/SqlPage";
 import { loader as tableLoader, TablePage } from "@/routes/TablePage";
+import { TablePageError } from "@/routes/TablePageError";
 
 import { createBrowserRouter, RouteObject } from "react-router";
 
@@ -15,6 +16,7 @@ const routes: RouteObject[] = [
       {
         path: ":tableName",
         element: <TablePage />,
+        errorElement: <TablePageError />,
         loader: tableLoader,
       },
       {

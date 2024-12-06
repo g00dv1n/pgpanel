@@ -2,9 +2,12 @@ package core
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -77,56 +80,52 @@ func (r *SchemaRepository) loadTables() error {
 	return nil
 }
 
-var createAdminTablesSql = `
-CREATE SCHEMA IF NOT EXISTS pgpanel;
-
-CREATE TABLE IF NOT EXISTS pgpanel.settings (
-    id SERIAL PRIMARY KEY,
-		type TEXT NOT NULL,
-		key TEXT NOT NULL,
-    config JSONB DEFAULT '{}'::jsonb,
-		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS pgpanel.admins (
-    id SERIAL PRIMARY KEY,
-    username TEXT NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL,
-    email TEXT UNIQUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-`
-
 func (r *SchemaRepository) CreateAdminTables() error {
-	_, err := r.db.Exec(context.Background(), createAdminTablesSql)
+	sql := `
+		CREATE SCHEMA IF NOT EXISTS pgpanel;
+
+		CREATE TABLE IF NOT EXISTS pgpanel.settings (
+				id SERIAL PRIMARY KEY,
+				type TEXT NOT NULL,
+				key TEXT NOT NULL,
+				config JSONB DEFAULT '{}'::jsonb,
+				created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+				updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		);
+
+		CREATE TABLE IF NOT EXISTS pgpanel.admins (
+				id SERIAL PRIMARY KEY,
+				username TEXT NOT NULL UNIQUE,
+				password_hash TEXT NOT NULL,
+				email TEXT UNIQUE,
+				created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+				updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		);
+	`
+	_, err := r.db.Exec(context.Background(), sql)
 
 	return err
 }
-
-var dropAdminTablesSql = `
-DROP SCHEMA IF EXISTS pgpanel CASCADE
-`
 
 func (r *SchemaRepository) DropAdminTables() error {
-	_, err := r.db.Exec(context.Background(), dropAdminTablesSql)
+	sql := "DROP SCHEMA IF EXISTS pgpanel CASCADE"
+
+	_, err := r.db.Exec(context.Background(), sql)
 
 	return err
 }
-
-var getSchemaNamesSql = `
-SELECT nspname 
-FROM pg_catalog.pg_namespace 
-WHERE nspname NOT IN (
-  'pg_catalog', 
-  'pg_toast', 
-  'information_schema'
-)
-`
-
 func (r *SchemaRepository) GetSchemaNames() ([]string, error) {
-	rows, err := r.db.Query(context.Background(), getSchemaNamesSql)
+	sql := `
+		SELECT nspname 
+		FROM pg_catalog.pg_namespace 
+		WHERE nspname NOT IN (
+			'pg_catalog', 
+			'pg_toast', 
+			'information_schema'
+		)
+	`
+
+	rows, err := r.db.Query(context.Background(), sql)
 	if err != nil {
 		return nil, err
 	}
@@ -146,4 +145,39 @@ func (r *SchemaRepository) GetSchemaNames() ([]string, error) {
 	}
 
 	return schemas, nil
+}
+
+type TableSettings struct {
+	Table  *Table          `json:"table"`
+	Config json.RawMessage `json:"config"`
+}
+
+func (r *SchemaRepository) GetTableSettings(tableName string) (*TableSettings, error) {
+	table, err := r.GetTable(tableName)
+
+	if err != nil {
+		return nil, err
+	}
+
+	sql := `
+		SELECT config FROM pgpanel.settings
+		WHERE type = 'table_settings' AND key = $1
+		LIMIT 1
+	`
+
+	var config json.RawMessage
+
+	row := r.db.QueryRow(context.Background(), sql, tableName)
+	err = row.Scan(&config)
+
+	if errors.Is(err, pgx.ErrNoRows) {
+		config = json.RawMessage("{}")
+	} else if err != nil {
+		return nil, err
+	}
+
+	return &TableSettings{
+		Table:  table,
+		Config: config,
+	}, nil
 }

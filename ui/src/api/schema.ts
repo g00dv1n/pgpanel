@@ -16,3 +16,16 @@ export async function getTables(props?: GetTablesProps) {
 
   return { tablesMap, error };
 }
+
+export interface TableSettings {
+  table: PgTable;
+  config: any;
+}
+
+export async function getTableSettings(tableName: string) {
+  const { data: tableSettings, error } = await fetchApiwithAuth<TableSettings>(
+    `/api/schema/${tableName}/settings`
+  );
+
+  return { tableSettings, error };
+}

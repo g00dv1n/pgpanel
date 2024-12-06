@@ -5,6 +5,7 @@ import {
   parseQueryRowsParams,
   rowsParamsToSearchParams,
 } from "@/api/data";
+import { getTableSettings } from "@/api/schema";
 import { useRowSheet } from "@/components/form/RowSheet";
 import { useTableSheet } from "@/components/form/TableSheet";
 import { Controls } from "@/components/table/Controls";
@@ -12,27 +13,42 @@ import { DataTable } from "@/components/table/DataTable";
 import { FiltersSearch } from "@/components/table/FiltersSearch";
 import { Pagination } from "@/components/table/Pagination";
 import { alert } from "@/components/ui/global-alert";
-import { useTablesMap } from "@/hooks/use-tables";
 import { getPKeys, getRowKey, Row } from "@/lib/pgTypes";
 import { useEffect, useState } from "react";
 
-import { LoaderFunctionArgs, useLoaderData, useNavigate } from "react-router";
+import {
+  data,
+  LoaderFunctionArgs,
+  useLoaderData,
+  useNavigate,
+} from "react-router";
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const tableName = params.tableName || "";
   const url = new URL(request.url);
   const rowsParams = parseQueryRowsParams(url);
-  const { rows, error: rowsError } = await getTableRows(tableName, rowsParams);
 
-  return { tableName, rowsParams, rows, rowsError };
+  const [settingsRes, rowsRes] = await Promise.all([
+    getTableSettings(tableName),
+    getTableRows(tableName, rowsParams),
+  ]);
+
+  const { rows, error: rowsError } = rowsRes;
+  const { tableSettings } = settingsRes;
+
+  if (!tableSettings) {
+    throw data("Unknown table", { status: 404 });
+  }
+
+  return { tableSettings, rowsParams, rows, rowsError };
 }
 
 export function TablePage() {
   const loaderData = useLoaderData<typeof loader>();
-  const { tableName, rowsParams, rowsError, rows } = loaderData;
+  const { tableSettings, rowsParams, rowsError, rows } = loaderData;
 
-  const tablesMap = useTablesMap();
-  const table = tablesMap[tableName];
+  const { table } = tableSettings;
+  const tableName = table.name;
 
   const navigate = useNavigate();
 
