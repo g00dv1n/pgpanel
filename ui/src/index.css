@@ -88,3 +88,7 @@
 .sql-filters-input .cm-editor.cm-focused {
   @apply outline-none ring-1 ring-ring;
 }
+
+a.active {
+  @apply bg-gray-100 text-gray-900 font-medium;
+}
