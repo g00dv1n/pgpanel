@@ -10,7 +10,7 @@ import (
 //go:embed all:dist
 var embedDir embed.FS
 
-func Handler() http.HandlerFunc {
+func EmbedHandler() http.HandlerFunc {
 	frontendFs, _ := fs.Sub(embedDir, "dist")
 
 	return func(w http.ResponseWriter, r *http.Request) {

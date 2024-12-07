@@ -29,7 +29,7 @@ func New(app *core.App) *PgPanel {
 	mux := http.NewServeMux()
 
 	// Mount all routes
-	api.MountRoutes(app, mux, ui.Handler())
+	api.MountRoutes(app, mux, ui.EmbedHandler())
 
 	return &PgPanel{
 		App: app,
