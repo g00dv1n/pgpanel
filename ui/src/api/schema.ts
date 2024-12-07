@@ -1,5 +1,6 @@
 import { fetchApiwithAuth } from "@/api/admin";
 import { PgTable } from "@/lib/pgTypes";
+import { TableSettings } from "@/lib/tableSettings";
 
 interface GetTablesProps {
   reload?: boolean;
@@ -17,13 +18,24 @@ export async function getTables(props?: GetTablesProps) {
   return { tables, error };
 }
 
-export interface TableSettings {
-  viewLink: string;
-}
-
 export async function getTableSettings(tableName: string) {
   const { data: tableSettings, error } = await fetchApiwithAuth<TableSettings>(
     `/api/schema/${tableName}/settings`
+  );
+
+  return { tableSettings, error };
+}
+
+export async function updateTableSettings(
+  tableName: string,
+  updateSettings: any
+) {
+  const { data: tableSettings, error } = await fetchApiwithAuth<TableSettings>(
+    `/api/schema/${tableName}/settings`,
+    {
+      method: "PUT",
+      body: JSON.stringify(updateSettings),
+    }
   );
 
   return { tableSettings, error };

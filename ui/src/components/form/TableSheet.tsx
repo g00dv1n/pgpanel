@@ -6,8 +6,9 @@ import {
 } from "@/components/ui/sheet";
 import { PgTable } from "@/lib/pgTypes";
 
-import { TableSettings } from "@/api/schema";
+import { TableSettingsForm } from "@/components/form/TableSettingsForm";
 import { Separator } from "@/components/ui/separator";
+import { TableSettings } from "@/lib/tableSettings";
 import { createContext, ReactNode, useContext, useState } from "react";
 
 interface TableSheetProps {
@@ -35,7 +36,9 @@ export function TableSheet({
           </SheetHeader>
 
           <Separator className="mt-2 mb-5" />
-          <div className="pr-10 pl-2 max-h-[80vh] overflow-scroll scroll-auto"></div>
+          <div className="pr-10 pl-2 max-h-[80vh] min-h-[50vh] overflow-scroll scroll-auto">
+            <TableSettingsForm table={table} setttings={settings} />
+          </div>
         </SheetContent>
       )}
     </Sheet>
@@ -56,12 +59,12 @@ const TableSheetContext = createContext<TableSheetContextType | undefined>(
 // Provider component
 export function TableSheetProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [currentTable, setCurrentTable] = useState<PgTable | undefined>(
-    undefined
-  );
+  const [currentTableData, setCurrentTableData] = useState<
+    { table: PgTable; settings: TableSettings } | undefined
+  >(undefined);
 
-  const openTableSheet = (table: PgTable) => {
-    setCurrentTable(table);
+  const openTableSheet = (table: PgTable, settings: TableSettings) => {
+    setCurrentTableData({ table, settings });
     setIsOpen(true);
   };
 
@@ -73,7 +76,7 @@ export function TableSheetProvider({ children }: { children: ReactNode }) {
     <TableSheetContext.Provider value={{ openTableSheet, closeTableSheet }}>
       {children}
       <TableSheet
-        table={currentTable}
+        {...currentTableData}
         open={isOpen}
         onOpenChange={setIsOpen}
         onSuccess={closeTableSheet}

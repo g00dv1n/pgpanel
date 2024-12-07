@@ -22,7 +22,7 @@ export function DynamicInputSingle({
   type,
   onChange = () => {},
 }: DynamicInputProps) {
-  const [value, setValue] = useState(normalizeNull(initialValue));
+  const [value, setValue] = useState(normalizeEmpty(initialValue));
 
   const changeValue = (v: any) => {
     setValue(v);
@@ -104,8 +104,9 @@ export function DynamicInput(props: DynamicInputProps) {
   return <DynamicInputSingle {...props} />;
 }
 
-function normalizeNull(val: any | null): any {
-  if (val === null) return undefined;
+function normalizeEmpty(val: any | null | undefined): any {
+  if (val === null) return "";
+  if (val === undefined) return "";
 
   return val;
 }

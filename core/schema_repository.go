@@ -89,7 +89,8 @@ func (r *SchemaRepository) CreateAdminTables() error {
 				key TEXT NOT NULL,
 				config JSONB DEFAULT '{}'::jsonb,
 				created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-				updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+				updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+				CONSTRAINT unique_type_key UNIQUE (type, key)
 		);
 
 		CREATE TABLE IF NOT EXISTS pgpanel.admins (
@@ -153,10 +154,10 @@ func (r *SchemaRepository) GetTableSettings(tableName string) (*TableSettings, e
 		LIMIT 1
 	`
 
-	var config TableSettings
+	var result TableSettings
 
 	row := r.db.QueryRow(context.Background(), sql, tableName)
-	err := row.Scan(&config)
+	err := row.Scan(&result)
 
 	if errors.Is(err, pgx.ErrNoRows) {
 		// skip
@@ -164,5 +165,28 @@ func (r *SchemaRepository) GetTableSettings(tableName string) (*TableSettings, e
 		return nil, err
 	}
 
-	return &config, nil
+	return &result, nil
+}
+
+func (r *SchemaRepository) UpdateTableSettings(tableName string, updateSettings map[string]any) (*TableSettings, error) {
+	sql := `
+		INSERT INTO pgpanel.settings (type, key, config)
+		VALUES ('table_settings', $1, $2)
+		ON CONFLICT (type, key) 
+		DO UPDATE SET 
+    config = pgpanel.settings.config || EXCLUDED.config,
+    updated_at = CURRENT_TIMESTAMP
+		RETURNING config
+	`
+
+	var result TableSettings
+
+	row := r.db.QueryRow(context.Background(), sql, tableName, updateSettings)
+	err := row.Scan(&result)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
 }

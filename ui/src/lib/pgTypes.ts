@@ -1,3 +1,5 @@
+// All Important PG related types
+
 export enum PgTypeOID {
   BoolOID = 16,
   ByteaOID = 17,
