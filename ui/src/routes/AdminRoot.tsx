@@ -17,7 +17,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { PgTablesMapContext } from "@/hooks/use-tables";
+import { TablesContext } from "@/hooks/use-tables";
 import { RotateCcw, SquareTerminal, Table2Icon } from "lucide-react";
 import { useState, useTransition } from "react";
 import { NavLink, Outlet, useLoaderData } from "react-router";
@@ -30,9 +30,7 @@ export function AdminRoot() {
   const [isTablesReloading, startTransition] = useTransition();
 
   const loaderData = useLoaderData<typeof loader>();
-  const [tablesMap, setTablesMap] = useState(loaderData.tablesMap || {});
-
-  const tables = isTablesReloading ? [] : Object.values(tablesMap);
+  const [tables, setTables] = useState(loaderData.tables);
 
   const reloadTables = () => {
     startTransition(async () => {
@@ -41,10 +39,12 @@ export function AdminRoot() {
       if (res.error) {
         alert.error(res.error.message);
       } else {
-        setTablesMap(res.tablesMap || {});
+        setTables(res.tables);
       }
     });
   };
+
+  const menuTables = isTablesReloading ? [] : tables.map((t) => t.name);
 
   return (
     <SidebarProvider>
@@ -85,11 +85,11 @@ export function AdminRoot() {
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
-                  {tables.map((t) => {
+                  {menuTables.map((t) => {
                     return (
-                      <SidebarMenuButton key={t.name} asChild>
-                        <NavLink to={`/${t.name}`}>
-                          <Table2Icon /> {t.name}
+                      <SidebarMenuButton key={t} asChild>
+                        <NavLink to={`/${t}`}>
+                          <Table2Icon /> {t}
                         </NavLink>
                       </SidebarMenuButton>
                     );
@@ -104,13 +104,13 @@ export function AdminRoot() {
       <SidebarTrigger />
       <main className="container overflow-hidden mx-auto flex flex-col min-h-screen py-10 px-4">
         <GlobalAlert />
-        <PgTablesMapContext.Provider value={tablesMap}>
+        <TablesContext.Provider value={tables}>
           <TableSheetProvider>
             <RowSheetProvider>
               <Outlet />
             </RowSheetProvider>
           </TableSheetProvider>
-        </PgTablesMapContext.Provider>
+        </TablesContext.Provider>
       </main>
     </SidebarProvider>
   );

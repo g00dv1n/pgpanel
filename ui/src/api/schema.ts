@@ -1,8 +1,6 @@
 import { fetchApiwithAuth } from "@/api/admin";
 import { PgTable } from "@/lib/pgTypes";
 
-export type PgTablesMap = Record<string, PgTable>;
-
 interface GetTablesProps {
   reload?: boolean;
 }
@@ -10,11 +8,13 @@ interface GetTablesProps {
 export async function getTables(props?: GetTablesProps) {
   const { reload = false } = props || {};
 
-  const { data: tablesMap, error } = await fetchApiwithAuth<PgTablesMap>(
-    `/api/schema/tables?reload=${reload}`
-  );
+  const { data: tablesMap, error } = await fetchApiwithAuth<
+    Record<string, PgTable>
+  >(`/api/schema/tables?reload=${reload}`);
 
-  return { tablesMap, error };
+  const tables = tablesMap ? Object.values(tablesMap) : [];
+
+  return { tables, error };
 }
 
 export interface TableSettings {

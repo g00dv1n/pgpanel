@@ -1,8 +1,8 @@
-import { PgTablesMap } from "@/api/schema";
+import { PgTable } from "@/lib/pgTypes";
 import { createContext, useContext } from "react";
 
-export const PgTablesMapContext = createContext({} as PgTablesMap);
+export const TablesContext = createContext([] as PgTable[]);
 
-export function useTablesMap() {
-  return useContext(PgTablesMapContext);
+export function useTables() {
+  return useContext(TablesContext);
 }

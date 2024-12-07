@@ -1,7 +1,7 @@
 import { executeSQL, SQLExecutionApiResponse } from "@/api/sql";
 import { SqlTable } from "@/components/table/SqlTable";
 import { LoadingButton } from "@/components/ui/loading-button";
-import { useTablesMap } from "@/hooks/use-tables";
+import { useTables } from "@/hooks/use-tables";
 import { PgTable } from "@/lib/pgTypes";
 import { PostgreSQL, sql, SQLNamespace } from "@codemirror/lang-sql";
 import { githubLight } from "@uiw/codemirror-theme-github";
@@ -12,8 +12,7 @@ import { useState, useTransition } from "react";
 const LastQueryKey = "pgpanel_lastSqlQuery";
 
 export function SqlPage() {
-  const tablesMap = useTablesMap();
-  const tables = Object.values(tablesMap);
+  const tables = useTables();
 
   const [sqlQuery, setSqlQuery] = useState(
     localStorage.getItem(LastQueryKey) || ""
