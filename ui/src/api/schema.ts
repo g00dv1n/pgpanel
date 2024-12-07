@@ -18,8 +18,7 @@ export async function getTables(props?: GetTablesProps) {
 }
 
 export interface TableSettings {
-  table: PgTable;
-  config: any;
+  viewLink: string;
 }
 
 export async function getTableSettings(tableName: string) {

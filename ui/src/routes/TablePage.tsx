@@ -13,6 +13,7 @@ import { DataTable } from "@/components/table/DataTable";
 import { FiltersSearch } from "@/components/table/FiltersSearch";
 import { Pagination } from "@/components/table/Pagination";
 import { alert } from "@/components/ui/global-alert";
+import { useTable } from "@/hooks/use-tables";
 import { getPKeys, getRowKey, Row } from "@/lib/pgTypes";
 import { useEffect, useState } from "react";
 
@@ -40,15 +41,14 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     throw data("Unknown table", { status: 404 });
   }
 
-  return { tableSettings, rowsParams, rows, rowsError };
+  return { tableName, tableSettings, rowsParams, rows, rowsError };
 }
 
 export function TablePage() {
   const loaderData = useLoaderData<typeof loader>();
-  const { tableSettings, rowsParams, rowsError, rows } = loaderData;
+  const { tableName, rowsParams, rowsError, rows, tableSettings } = loaderData;
 
-  const { table } = tableSettings;
-  const tableName = table.name;
+  const table = useTable(tableName);
 
   const navigate = useNavigate();
 
@@ -118,8 +118,7 @@ export function TablePage() {
 
   // Table settings
   const { openTableSheet } = useTableSheet();
-
-  const openTableSettings = () => openTableSheet(table);
+  const openTableSettings = () => openTableSheet(table, tableSettings);
 
   return (
     <>

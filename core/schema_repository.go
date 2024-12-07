@@ -147,22 +147,16 @@ func (r *SchemaRepository) GetSchemaNames() ([]string, error) {
 }
 
 func (r *SchemaRepository) GetTableSettings(tableName string) (*TableSettings, error) {
-	table, err := r.GetTable(tableName)
-
-	if err != nil {
-		return nil, err
-	}
-
 	sql := `
 		SELECT config FROM pgpanel.settings
 		WHERE type = 'table_settings' AND key = $1
 		LIMIT 1
 	`
 
-	var config TableConfig
+	var config TableSettings
 
 	row := r.db.QueryRow(context.Background(), sql, tableName)
-	err = row.Scan(&config)
+	err := row.Scan(&config)
 
 	if errors.Is(err, pgx.ErrNoRows) {
 		// skip
@@ -170,8 +164,5 @@ func (r *SchemaRepository) GetTableSettings(tableName string) (*TableSettings, e
 		return nil, err
 	}
 
-	return &TableSettings{
-		Table:  table,
-		Config: &config,
-	}, nil
+	return &config, nil
 }
