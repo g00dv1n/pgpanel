@@ -54,23 +54,7 @@ func (t *Table) GetColumn(name string) (*Column, bool) {
 	return nil, false
 }
 
-type CustomInput struct {
-	ColumnName string `json:"columnName"`
-	InputType  string `json:"inputType"`
-}
-
-type TableConfig struct {
-	ViewLink     *string       `json:"viewLink"`
-	CustomInputs []CustomInput `json:"customInputs"`
-}
-
-type TableSettings struct {
-	Table  *Table       `json:"table"`
-	Config *TableConfig `json:"config"`
-}
-
-// ---------------------- GetTables -------------------------------
-
+// Query tables from Postgres
 func GetTablesFromDB(db *pgxpool.Pool, schemaName string, includedTables []string) ([]Table, error) {
 	ctx := context.Background()
 
@@ -168,4 +152,21 @@ func GetTablesFromDB(db *pgxpool.Pool, schemaName string, includedTables []strin
 	}
 
 	return tables, nil
+}
+
+// Table Settings related structs
+
+type TableSettings struct {
+	Table  *Table       `json:"table"`
+	Config *TableConfig `json:"config"`
+}
+
+type TableConfig struct {
+	ViewLink     *string       `json:"viewLink"`
+	CustomInputs []CustomInput `json:"customInputs"`
+}
+
+type CustomInput struct {
+	ColumnName string `json:"columnName"`
+	InputType  string `json:"inputType"`
 }
