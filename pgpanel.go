@@ -41,6 +41,12 @@ func New(app *core.App) *PgPanel {
 	}
 }
 
+func NewWithEnv() *PgPanel {
+	app := core.NewAppWithEnvConfig()
+
+	return New(app)
+}
+
 // Add a custom router before run Serve
 func (panel *PgPanel) AddRoute(pattern string, handler api.ApiHandler, middlewares ...api.ApiMiddleware) {
 	panel.mux.Handle(pattern, api.CreateHandler(handler, middlewares...))
