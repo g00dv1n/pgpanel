@@ -7,7 +7,8 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// ---------------------- Column & Tables -------------------------------
+// ---------------------- All Schema related types -------------------------------
+
 type Column struct {
 	Name       string  `json:"name"`
 	OID        int     `json:"OID"`
