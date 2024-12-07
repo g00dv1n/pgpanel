@@ -1,7 +1,7 @@
 import { Row } from "@/lib/pgTypes";
 
 export interface TableSettings {
-  viewLinkPattern: string;
+  viewLinkPattern: string | null;
 }
 
 // pattern format: 'https://admin.example.com/users/{user_id}/{role_id}'
