@@ -1,7 +1,7 @@
 import { fieldToString, PgTable, Row, RowPkeysMap } from "@/lib/pgTypes";
 import { generateViewLink, TableSettings } from "@/lib/tableSettings";
 
-// Wrapped Row that provides different helpers easy to use
+// Wrapped Row that provides different helpers
 // Should be used only in table context, can't be used for raw sql rows.
 export class DataRow {
   readonly #table: PgTable;
@@ -12,6 +12,10 @@ export class DataRow {
     this.#table = table;
     this.#tableSettings = tableSettings;
     this.#data = row;
+  }
+
+  static fromArray(table: PgTable, tableSettings: TableSettings, rows: Row[]) {
+    return rows.map((r) => new DataRow(table, tableSettings, r));
   }
 
   get(key: string) {
@@ -48,9 +52,5 @@ export class DataRow {
 
   toRow() {
     return { ...this.#data };
-  }
-
-  static fromArray(table: PgTable, tableSettings: TableSettings, rows: Row[]) {
-    return rows.map((r) => new DataRow(table, tableSettings, r));
   }
 }
