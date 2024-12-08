@@ -8,6 +8,7 @@ import {
 import { generateViewLink, TableSettings } from "@/lib/tableSettings";
 
 // Wrapped Row that provides different helpers easy to use
+// Should be used only in table context, can't be used for raw sql rows.
 export class DataRow {
   readonly #table: PgTable;
   readonly #tableSettings: TableSettings;
