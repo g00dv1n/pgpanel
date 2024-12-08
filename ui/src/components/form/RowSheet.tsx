@@ -6,9 +6,11 @@ import {
 } from "@/components/ui/sheet";
 import { PgTable } from "@/lib/pgTypes";
 
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { DataRow } from "@/lib/dataRow";
 import { TableSettings } from "@/lib/tableSettings";
+import { ExternalLink } from "lucide-react";
 import { createContext, ReactNode, useContext, useState } from "react";
 import { RowForm } from "./RowForm";
 
@@ -29,13 +31,23 @@ export function RowSheet({
   onSuccess,
 }: RowSheetProps) {
   const mode = row ? "update" : "insert";
+  const viewLink = row?.viewLink();
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom">
         <SheetHeader className="pr-10 pl-2">
-          <SheetTitle>
-            {mode} {table.name} row
+          <SheetTitle className="flex gap-3 items-baseline">
+            <div>
+              {mode} {table.name} row
+            </div>
+            {viewLink && (
+              <Button className="text-blue-600" variant="link" asChild>
+                <a href={viewLink} target="_blank">
+                  {viewLink} <ExternalLink />
+                </a>
+              </Button>
+            )}
           </SheetTitle>
         </SheetHeader>
 
