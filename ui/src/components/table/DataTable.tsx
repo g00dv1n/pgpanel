@@ -53,7 +53,7 @@ export function DataTable({
               onCheckedChange={(checked) => {
                 if (onAllRowsSelect) {
                   onAllRowsSelect(
-                    rows.map((r) => r.getKey()),
+                    rows.map((r) => r.getUniqueKey()),
                     Boolean(checked)
                   );
                 }
@@ -75,7 +75,7 @@ export function DataTable({
       </TableHeader>
       <TableBody>
         {rows.map((row) => {
-          const rowKey = row.getKey();
+          const rowKey = row.getUniqueKey();
 
           const isRowSelected = isAllSelected || selectedRows.includes(rowKey);
 

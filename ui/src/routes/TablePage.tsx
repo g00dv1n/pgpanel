@@ -106,7 +106,7 @@ export function TablePage() {
 
   const onDeleteSelected = async () => {
     const selectedRowsPkeys = rows
-      .filter((r) => selectedRowsKeys.includes(r.getKey()))
+      .filter((r) => selectedRowsKeys.includes(r.getUniqueKey()))
       .map((r) => r.getPKeys());
 
     const { error } = await deleteTableRowsByPkeys(

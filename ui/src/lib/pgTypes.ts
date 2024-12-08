@@ -142,6 +142,8 @@ export type RowField =
 
 export type Row = Record<string, RowField>;
 
+export type RowPkeysMap = Record<string, string>;
+
 export function fieldToString(value: RowField): string {
   if (value === null) {
     return "NULL"; // Represent null values
@@ -180,18 +182,4 @@ export function fieldToString(value: RowField): string {
   }
 
   return JSON.stringify("value");
-}
-
-export type PkeysMap = Record<string, string>;
-
-export function getPKeys(table: PgTable, row: Row): PkeysMap {
-  return table.primaryKeys.reduce((result, key) => {
-    return { ...result, [key]: row && row[key] };
-  }, {});
-}
-
-// Row key that can be used as universal Row Id
-export function getRowKey(table: PgTable, row: Row): string {
-  const pk = getPKeys(table, row);
-  return `${table.name}-${Object.values(pk).join("-")}`;
 }

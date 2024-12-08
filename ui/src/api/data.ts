@@ -1,5 +1,5 @@
 import { fetchApiwithAuth } from "@/api/admin";
-import { PkeysMap, Row } from "@/lib/pgTypes";
+import { Row, RowPkeysMap } from "@/lib/pgTypes";
 
 export interface GetTableRowsParams {
   offset: number;
@@ -51,7 +51,7 @@ export async function getTableRows(
 
 export async function updateTableRowByPKeys(
   tableName: string,
-  pkeysMap: PkeysMap,
+  pkeysMap: RowPkeysMap,
   updateFileds: any
 ) {
   const { data: rows = [], error } = await fetchApiwithAuth<Row[]>(
@@ -67,7 +67,7 @@ export async function updateTableRowByPKeys(
 
 export async function deleteTableRowsByPkeys(
   tableName: string,
-  pkeys: PkeysMap[]
+  pkeys: RowPkeysMap[]
 ) {
   const filters = pkeys.map(pkeysMapToFilters).join(" OR ");
 
@@ -93,7 +93,7 @@ export async function insertTableRow(tableName: string, row: any) {
   return { rows, error };
 }
 
-function pkeysMapToFilters(pkeysMap: PkeysMap) {
+function pkeysMapToFilters(pkeysMap: RowPkeysMap) {
   if (Object.keys(pkeysMap).length === 0) {
     return "";
   }

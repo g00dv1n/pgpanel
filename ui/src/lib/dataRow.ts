@@ -1,10 +1,4 @@
-import {
-  fieldToString,
-  getPKeys,
-  getRowKey,
-  PgTable,
-  Row,
-} from "@/lib/pgTypes";
+import { fieldToString, PgTable, Row, RowPkeysMap } from "@/lib/pgTypes";
 import { generateViewLink, TableSettings } from "@/lib/tableSettings";
 
 // Wrapped Row that provides different helpers easy to use
@@ -32,12 +26,16 @@ export class DataRow {
     return fieldToString(this.#data[key]);
   }
 
-  getKey() {
-    return getRowKey(this.#table, this.#data);
+  getPKeys(): RowPkeysMap {
+    return this.#table.primaryKeys.reduce((result, key) => {
+      return { ...result, [key]: this.#data && this.#data[key] };
+    }, {});
   }
 
-  getPKeys() {
-    return getPKeys(this.#table, this.#data);
+  getUniqueKey() {
+    const pk = this.getPKeys();
+    const tableName = this.#table.name;
+    return `${tableName}-${Object.values(pk).join("-")}`;
   }
 
   viewLink() {
