@@ -14,7 +14,7 @@ import { FiltersSearch } from "@/components/table/FiltersSearch";
 import { Pagination } from "@/components/table/Pagination";
 import { alert } from "@/components/ui/global-alert";
 import { useTable } from "@/hooks/use-tables";
-import { getPKeys, getRowKey, Row } from "@/lib/pgTypes";
+import { DataRow } from "@/lib/dataRow";
 import { useEffect, useState } from "react";
 
 import {
@@ -46,9 +46,9 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 
 export function TablePage() {
   const loaderData = useLoaderData<typeof loader>();
-  const { tableName, rowsParams, rowsError, rows, tableSettings } = loaderData;
-
+  const { tableName, rowsParams, rowsError, tableSettings } = loaderData;
   const table = useTable(tableName);
+  const rows = DataRow.fromArray(table, tableSettings, loaderData.rows);
 
   const navigate = useNavigate();
 
@@ -64,14 +64,21 @@ export function TablePage() {
   // INSERT & EDIT
   const { openRowSheet } = useRowSheet();
 
-  const onRowSuccess = () => refresh();
-
-  const openEditRow = (row: Row) => {
-    openRowSheet(table, onRowSuccess, row);
+  const openEditRow = (row: DataRow) => {
+    openRowSheet({
+      table,
+      tableSettings,
+      row,
+      onSuccess: refresh,
+    });
   };
 
   const openInsertRow = () => {
-    openRowSheet(table, onRowSuccess);
+    openRowSheet({
+      table,
+      tableSettings,
+      onSuccess: refresh,
+    });
   };
 
   // Rows selection logic
@@ -99,8 +106,8 @@ export function TablePage() {
 
   const onDeleteSelected = async () => {
     const selectedRowsPkeys = rows
-      .filter((r) => selectedRowsKeys.includes(getRowKey(table, r)))
-      .map((r) => getPKeys(table, r));
+      .filter((r) => selectedRowsKeys.includes(r.getKey()))
+      .map((r) => r.getPKeys());
 
     const { error } = await deleteTableRowsByPkeys(
       tableName,
@@ -118,7 +125,13 @@ export function TablePage() {
 
   // Table settings
   const { openTableSheet } = useTableSheet();
-  const openTableSettings = () => openTableSheet(table, tableSettings);
+  const openTableSettings = () => {
+    openTableSheet({
+      table,
+      tableSettings,
+      onSuccess: refresh,
+    });
+  };
 
   return (
     <>

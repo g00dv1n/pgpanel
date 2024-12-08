@@ -12,8 +12,8 @@ import { TableSettings } from "@/lib/tableSettings";
 import { createContext, ReactNode, useContext, useState } from "react";
 
 interface TableSheetProps {
-  table?: PgTable;
-  settings?: TableSettings;
+  table: PgTable;
+  tableSettings: TableSettings;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
@@ -21,33 +21,39 @@ interface TableSheetProps {
 
 export function TableSheet({
   table,
-  settings,
+  tableSettings,
   open,
   onOpenChange,
+  onSuccess,
 }: TableSheetProps) {
-  const contentReady = table && settings;
-
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      {contentReady && (
-        <SheetContent side="bottom">
-          <SheetHeader className="pr-10 pl-2">
-            <SheetTitle>{table.name} settings</SheetTitle>
-          </SheetHeader>
+      <SheetContent side="bottom">
+        <SheetHeader className="pr-10 pl-2">
+          <SheetTitle>{table.name} settings</SheetTitle>
+        </SheetHeader>
 
-          <Separator className="mt-2 mb-5" />
-          <div className="pr-10 pl-2 max-h-[80vh] min-h-[50vh] overflow-scroll scroll-auto">
-            <TableSettingsForm table={table} setttings={settings} />
-          </div>
-        </SheetContent>
-      )}
+        <Separator className="mt-2 mb-5" />
+        <div className="pr-10 pl-2 max-h-[80vh] min-h-[50vh] overflow-scroll scroll-auto">
+          <TableSettingsForm
+            table={table}
+            setttings={tableSettings}
+            onSettingsUpdate={onSuccess}
+          />
+        </div>
+      </SheetContent>
     </Sheet>
   );
 }
 
+export type OpenTableSheetProps = Pick<
+  TableSheetProps,
+  "table" | "tableSettings" | "onSuccess"
+>;
+
 // Define the context type
 interface TableSheetContextType {
-  openTableSheet: (table: PgTable, settings: TableSettings) => void;
+  openTableSheet: (props: OpenTableSheetProps) => void;
   closeTableSheet: () => void;
 }
 
@@ -59,12 +65,12 @@ const TableSheetContext = createContext<TableSheetContextType | undefined>(
 // Provider component
 export function TableSheetProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [currentTableData, setCurrentTableData] = useState<
-    { table: PgTable; settings: TableSettings } | undefined
-  >(undefined);
+  const [sheetProps, setSheetProps] = useState<OpenTableSheetProps | undefined>(
+    undefined
+  );
 
-  const openTableSheet = (table: PgTable, settings: TableSettings) => {
-    setCurrentTableData({ table, settings });
+  const openTableSheet = (props: OpenTableSheetProps) => {
+    setSheetProps(props);
     setIsOpen(true);
   };
 
@@ -72,15 +78,25 @@ export function TableSheetProvider({ children }: { children: ReactNode }) {
     setIsOpen(false);
   };
 
+  const handleSuccess = () => {
+    closeTableSheet();
+
+    if (sheetProps?.onSuccess) {
+      sheetProps.onSuccess();
+    }
+  };
+
   return (
     <TableSheetContext.Provider value={{ openTableSheet, closeTableSheet }}>
       {children}
-      <TableSheet
-        {...currentTableData}
-        open={isOpen}
-        onOpenChange={setIsOpen}
-        onSuccess={closeTableSheet}
-      />
+      {sheetProps && (
+        <TableSheet
+          {...sheetProps}
+          open={isOpen}
+          onOpenChange={setIsOpen}
+          onSuccess={handleSuccess}
+        />
+      )}
     </TableSheetContext.Provider>
   );
 }

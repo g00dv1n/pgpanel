@@ -14,6 +14,7 @@ import { useState } from "react";
 export interface TableSettingsFormProps {
   table: PgTable;
   setttings: TableSettings;
+  onSettingsUpdate?: () => void;
 }
 
 export type SettingsFieldConfig = {
@@ -32,6 +33,7 @@ const settingsFields: SettingsFieldConfig[] = [
 export function TableSettingsForm({
   table,
   setttings,
+  onSettingsUpdate = () => {},
 }: TableSettingsFormProps) {
   const [updateSettings, setUpdateSettings] = useState({});
   const canSave = Object.keys(updateSettings).length > 0;
@@ -45,6 +47,7 @@ export function TableSettingsForm({
     }
 
     alert.success(`${table.name} settings updated`);
+    onSettingsUpdate();
   };
 
   return (

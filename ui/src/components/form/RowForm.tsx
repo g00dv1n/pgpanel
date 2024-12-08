@@ -4,25 +4,33 @@ import { Button } from "@/components/ui/button";
 import { alert } from "@/components/ui/global-alert";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { getPKeys, PgTable, Row } from "@/lib/pgTypes";
+import { DataRow } from "@/lib/dataRow";
+import { PgTable } from "@/lib/pgTypes";
 import { useState } from "react";
 import { resolveDefaultInputType } from "./InputsRegistry";
 
 interface RowFormProps {
   table: PgTable;
   mode: "insert" | "update";
-  row?: Row;
-  onRowUpdate?: (updatedRow: Row) => void;
+  row?: DataRow;
+  onRowUpdate?: () => void;
 }
 
-export function RowForm({ mode, table, row, onRowUpdate }: RowFormProps) {
+export function RowForm({
+  mode,
+  table,
+  row,
+  onRowUpdate = () => {},
+}: RowFormProps) {
   const [updatedRow, setUpdatedRow] = useState({});
   const canSave = Object.keys(updatedRow).length > 0;
 
   const update = async () => {
-    const { rows, error } = await updateTableRowByPKeys(
+    if (!row) return;
+
+    const { error } = await updateTableRowByPKeys(
       table.name,
-      getPKeys(table, row || {}),
+      row.getPKeys(),
       updatedRow
     );
 
@@ -31,23 +39,15 @@ export function RowForm({ mode, table, row, onRowUpdate }: RowFormProps) {
       return;
     }
 
-    if (onRowUpdate) {
-      onRowUpdate(rows[0]);
-    }
-
     alert.success("Updated");
   };
 
   const insert = async () => {
-    const { rows, error } = await insertTableRow(table.name, updatedRow);
+    const { error } = await insertTableRow(table.name, updatedRow);
 
     if (error) {
       alert.error(error.message);
       return;
-    }
-
-    if (onRowUpdate) {
-      onRowUpdate(rows[0]);
     }
 
     alert.success("Inserted");
@@ -59,12 +59,14 @@ export function RowForm({ mode, table, row, onRowUpdate }: RowFormProps) {
     } else {
       update();
     }
+
+    onRowUpdate();
   };
 
   return (
     <form className="grid gap-4" action={saveChanges}>
       {table.columns.map((column) => {
-        const initialValue = row && row[column.name];
+        const initialValue = row && row.get(column.name);
         const { type, isArray } = resolveDefaultInputType(column);
 
         const placeholder = column.default

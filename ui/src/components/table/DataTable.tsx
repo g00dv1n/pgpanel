@@ -7,24 +7,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  fieldToString,
-  getRowKey,
-  PgTable,
-  Row,
-  RowField,
-} from "@/lib/pgTypes";
+import { PgTable } from "@/lib/pgTypes";
 
+import { DataRow } from "@/lib/dataRow";
 import { ColumnSortable } from "./ColumnSortable";
 
 interface DataTableProps {
   table: PgTable;
-  rows: Row[];
+  rows: DataRow[];
   sortValue?: string[];
   selectedRows?: string[];
 
   onSortChange?: (newSortVal: string) => void;
-  onRowOpen?: (row: Row) => void;
+  onRowOpen?: (row: DataRow) => void;
   onRowSelect?: (rowKey: string, selected: boolean) => void;
   onAllRowsSelect?: (rowKeys: string[], selected: boolean) => void;
 }
@@ -39,7 +34,7 @@ export function DataTable({
   onRowSelect,
   onAllRowsSelect,
 }: DataTableProps) {
-  const openRow = (row: Row) => {
+  const openRow = (row: DataRow) => {
     if (onRowOpen) {
       onRowOpen(row);
     }
@@ -58,7 +53,7 @@ export function DataTable({
               onCheckedChange={(checked) => {
                 if (onAllRowsSelect) {
                   onAllRowsSelect(
-                    rows.map((r) => getRowKey(table, r)),
+                    rows.map((r) => r.getKey()),
                     Boolean(checked)
                   );
                 }
@@ -80,7 +75,7 @@ export function DataTable({
       </TableHeader>
       <TableBody>
         {rows.map((row) => {
-          const rowKey = getRowKey(table, row);
+          const rowKey = row.getKey();
 
           const isRowSelected = isAllSelected || selectedRows.includes(rowKey);
 
@@ -104,7 +99,7 @@ export function DataTable({
                     key={cellKey}
                     onClick={() => openRow(row)}
                   >
-                    {cellValue(row[c.name])}
+                    {cellValue(row.getAsString(c.name))}
                   </TableCell>
                 );
               })}
@@ -116,9 +111,7 @@ export function DataTable({
   );
 }
 
-function cellValue(field: RowField) {
-  const s = fieldToString(field);
-
+function cellValue(s: string) {
   if (s.length < 80) {
     return s;
   }

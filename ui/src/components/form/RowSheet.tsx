@@ -4,19 +4,20 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { PgTable, Row } from "@/lib/pgTypes";
+import { PgTable } from "@/lib/pgTypes";
 
 import { Separator } from "@/components/ui/separator";
+import { DataRow } from "@/lib/dataRow";
+import { TableSettings } from "@/lib/tableSettings";
 import { createContext, ReactNode, useContext, useState } from "react";
 import { RowForm } from "./RowForm";
 
-type OnSuccessFn = (row: Row) => void;
-
 interface RowSheetProps {
-  table?: PgTable;
-  row?: Row;
+  table: PgTable;
+  tableSettings: TableSettings;
+  row?: DataRow;
   open: boolean;
-  onSuccess: OnSuccessFn;
+  onSuccess: () => void;
   onOpenChange: (open: boolean) => void;
 }
 
@@ -33,11 +34,9 @@ export function RowSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom">
         <SheetHeader className="pr-10 pl-2">
-          {table && (
-            <SheetTitle>
-              {mode} {table.name} row
-            </SheetTitle>
-          )}
+          <SheetTitle>
+            {mode} {table.name} row
+          </SheetTitle>
         </SheetHeader>
 
         <Separator className="mt-2 mb-5" />
@@ -56,9 +55,14 @@ export function RowSheet({
   );
 }
 
+export type OpenRowSheetProps = Pick<
+  RowSheetProps,
+  "table" | "tableSettings" | "row" | "onSuccess"
+>;
+
 // Define the context type
 interface RowSheetContextType {
-  openRowSheet: (table: PgTable, onSuccess: OnSuccessFn, row?: Row) => void;
+  openRowSheet: (sheetProps: OpenRowSheetProps) => void;
   closeRowSheet: () => void;
 }
 
@@ -70,18 +74,12 @@ const RowSheetContext = createContext<RowSheetContextType | undefined>(
 // Provider component
 export function RowSheetProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [currentTable, setCurrentTable] = useState<PgTable | undefined>(
+  const [sheetProps, setSheetProps] = useState<OpenRowSheetProps | undefined>(
     undefined
   );
-  const [currentRow, setCurrentRow] = useState<Row | undefined>(undefined);
-  const [successCallback, setSuccessCallback] = useState<
-    OnSuccessFn | undefined
-  >(undefined);
 
-  const openRowSheet = (table: PgTable, onSuccess: OnSuccessFn, row?: Row) => {
-    setCurrentTable(table);
-    setCurrentRow(row);
-    setSuccessCallback(() => onSuccess);
+  const openRowSheet = (props: OpenRowSheetProps) => {
+    setSheetProps(props);
     setIsOpen(true);
   };
 
@@ -89,24 +87,25 @@ export function RowSheetProvider({ children }: { children: ReactNode }) {
     setIsOpen(false);
   };
 
-  const handleSuccess = (row: Row) => {
+  const handleSuccess = () => {
     closeRowSheet();
 
-    if (successCallback) {
-      successCallback(row);
+    if (sheetProps?.onSuccess) {
+      sheetProps.onSuccess();
     }
   };
 
   return (
     <RowSheetContext.Provider value={{ openRowSheet, closeRowSheet }}>
       {children}
-      <RowSheet
-        table={currentTable}
-        row={currentRow}
-        open={isOpen}
-        onOpenChange={setIsOpen}
-        onSuccess={handleSuccess}
-      />
+      {sheetProps && (
+        <RowSheet
+          {...sheetProps}
+          open={isOpen}
+          onOpenChange={setIsOpen}
+          onSuccess={handleSuccess}
+        />
+      )}
     </RowSheetContext.Provider>
   );
 }
