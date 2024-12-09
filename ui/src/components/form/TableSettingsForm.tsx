@@ -3,6 +3,7 @@ import {
   DynamicInput,
   DynamicInputProps,
 } from "@/components/form/DynamicInput";
+import { FieldTypesSelect } from "@/components/form/FieldTypesSelect";
 import { Button } from "@/components/ui/button";
 import { alert } from "@/components/ui/global-alert";
 import { Label } from "@/components/ui/label";
@@ -17,18 +18,20 @@ export interface TableSettingsFormProps {
   onSettingsUpdate?: () => void;
 }
 
+type SettingsField = keyof TableSettings;
+
 export type SettingsFieldConfig = {
-  name: keyof TableSettings;
+  name: SettingsField;
   label: string;
 } & Pick<DynamicInputProps, "type" | "isArray" | "placeholder">;
 
-const settingsFields: SettingsFieldConfig[] = [
-  {
+const settingsFields: Record<SettingsField, SettingsFieldConfig> = {
+  viewLinkPattern: {
     name: "viewLinkPattern",
     label: "View Link Pattern",
     type: "input",
   },
-];
+} as const;
 
 export function TableSettingsForm({
   table,
@@ -50,22 +53,27 @@ export function TableSettingsForm({
     onSettingsUpdate();
   };
 
+  const renderDynamicInput = (field: SettingsField) => {
+    const config = settingsFields[field];
+
+    return (
+      <div className="grid gap-2">
+        <Label>{config.label}</Label>
+        <DynamicInput
+          {...config}
+          initialValue={setttings[field]}
+          onChange={(val) => {
+            setUpdateSettings({ ...updateSettings, [field]: val });
+          }}
+        />
+      </div>
+    );
+  };
+
   return (
     <form className="grid gap-4" action={saveChanges}>
-      {settingsFields.map((field) => {
-        return (
-          <div className="grid gap-2" key={field.name}>
-            <Label>{field.label}</Label>
-            <DynamicInput
-              {...field}
-              initialValue={setttings[field.name]}
-              onChange={(val) => {
-                setUpdateSettings({ ...updateSettings, [field.name]: val });
-              }}
-            />
-          </div>
-        );
-      })}
+      {renderDynamicInput("viewLinkPattern")}
+      <FieldTypesSelect table={table} settings={setttings} />
       <Separator className="my-1" />
       <Button className="ml-auto" size="sm" type="submit" disabled={!canSave}>
         Save changes
