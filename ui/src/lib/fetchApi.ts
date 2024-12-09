@@ -1,10 +1,14 @@
 export type ApiError = { code: number; message: string };
 export type ApiUrl = string | URL;
 
-export async function fetchApi<T = any>(
+export type ApiResult<T> =
+  | { data: T; error: undefined }
+  | { data: undefined; error: ApiError };
+
+export async function fetchApi<T>(
   url: ApiUrl,
   init?: RequestInit
-): Promise<{ data?: T; error?: ApiError }> {
+): Promise<ApiResult<T>> {
   const defaultInit: RequestInit = {
     ...init,
     headers: {
@@ -17,15 +21,11 @@ export async function fetchApi<T = any>(
     const res = await fetch(url, defaultInit);
     const jsonRes = await res.json();
 
-    let data: T | undefined = undefined;
-    let error: ApiError | undefined = undefined;
-
     if (res.ok) {
-      data = jsonRes;
+      return { data: jsonRes, error: undefined };
     } else {
-      error = jsonRes;
+      return { data: undefined, error: jsonRes };
     }
-    return { data, error };
   } catch (err) {
     return {
       data: undefined,

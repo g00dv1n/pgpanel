@@ -23,7 +23,11 @@ export async function getTableSettings(tableName: string) {
     `/api/schema/table-settings/${tableName}`
   );
 
-  return { tableSettings, error };
+  if (error) {
+    return { error };
+  }
+
+  return { tableSettings };
 }
 
 export async function updateTableSettings(

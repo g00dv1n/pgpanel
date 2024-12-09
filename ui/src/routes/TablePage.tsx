@@ -35,10 +35,10 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   ]);
 
   const { rows: rawRows, error: rowsError } = rowsRes;
-  const { tableSettings } = settingsRes;
+  const { tableSettings, error: settingsError } = settingsRes;
 
-  if (!tableSettings) {
-    throw data("Unknown table", { status: 404 });
+  if (settingsError) {
+    throw data(settingsError.message, { status: settingsError.code });
   }
 
   return { tableName, tableSettings, rowsParams, rawRows, rowsError };

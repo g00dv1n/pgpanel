@@ -22,5 +22,9 @@ export async function executeSQL(query: string, args?: any[]) {
       body: JSON.stringify(body),
     });
 
-  return { sqlResponse, error };
+  if (error) {
+    return { error };
+  }
+
+  return { sqlResponse };
 }
