@@ -34,21 +34,23 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     getTableRows(tableName, rowsParams),
   ]);
 
-  const { rows, error: rowsError } = rowsRes;
+  const { rows: rawRows, error: rowsError } = rowsRes;
   const { tableSettings } = settingsRes;
 
   if (!tableSettings) {
     throw data("Unknown table", { status: 404 });
   }
 
-  return { tableName, tableSettings, rowsParams, rows, rowsError };
+  return { tableName, tableSettings, rowsParams, rawRows, rowsError };
 }
 
 export function TablePage() {
   const loaderData = useLoaderData<typeof loader>();
-  const { tableName, rowsParams, rowsError, tableSettings } = loaderData;
+  const { tableName, tableSettings, rowsParams, rowsError, rawRows } =
+    loaderData;
+
   const table = useTable(tableName);
-  const rows = DataRow.fromArray(table, tableSettings, loaderData.rows);
+  const rows = DataRow.fromArray(table, tableSettings, rawRows);
 
   const navigate = useNavigate();
 
