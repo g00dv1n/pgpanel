@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/g00dv1n/pgpanel/core"
@@ -15,6 +16,20 @@ func getTablesHandler(app *core.App) ApiHandler {
 	}
 }
 
+func getTableHandler(app *core.App) ApiHandler {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		tableName := r.PathValue("table")
+
+		table, err := app.SchemaRepository.GetTable(tableName)
+
+		if err != nil {
+			return NewApiError(http.StatusNotFound, err)
+		}
+
+		return WriteJson(w, table)
+	}
+}
+
 func getTableSettingsHandler(app *core.App) ApiHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		tableName := r.PathValue("table")
@@ -22,7 +37,11 @@ func getTableSettingsHandler(app *core.App) ApiHandler {
 		settings, err := app.SchemaRepository.GetTableSettings(tableName)
 
 		if err != nil {
-			return NewApiError(http.StatusBadRequest, err)
+			if errors.Is(err, core.ErrUnknownTable) {
+				return NewApiError(http.StatusNotFound, err)
+			}
+
+			return NewApiError(http.StatusInternalServerError, err)
 		}
 
 		return WriteJson(w, settings)

@@ -3,7 +3,6 @@ package core
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 
 	"github.com/jackc/pgx/v5"
@@ -11,6 +10,10 @@ import (
 )
 
 type TablesMap map[string]*Table
+
+var (
+	ErrUnknownTable = errors.New("unknown table")
+)
 
 type SchemaRepository struct {
 	SchemaName string
@@ -54,7 +57,7 @@ func (r *SchemaRepository) GetTable(name string) (*Table, error) {
 	table := r.tablesMap[name]
 
 	if table == nil {
-		return nil, fmt.Errorf("can't lookup table: %s", name)
+		return nil, ErrUnknownTable
 	}
 
 	return table, nil
@@ -148,6 +151,12 @@ func (r *SchemaRepository) GetSchemaNames() ([]string, error) {
 }
 
 func (r *SchemaRepository) GetTableSettings(tableName string) (*TableSettings, error) {
+	_, err := r.GetTable(tableName)
+
+	if err != nil {
+		return nil, err
+	}
+
 	sql := `
 		SELECT config FROM pgpanel.settings
 		WHERE type = 'table_settings' AND key = $1
@@ -157,7 +166,7 @@ func (r *SchemaRepository) GetTableSettings(tableName string) (*TableSettings, e
 	var result TableSettings
 
 	row := r.db.QueryRow(context.Background(), sql, tableName)
-	err := row.Scan(&result)
+	err = row.Scan(&result)
 
 	if errors.Is(err, pgx.ErrNoRows) {
 		// skip

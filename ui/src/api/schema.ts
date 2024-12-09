@@ -20,7 +20,7 @@ export async function getTables(props?: GetTablesProps) {
 
 export async function getTableSettings(tableName: string) {
   const { data: tableSettings, error } = await fetchApiwithAuth<TableSettings>(
-    `/api/schema/${tableName}/settings`
+    `/api/schema/table-settings/${tableName}`
   );
 
   return { tableSettings, error };
@@ -31,7 +31,7 @@ export async function updateTableSettings(
   updateSettings: any
 ) {
   const { data: tableSettings, error } = await fetchApiwithAuth<TableSettings>(
-    `/api/schema/${tableName}/settings`,
+    `/api/schema/table-settings/${tableName}`,
     {
       method: "PUT",
       body: JSON.stringify(updateSettings),

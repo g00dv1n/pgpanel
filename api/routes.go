@@ -23,8 +23,10 @@ const (
 var routes = []routeConfig{
 	// Schema API endpoints
 	{"GET /schema/tables", getTablesHandler, authEnabled},
-	{"GET /schema/{table}/settings", getTableSettingsHandler, authEnabled},
-	{"PUT /schema/{table}/settings", updateTableSettingsHandler, authEnabled},
+	{"GET /schema/tables/{table}", getTableHandler, authEnabled},
+
+	{"GET /schema/table-settings/{table}", getTableSettingsHandler, authEnabled},
+	{"PUT /schema/table-settings/{table}", updateTableSettingsHandler, authEnabled},
 
 	// Data REST API endpoints
 	{"GET /data/{table}", getRowsHandler, authEnabled},
