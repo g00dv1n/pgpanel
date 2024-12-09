@@ -2,8 +2,8 @@ export type ApiError = { code: number; message: string };
 export type ApiUrl = string | URL;
 
 export type ApiResult<T> =
-  | { data: T; error: undefined }
-  | { data: undefined; error: ApiError };
+  | { data: T; error?: never }
+  | { data?: never; error: ApiError };
 
 export async function fetchApi<T>(
   url: ApiUrl,
@@ -22,13 +22,12 @@ export async function fetchApi<T>(
     const jsonRes = await res.json();
 
     if (res.ok) {
-      return { data: jsonRes, error: undefined };
+      return { data: jsonRes };
     } else {
-      return { data: undefined, error: jsonRes };
+      return { error: jsonRes };
     }
   } catch (err) {
     return {
-      data: undefined,
       error: {
         code: 500,
         message: `Fetch error: ${err}`,
