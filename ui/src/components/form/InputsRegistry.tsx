@@ -9,14 +9,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { PgColumn, PgTypeOID } from "@/lib/pgTypes";
 
 // --------------- PG TYPE TO INPUT TYPE MAPPING ----------------------
-export type InputType =
-  | "checkbox"
-  | "input"
-  | "textarea"
-  | "jsontextarea"
-  | "datepicker"
-  | "timepicker"
-  | "datetimepicker";
+
+export const InputTypes = [
+  "checkbox",
+  "input",
+  "textarea",
+  "jsontextarea",
+  "datepicker",
+  "timepicker",
+  "datetimepicker",
+] as const;
+
+export type InputType = (typeof InputTypes)[number];
 
 export type InputTypeLookup = {
   type: InputType;
