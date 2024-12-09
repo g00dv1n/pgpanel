@@ -27,7 +27,7 @@ export function FieldTypesSelect({ table }: FieldTypesSelectProps) {
         const { type: defaultType } = resolveDefaultInputType(col);
 
         return (
-          <div className="grid grid-cols-2 items-center my-3">
+          <div className="grid grid-cols-2 items-center my-3" key={col.name}>
             <div>{col.name}</div>
             <Select defaultValue={defaultType}>
               <SelectTrigger className="w-[180px]">
