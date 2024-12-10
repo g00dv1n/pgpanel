@@ -1,7 +1,10 @@
 import { TimePicker } from "@/components/ui/datetime-picker";
 import { CustomInputProps } from "./common";
 
-export function TimeInput({ commonProps, changeValue }: CustomInputProps) {
+export function TimeInput({
+  commonProps,
+  onChange: changeValue,
+}: CustomInputProps) {
   const value = commonProps.value
     ? parsePostgreSQLTime(commonProps.value)
     : undefined;

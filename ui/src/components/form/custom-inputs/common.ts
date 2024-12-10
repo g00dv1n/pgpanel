@@ -5,7 +5,8 @@ export interface CommonInputProps {
   required?: boolean;
 }
 
-export interface CustomInputProps {
+export interface CustomInputProps<P = any> {
   commonProps: CommonInputProps;
-  changeValue: (newVal: any) => void;
+  payload?: P;
+  onChange: (newVal: any) => void;
 }

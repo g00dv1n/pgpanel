@@ -99,7 +99,7 @@ export function resolveInputElementByType(
   type: InputType,
   _payload: any,
   commonProps: CommonInputProps,
-  changeValue: (newVal: any) => void
+  onChange: (newVal: any) => void
 ) {
   switch (type) {
     case "checkbox": {
@@ -108,7 +108,7 @@ export function resolveInputElementByType(
           {...commonProps}
           checked={commonProps.value}
           onCheckedChange={(checked) => {
-            changeValue(checked);
+            onChange(checked);
           }}
         />
       );
@@ -119,7 +119,7 @@ export function resolveInputElementByType(
         <Input
           {...commonProps}
           onChange={(e) => {
-            changeValue(e.target.value);
+            onChange(e.target.value);
           }}
         />
       );
@@ -131,16 +131,14 @@ export function resolveInputElementByType(
           {...commonProps}
           rows={3}
           onChange={(e) => {
-            changeValue(e.target.value);
+            onChange(e.target.value);
           }}
         />
       );
     }
 
     case "jsontextarea": {
-      return (
-        <JsonTextarea commonProps={commonProps} changeValue={changeValue} />
-      );
+      return <JsonTextarea commonProps={commonProps} onChange={onChange} />;
     }
 
     case "datepicker": {
@@ -148,18 +146,16 @@ export function resolveInputElementByType(
         <DateTimeInput
           onlyDate={true}
           commonProps={commonProps}
-          changeValue={changeValue}
+          onChange={onChange}
         />
       );
     }
     case "datetimepicker": {
-      return (
-        <DateTimeInput commonProps={commonProps} changeValue={changeValue} />
-      );
+      return <DateTimeInput commonProps={commonProps} onChange={onChange} />;
     }
 
     case "timepicker": {
-      return <TimeInput commonProps={commonProps} changeValue={changeValue} />;
+      return <TimeInput commonProps={commonProps} onChange={onChange} />;
     }
   }
 

@@ -1,7 +1,7 @@
 import { Textarea } from "@/components/ui/textarea";
 import { CustomInputProps } from "./common";
 
-export function JsonTextarea({ commonProps, changeValue }: CustomInputProps) {
+export function JsonTextarea({ commonProps, onChange }: CustomInputProps) {
   const value =
     typeof commonProps.value === "object"
       ? JSON.stringify(commonProps.value, null, 2)
@@ -14,7 +14,7 @@ export function JsonTextarea({ commonProps, changeValue }: CustomInputProps) {
       rows={10}
       onChange={(e) => {
         const newVal = e.target.value;
-        changeValue(newVal);
+        onChange(newVal);
       }}
     />
   );

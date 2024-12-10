@@ -11,7 +11,7 @@ interface DateTimeInputProps extends CustomInputProps {
 export function DateTimeInput({
   commonProps,
   onlyDate,
-  changeValue,
+  onChange: changeValue,
 }: DateTimeInputProps) {
   const value = commonProps.value ? new Date(commonProps.value) : undefined;
 

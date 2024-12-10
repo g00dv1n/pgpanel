@@ -1,3 +1,4 @@
+import { SelectPayload } from "@/components/form/custom-inputs/SelectInput";
 import { InputType } from "@/components/form/InputsRegistry";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -7,11 +8,6 @@ export interface PayloadProps {
   type: InputType;
   value?: any;
   onChange: (value: any) => void;
-}
-
-export interface SelectPayload {
-  options?: string[];
-  multi?: boolean;
 }
 
 export function Payload({
