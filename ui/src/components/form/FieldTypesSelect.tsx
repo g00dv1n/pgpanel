@@ -37,7 +37,9 @@ export function FieldTypesSelect({ table }: FieldTypesSelectProps) {
                 <SelectGroup>
                   <SelectLabel>Types</SelectLabel>
                   {AutoInputTypes.map((type) => (
-                    <SelectItem value={type}>{type}</SelectItem>
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
                   ))}
                 </SelectGroup>
               </SelectContent>
