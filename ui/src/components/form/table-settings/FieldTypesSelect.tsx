@@ -44,8 +44,8 @@ export function FieldTypesSelect({
         return (
           <div className="grid gap-2" key={col.name}>
             <div>
-              {col.name} - autodetected type{" "}
-              <span className="font-medium">{autoType}</span>
+              <span className="font-medium">{col.name}</span> - autodetected as{" "}
+              <span className="font-medium italic">{autoType}</span>
             </div>
             <Select
               defaultValue={selectedType}
