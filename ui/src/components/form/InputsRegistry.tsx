@@ -1,6 +1,7 @@
 import { CommonInputProps } from "@/components/form/custom-inputs/common";
 import { DateTimeInput } from "@/components/form/custom-inputs/DateTimeInput";
 import { JsonTextarea } from "@/components/form/custom-inputs/JsonTextarea";
+import { SelectInput } from "@/components/form/custom-inputs/SelectInput";
 import { TimeInput } from "@/components/form/custom-inputs/TimeInput";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -97,7 +98,7 @@ export function resolveInputType(
 // --------------- Resolve input by type  ----------------------
 export function resolveInputElementByType(
   type: InputType,
-  _payload: any,
+  payload: any,
   commonProps: CommonInputProps,
   onChange: (newVal: any) => void
 ) {
@@ -156,6 +157,15 @@ export function resolveInputElementByType(
 
     case "timepicker": {
       return <TimeInput commonProps={commonProps} onChange={onChange} />;
+    }
+    case "select": {
+      return (
+        <SelectInput
+          commonProps={commonProps}
+          onChange={onChange}
+          payload={payload}
+        />
+      );
     }
   }
 

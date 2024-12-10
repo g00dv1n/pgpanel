@@ -70,7 +70,7 @@ export function RowForm({
     <form className="grid gap-4" action={saveChanges}>
       {table.columns.map((column) => {
         const initialValue = row && row.get(column.name);
-        const { type, isArray } = resolveInputType(
+        const { type, isArray, payload } = resolveInputType(
           column,
           tableSettings.overriddenInputs
         );
@@ -91,6 +91,7 @@ export function RowForm({
             <DynamicInput
               type={type}
               isArray={isArray}
+              payload={payload}
               name={column.name}
               placeholder={placeholder}
               required={required}
