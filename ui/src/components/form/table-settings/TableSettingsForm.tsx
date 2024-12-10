@@ -25,7 +25,7 @@ export type SettingsFieldConfig = {
   label: string;
 } & Pick<DynamicInputProps, "type" | "isArray" | "placeholder">;
 
-const settingsFields: Record<SettingsField, SettingsFieldConfig> = {
+const settingsFields: Record<string, SettingsFieldConfig> = {
   viewLinkPattern: {
     name: "viewLinkPattern",
     label: "View Link Pattern",
@@ -35,14 +35,13 @@ const settingsFields: Record<SettingsField, SettingsFieldConfig> = {
 
 export function TableSettingsForm({
   table,
-  setttings,
+  setttings: initSettngs,
   onSettingsUpdate = () => {},
 }: TableSettingsFormProps) {
-  const [updateSettings, setUpdateSettings] = useState({});
-  const canSave = Object.keys(updateSettings).length > 0;
+  const [setttings, setSettings] = useState(initSettngs);
 
   const saveChanges = async () => {
-    const { error } = await updateTableSettings(table.name, updateSettings);
+    const { error } = await updateTableSettings(table.name, setttings);
 
     if (error) {
       alert.error(error.message);
@@ -63,7 +62,7 @@ export function TableSettingsForm({
           {...config}
           initialValue={setttings[field]}
           onChange={(val) => {
-            setUpdateSettings({ ...updateSettings, [field]: val });
+            setSettings({ ...setttings, [field]: val });
           }}
         />
       </div>
@@ -73,9 +72,18 @@ export function TableSettingsForm({
   return (
     <form className="grid gap-4" action={saveChanges}>
       {renderDynamicInput("viewLinkPattern")}
-      <FieldTypesSelect table={table} settings={setttings} />
+      <FieldTypesSelect
+        table={table}
+        settings={setttings}
+        onChange={(o) => {
+          setSettings({
+            ...setttings,
+            overriddenInputs: o,
+          });
+        }}
+      />
       <Separator className="my-1" />
-      <Button className="ml-auto" size="sm" type="submit" disabled={!canSave}>
+      <Button className="ml-auto" size="sm" type="submit">
         Save changes
       </Button>
     </form>

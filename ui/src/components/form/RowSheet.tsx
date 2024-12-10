@@ -25,6 +25,7 @@ interface RowSheetProps {
 
 export function RowSheet({
   table,
+  tableSettings,
   row,
   open,
   onOpenChange,
@@ -56,6 +57,7 @@ export function RowSheet({
           {table && (
             <RowForm
               table={table}
+              tableSettings={tableSettings}
               mode={mode}
               row={row}
               onRowUpdate={onSuccess}

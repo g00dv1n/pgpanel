@@ -6,11 +6,13 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { DataRow } from "@/lib/dataRow";
 import { PgTable } from "@/lib/pgTypes";
+import { TableSettings } from "@/lib/tableSettings";
 import { useState } from "react";
 import { resolveInputType } from "./InputsRegistry";
 
 interface RowFormProps {
   table: PgTable;
+  tableSettings: TableSettings;
   mode: "insert" | "update";
   row?: DataRow;
   onRowUpdate?: () => void;
@@ -19,6 +21,7 @@ interface RowFormProps {
 export function RowForm({
   mode,
   table,
+  tableSettings,
   row,
   onRowUpdate = () => {},
 }: RowFormProps) {
@@ -67,7 +70,10 @@ export function RowForm({
     <form className="grid gap-4" action={saveChanges}>
       {table.columns.map((column) => {
         const initialValue = row && row.get(column.name);
-        const { type, isArray } = resolveInputType(column);
+        const { type, isArray } = resolveInputType(
+          column,
+          tableSettings.overriddenInputs
+        );
 
         const placeholder = column.default
           ? `DEFAULT: ${column.default}`

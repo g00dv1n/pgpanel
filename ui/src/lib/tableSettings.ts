@@ -1,7 +1,9 @@
+import { OverriddenInputsMap } from "@/components/form/InputsRegistry";
 import { Row } from "@/lib/pgTypes";
 
 export interface TableSettings {
   viewLinkPattern: string | null;
+  overriddenInputs: OverriddenInputsMap | null;
 }
 
 // pattern format: 'https://admin.example.com/users/{user_id}/{role_id}'
