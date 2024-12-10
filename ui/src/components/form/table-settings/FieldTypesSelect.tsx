@@ -41,45 +41,51 @@ export function FieldTypesSelect({
           overriddenInputs
         );
 
+        const isOverriden = autoType !== selectedType;
+
         return (
           <div className="grid gap-2" key={col.name}>
             <div>
               <span className="font-medium">{col.name}</span> - autodetected as{" "}
               <span className="font-medium italic">{autoType}</span>
             </div>
-            <Select
-              defaultValue={selectedType}
-              onValueChange={(val) => {
-                updateOvverides({
-                  ...overriddenInputs,
-                  [col.name]: {
-                    type: val as InputType,
-                  },
-                });
-              }}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select an input type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Autodetected Types</SelectLabel>
-                  {AutoInputTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-                <SelectGroup>
-                  <SelectLabel>Manul Setup Types</SelectLabel>
-                  {ManualInputTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+            <div className="flex gap-3 items-center">
+              <Select
+                defaultValue={selectedType}
+                onValueChange={(val) => {
+                  updateOvverides({
+                    ...overriddenInputs,
+                    [col.name]: {
+                      type: val as InputType,
+                    },
+                  });
+                }}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select an input type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Autodetected Types</SelectLabel>
+                    {AutoInputTypes.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                  <SelectGroup>
+                    <SelectLabel>Manul Setup Types</SelectLabel>
+                    {ManualInputTypes.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              {isOverriden && <div className="text-yellow-600">*overriden</div>}
+            </div>
+
             <Payload
               type={selectedType}
               value={payload}
