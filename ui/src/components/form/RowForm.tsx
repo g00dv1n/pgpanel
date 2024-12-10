@@ -56,11 +56,11 @@ export function RowForm({
     alert.success("Inserted");
   };
 
-  const saveChanges = () => {
+  const saveChanges = async () => {
     if (mode === "insert") {
-      insert();
+      await insert();
     } else {
-      update();
+      await update();
     }
 
     onRowUpdate();
