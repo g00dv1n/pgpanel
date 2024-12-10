@@ -56,7 +56,9 @@ export function SelectInput({
   );
 }
 
-function toMultiSelectOptions(options: string[]) {
+function toMultiSelectOptions(options: string[] | null | undefined) {
+  if (!options) return [];
+
   return options.map((value) => {
     return { value, label: value };
   });
