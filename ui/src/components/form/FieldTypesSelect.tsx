@@ -2,7 +2,7 @@ import { PgTable } from "@/lib/pgTypes";
 import { TableSettings } from "@/lib/tableSettings";
 
 import {
-  InputTypes,
+  AutoInputTypes,
   resolveDefaultInputType,
 } from "@/components/form/InputsRegistry";
 import {
@@ -36,7 +36,7 @@ export function FieldTypesSelect({ table }: FieldTypesSelectProps) {
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Types</SelectLabel>
-                  {InputTypes.map((type) => (
+                  {AutoInputTypes.map((type) => (
                     <SelectItem value={type}>{type}</SelectItem>
                   ))}
                 </SelectGroup>

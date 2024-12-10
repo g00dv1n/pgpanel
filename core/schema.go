@@ -158,11 +158,14 @@ func GetTablesFromDB(db *pgxpool.Pool, schemaName string, includedTables []strin
 // Table Settings related structs
 
 type TableSettings struct {
-	ViewLinkPattern *string       `json:"viewLinkPattern"`
-	CustomInputs    []CustomInput `json:"customInputs"`
+	ViewLinkPattern  *string               `json:"viewLinkPattern"`
+	OverriddenInputs []OverriddenInputsMap `json:"overriddenInputs"`
 }
 
-type CustomInput struct {
-	ColumnName string `json:"columnName"`
-	InputType  string `json:"inputType"`
+type OverriddenInputsMap map[string]InputTypeLookup
+
+type InputTypeLookup struct {
+	Type    string `json:"type"`
+	IsArray bool   `json:"isArray"`
+	Payload any    `json:"payload"`
 }

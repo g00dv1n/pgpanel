@@ -10,7 +10,7 @@ import { PgColumn, PgTypeOID } from "@/lib/pgTypes";
 
 // --------------- PG TYPE TO INPUT TYPE MAPPING ----------------------
 
-export const InputTypes = [
+export const AutoInputTypes = [
   "checkbox",
   "input",
   "textarea",
@@ -20,11 +20,16 @@ export const InputTypes = [
   "datetimepicker",
 ] as const;
 
-export type InputType = (typeof InputTypes)[number];
+export const ManualInputTypes = ["select"] as const;
+
+export type InputType =
+  | (typeof AutoInputTypes)[number]
+  | (typeof ManualInputTypes)[number];
 
 export type InputTypeLookup = {
   type: InputType;
   isArray?: boolean;
+  payload?: any;
 };
 
 export const MainPgTypesOidMap: Record<number, InputTypeLookup> = {
@@ -74,17 +79,24 @@ export const MainPgTypesOidMap: Record<number, InputTypeLookup> = {
   [PgTypeOID.UUIDArrayOID]: { type: "input", isArray: true },
 };
 
-export function resolveDefaultInputType(column: PgColumn): InputTypeLookup {
-  if (MainPgTypesOidMap[column.OID]) {
-    return MainPgTypesOidMap[column.OID];
-  }
+export type OverriddenInputsMap = Record<string, InputTypeLookup>;
 
-  return { type: "textarea" };
+export function resolveDefaultInputType(
+  column: PgColumn,
+  overriddenMap: OverriddenInputsMap = {}
+): InputTypeLookup {
+  const autodetectedType: InputTypeLookup | undefined =
+    MainPgTypesOidMap[column.OID];
+  const overriddenType: InputTypeLookup | undefined =
+    overriddenMap[column.name];
+
+  return overriddenType || autodetectedType || { type: "textarea" };
 }
 
 // --------------- Resolve input by type  ----------------------
 export function resolveInputElementByType(
   type: InputType,
+  _payload: any,
   commonProps: CommonInputProps,
   changeValue: (newVal: any) => void
 ) {

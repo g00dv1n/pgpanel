@@ -11,6 +11,7 @@ export interface DynamicInputProps {
   initialValue?: any;
   required?: boolean;
   placeholder?: string;
+  payload?: any;
   onChange?: (newVal: any) => void;
 }
 
@@ -20,6 +21,7 @@ export function DynamicInputSingle({
   required,
   placeholder,
   type,
+  payload = {},
   onChange = () => {},
 }: DynamicInputProps) {
   const [value, setValue] = useState(normalizeEmpty(initialValue));
@@ -36,7 +38,7 @@ export function DynamicInputSingle({
     required,
   };
 
-  return resolveInputElementByType(type, commonProps, changeValue);
+  return resolveInputElementByType(type, payload, commonProps, changeValue);
 }
 
 export function DynamicInputArray({
