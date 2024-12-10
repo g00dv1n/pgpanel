@@ -20,34 +20,33 @@ export function Payload({
       const { options = [], multi = false } = value as SelectPayload;
 
       return (
-        <div>
-          <div className="flex gap-2 items-center">
-            <Input
-              placeholder="(comma separated options): optionA,optionB,optionC,..."
-              defaultValue={options.join(",")}
-              onChange={(e) => {
-                const newOptions = e.target.value
-                  .split(",")
-                  .map((v) => v.trim())
-                  .filter((v) => v.length > 0);
+        <div className="flex gap-2 items-center">
+          <Label>Multiselect</Label>
+          <Checkbox
+            defaultChecked={multi}
+            onCheckedChange={(v) => {
+              updatePayload({
+                options,
+                multi: v,
+              });
+            }}
+          />
+          <Input
+            className="ml-5"
+            placeholder="(comma separated options): optionA,optionB,optionC,..."
+            defaultValue={options.join(",")}
+            onChange={(e) => {
+              const newOptions = e.target.value
+                .split(",")
+                .map((v) => v.trim())
+                .filter((v) => v.length > 0);
 
-                updatePayload({
-                  multi,
-                  options: newOptions,
-                });
-              }}
-            />
-            <Label>Multiselect</Label>
-            <Checkbox
-              defaultChecked={multi}
-              onCheckedChange={(v) => {
-                updatePayload({
-                  options,
-                  multi: v,
-                });
-              }}
-            />
-          </div>
+              updatePayload({
+                multi,
+                options: newOptions,
+              });
+            }}
+          />
         </div>
       );
     }

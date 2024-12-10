@@ -33,7 +33,7 @@ export function FieldTypesSelect({
   const { overriddenInputs } = settings;
 
   return (
-    <div className="grid grid-cols-2 gap-3 items-center my-3">
+    <div className="grid gap-3 items-center my-3">
       {table.columns.map((col) => {
         const { type: autoType } = resolveInputType(col);
         const { type: selectedType, payload } = resolveInputType(
