@@ -81,14 +81,15 @@ export const MainPgTypesOidMap: Record<number, InputTypeLookup> = {
 
 export type OverriddenInputsMap = Record<string, InputTypeLookup>;
 
-export function resolveDefaultInputType(
+export function resolveInputType(
   column: PgColumn,
-  overriddenMap: OverriddenInputsMap = {}
+  overriddenMap?: OverriddenInputsMap | null
 ): InputTypeLookup {
   const autodetectedType: InputTypeLookup | undefined =
     MainPgTypesOidMap[column.OID];
-  const overriddenType: InputTypeLookup | undefined =
-    overriddenMap[column.name];
+  const overriddenType: InputTypeLookup | undefined = overriddenMap
+    ? overriddenMap[column.name]
+    : undefined;
 
   return overriddenType || autodetectedType || { type: "textarea" };
 }

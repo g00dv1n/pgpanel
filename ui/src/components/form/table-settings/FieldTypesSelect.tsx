@@ -3,7 +3,8 @@ import { TableSettings } from "@/lib/tableSettings";
 
 import {
   AutoInputTypes,
-  resolveDefaultInputType,
+  ManualInputTypes,
+  resolveInputType,
 } from "@/components/form/InputsRegistry";
 import {
   Select,
@@ -22,21 +23,32 @@ export interface FieldTypesSelectProps {
 
 export function FieldTypesSelect({ table }: FieldTypesSelectProps) {
   return (
-    <div>
+    <div className="grid grid-cols-2 gap-3 items-center my-3">
       {table.columns.map((col) => {
-        const { type: defaultType } = resolveDefaultInputType(col);
+        const { type: autoType } = resolveInputType(col);
 
         return (
-          <div className="grid grid-cols-2 items-center my-3" key={col.name}>
-            <div>{col.name}</div>
-            <Select defaultValue={defaultType}>
+          <div className="grid gap-2" key={col.name}>
+            <div>
+              {col.name} - autodetected type{" "}
+              <span className="font-medium">{autoType}</span>
+            </div>
+            <Select defaultValue={autoType}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select an input type" />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectLabel>Types</SelectLabel>
+                  <SelectLabel>Autodetected Types</SelectLabel>
                   {AutoInputTypes.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+                <SelectGroup>
+                  <SelectLabel>Manul Setup Types</SelectLabel>
+                  {ManualInputTypes.map((type) => (
                     <SelectItem key={type} value={type}>
                       {type}
                     </SelectItem>

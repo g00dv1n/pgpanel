@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { DataRow } from "@/lib/dataRow";
 import { PgTable } from "@/lib/pgTypes";
 import { useState } from "react";
-import { resolveDefaultInputType } from "./InputsRegistry";
+import { resolveInputType } from "./InputsRegistry";
 
 interface RowFormProps {
   table: PgTable;
@@ -67,7 +67,7 @@ export function RowForm({
     <form className="grid gap-4" action={saveChanges}>
       {table.columns.map((column) => {
         const initialValue = row && row.get(column.name);
-        const { type, isArray } = resolveDefaultInputType(column);
+        const { type, isArray } = resolveInputType(column);
 
         const placeholder = column.default
           ? `DEFAULT: ${column.default}`
