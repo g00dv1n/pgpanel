@@ -7,7 +7,7 @@ import {
 } from "@/api/data";
 import { getTableSettings } from "@/api/schema";
 import { useRowSheet } from "@/components/form/RowSheet";
-import { useTableSheet } from "@/components/form/TableSheet";
+import { useTableSheet } from "@/components/form/table-settings/TableSheet";
 import { Controls } from "@/components/table/Controls";
 import { DataTable } from "@/components/table/DataTable";
 import { FiltersSearch } from "@/components/table/FiltersSearch";

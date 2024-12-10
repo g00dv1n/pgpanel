@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/sheet";
 import { PgTable } from "@/lib/pgTypes";
 
-import { TableSettingsForm } from "@/components/form/TableSettingsForm";
+import { TableSettingsForm } from "@/components/form/table-settings/TableSettingsForm";
 import { Separator } from "@/components/ui/separator";
 import { TableSettings } from "@/lib/tableSettings";
 import { createContext, ReactNode, useContext, useState } from "react";

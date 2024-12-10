@@ -3,7 +3,7 @@ import {
   DynamicInput,
   DynamicInputProps,
 } from "@/components/form/DynamicInput";
-import { FieldTypesSelect } from "@/components/form/FieldTypesSelect";
+import { FieldTypesSelect } from "@/components/form/table-settings/FieldTypesSelect";
 import { Button } from "@/components/ui/button";
 import { alert } from "@/components/ui/global-alert";
 import { Label } from "@/components/ui/label";
