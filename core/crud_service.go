@@ -59,7 +59,7 @@ func (s CrudService) GetRows(tableName string, params *GetRowsParams) (json.RawM
 		params = DefaultGetRowsParams()
 	}
 
-	// filters can be nil becaus it is an interface
+	// filters can be nil because it is an interface
 	if params.Filters == nil {
 		params.Filters = SQLFilters{}
 	}
