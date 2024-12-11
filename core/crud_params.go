@@ -161,8 +161,32 @@ func ParseSortingFromQuery(q url.Values) Sorting {
 	return Sorting{Fields: fields}
 }
 
+func DefaultTableSorting(table *Table) Sorting {
+	var f SortingField
+
+	for _, col := range table.Columns {
+		if col.IsPrimaryKey {
+			f.Name = col.Name
+			f.Order = SortingOrderASC
+
+			break
+		}
+	}
+
+	// handle edge case when table doesn't have primary keys
+	if len(f.Name) == 0 {
+		return Sorting{}
+	}
+
+	return Sorting{Fields: []SortingField{f}}
+}
+
+func (s Sorting) IsEmpty() bool {
+	return len(s.Fields) == 0
+}
+
 func (s Sorting) ToSQL() string {
-	if len(s.Fields) == 0 {
+	if s.IsEmpty() {
 		return ""
 	}
 

@@ -59,9 +59,14 @@ func (s CrudService) GetRows(tableName string, params *GetRowsParams) (json.RawM
 		params = DefaultGetRowsParams()
 	}
 
-	// filters can be nil becaus it an interface
+	// filters can be nil becaus it is an interface
 	if params.Filters == nil {
 		params.Filters = SQLFilters{}
+	}
+
+	// apply default sorting for consistency
+	if params.Sorting.IsEmpty() {
+		params.Sorting = DefaultTableSorting(table)
 	}
 
 	selectColumns := strings.Join(table.SafeColumnNames(), ",")
