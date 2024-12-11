@@ -116,6 +116,7 @@ export enum PgTypeOID {
 export interface PgColumn {
   name: string;
   OID: PgTypeOID;
+  isPrimaryKey: boolean;
   regType: string;
   udtName: string;
   isNullable: boolean;
@@ -126,7 +127,6 @@ export interface PgTable {
   name: string;
   schema: string;
   columns: PgColumn[];
-  primaryKeys: string[];
 }
 
 export type RowField =

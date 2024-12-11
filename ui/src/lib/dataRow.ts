@@ -31,9 +31,19 @@ export class DataRow {
   }
 
   getPKeys(): RowPkeysMap {
-    return this.#table.primaryKeys.reduce((result, key) => {
-      return { ...result, [key]: this.#data && this.#data[key] };
-    }, {});
+    const map: RowPkeysMap = {};
+
+    for (const col of this.#table.columns) {
+      if (!col.isPrimaryKey) continue;
+
+      const val = this.#data[col.name];
+
+      if (val) {
+        map[col.name] = val.toString();
+      }
+    }
+
+    return map;
   }
 
   getUniqueKey() {
