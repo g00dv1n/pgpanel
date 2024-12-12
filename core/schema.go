@@ -53,11 +53,34 @@ func (t *Table) GetColumn(name string) (*Column, bool) {
 	return nil, false
 }
 
+// Map to easily look up stored tables
+type TablesMap map[string]*Table
+
+func (m TablesMap) Names() []string {
+	var names []string
+
+	for n := range m {
+		names = append(names, n)
+	}
+
+	return names
+}
+
+func (m TablesMap) Tables() []*Table {
+	var tables []*Table
+
+	for _, t := range m {
+		tables = append(tables, t)
+	}
+
+	return tables
+}
+
 // Query tables from Postgres with enhanced schema information
-func GetTablesFromDB(db *pgxpool.Pool, schemaName string, includedTables []string) ([]Table, error) {
+func GetTablesFromDB(db *pgxpool.Pool, schemaName string, includedTables []string) (TablesMap, error) {
 	ctx := context.Background()
 
-	var tables []Table
+	tablesMap := make(TablesMap)
 
 	if len(includedTables) == 0 {
 		// Get all tables
@@ -76,18 +99,19 @@ func GetTablesFromDB(db *pgxpool.Pool, schemaName string, includedTables []strin
 			if err := rows.Scan(&tableName); err != nil {
 				return nil, err
 			}
-			tables = append(tables, Table{Name: tableName, Schema: schemaName})
+			tablesMap[tableName] = &Table{Name: tableName, Schema: schemaName}
+
 		}
 	} else {
 		for _, tableName := range includedTables {
-			tables = append(tables, Table{Name: tableName, Schema: schemaName})
+			tablesMap[tableName] = &Table{Name: tableName, Schema: schemaName}
 		}
 	}
 
-	// Get columns for each table
-	for i, table := range tables {
-		rows, err := db.Query(ctx, `
+	// Get ALL columns for all tables
+	rows, err := db.Query(ctx, `
 			SELECT 
+					table_name,
 					column_name,
 					udt_name::regtype::oid::int AS oid,
 					udt_name::regtype AS regtype,
@@ -108,36 +132,37 @@ func GetTablesFromDB(db *pgxpool.Pool, schemaName string, includedTables []strin
 				FROM 
 					information_schema.columns c
 				WHERE 
-					table_schema = $1 AND table_name = $2
+					table_schema = $1 AND table_name = ANY($2)
 				ORDER BY 
 					ordinal_position ASC
-		`, table.Schema, table.Name)
+		`, schemaName, tablesMap.Names())
 
-		if err != nil {
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var tableName string
+		var col Column
+
+		if err := rows.Scan(
+			&tableName,
+			&col.Name,
+			&col.OID,
+			&col.RegType,
+			&col.UdtName,
+			&col.IsNullable,
+			&col.Default,
+			&col.IsPrimaryKey,
+		); err != nil {
 			return nil, err
 		}
-		defer rows.Close()
 
-		for rows.Next() {
-			var col Column
-
-			if err := rows.Scan(
-				&col.Name,
-				&col.OID,
-				&col.RegType,
-				&col.UdtName,
-				&col.IsNullable,
-				&col.Default,
-				&col.IsPrimaryKey,
-			); err != nil {
-				return nil, err
-			}
-
-			tables[i].Columns = append(tables[i].Columns, col)
-		}
+		tablesMap[tableName].Columns = append(tablesMap[tableName].Columns, col)
 	}
 
-	return tables, nil
+	return tablesMap, nil
 }
 
 // Table Settings related structs

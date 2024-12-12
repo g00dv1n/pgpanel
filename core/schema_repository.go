@@ -9,8 +9,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type TablesMap map[string]*Table
-
 var (
 	ErrUnknownTable = errors.New("unknown table")
 )
@@ -64,17 +62,10 @@ func (r *SchemaRepository) GetTable(name string) (*Table, error) {
 }
 
 func (r *SchemaRepository) loadTables() error {
-	tables, err := GetTablesFromDB(r.db, r.SchemaName, r.includedTables)
+	tablesMap, err := GetTablesFromDB(r.db, r.SchemaName, r.includedTables)
 
 	if err != nil {
 		return err
-	}
-
-	tablesMap := make(map[string]*Table, len(tables))
-
-	for _, t := range tables {
-
-		tablesMap[t.Name] = &t
 	}
 
 	r.tablesMap = tablesMap
