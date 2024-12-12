@@ -100,8 +100,8 @@ func GetTablesFromDB(db *pgxpool.Pool, schemaName string, includedTables []strin
 						JOIN information_schema.table_constraints tc 
 							ON tc.constraint_name = kcu.constraint_name
 						WHERE 
-							tc.table_schema = $1
-							AND tc.table_name = $2
+							tc.table_schema = c.table_schema
+							AND tc.table_name = c.table_name
 							AND tc.constraint_type = 'PRIMARY KEY'
 							AND kcu.column_name = c.column_name
 					) AS is_primary_key
