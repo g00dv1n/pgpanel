@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
-	"text/template"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -39,7 +38,7 @@ func (s CrudService) queryAsJson(sql string, args []any) (json.RawMessage, error
 }
 
 // ---------------------- Universal Get Rows -------------------------------
-var getRowsSQL = sqlTempl(`
+var getRowsSQL = SqlT(`
 	SELECT {{ .Select }}
 	FROM {{.From}}
 	{{.Where}}
@@ -73,7 +72,7 @@ func (s CrudService) GetRows(tableName string, params *GetRowsParams) (json.RawM
 	where, args := params.Filters.ToSQL(table)
 	orderBy := params.Sorting.ToSQL()
 
-	sql := getRowsSQL.run(map[string]any{
+	sql := getRowsSQL.Exec(map[string]any{
 		"Select":  selectColumns,
 		"From":    table.SafeName(),
 		"Where":   where,
@@ -110,7 +109,7 @@ func (rr RawRow) ToUpdateSQL(table *Table, paramsOffset int) (string, []any) {
 	return sql, args
 }
 
-var updateRowsSQL = sqlTempl(`
+var updateRowsSQL = SqlT(`
 	UPDATE {{.TableName}}
 	SET {{.Updates}}
 	{{.Where}}
@@ -133,7 +132,7 @@ func (s CrudService) UpdateRows(tableName string, filters Filters, row RawRow) (
 
 	args := append(whereArgs, updatesArgs...)
 
-	sql := updateRowsSQL.run(map[string]any{
+	sql := updateRowsSQL.Exec(map[string]any{
 		"TableName": table.SafeName(),
 		"Updates":   updates,
 		"Where":     where,
@@ -170,7 +169,7 @@ func (rr RawRow) ToInsertSQL(table *Table, paramsOffset int) (string, string, []
 	return fmt.Sprintf("(%s)", strings.Join(insertColumns, ",")), fmt.Sprintf("(%s)", strings.Join(insertValues, ",")), args
 }
 
-var insertRowSQL = sqlTempl(`
+var insertRowSQL = SqlT(`
 	INSERT INTO {{.TableName}} {{.Columns}}
 	VALUES {{.Values}}
 	RETURNING *
@@ -189,7 +188,7 @@ func (s CrudService) InsertRow(tableName string, row RawRow) (json.RawMessage, e
 		return nil, errors.New("can't insert row with zero valid columns.")
 	}
 
-	sql := insertRowSQL.run(map[string]any{
+	sql := insertRowSQL.Exec(map[string]any{
 		"TableName": table.SafeName(),
 		"Columns":   insertColumns,
 		"Values":    insertValues,
@@ -199,7 +198,7 @@ func (s CrudService) InsertRow(tableName string, row RawRow) (json.RawMessage, e
 }
 
 // ---------------------- Universal Delete Rows -------------------------------
-var deleteRowsSQL = sqlTempl(`
+var deleteRowsSQL = SqlT(`
 	DELETE FROM {{.TableName}} 
 	{{.Where}}
 	RETURNING *
@@ -218,26 +217,10 @@ func (s CrudService) DeleteRows(tableName string, filters Filters) (json.RawMess
 		return nil, errors.New("can't delete rows with empty filters.")
 	}
 
-	sql := deleteRowsSQL.run(map[string]any{
+	sql := deleteRowsSQL.Exec(map[string]any{
 		"TableName": table.SafeName(),
 		"Where":     where,
 	})
 
 	return s.queryAsJson(sql, args)
-}
-
-// small utiliy to work with SQL temlates as STD Text Template
-type sqlTemplate struct {
-	t *template.Template
-}
-
-func sqlTempl(sql string) sqlTemplate {
-	return sqlTemplate{template.Must(template.New("sql").Parse(sql))}
-}
-
-func (st *sqlTemplate) run(data any) string {
-	var sql strings.Builder
-	st.t.Execute(&sql, data)
-
-	return sql.String()
 }

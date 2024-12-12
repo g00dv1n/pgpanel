@@ -3,6 +3,8 @@ package core
 import (
 	"context"
 	"errors"
+	"strings"
+	"text/template"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -72,4 +74,20 @@ func (req *SQLExecutionRequest) Execute(db *pgxpool.Pool) (*SQLExecutionResponse
 		Rows:         results,
 		RowsAffected: rowsAffected,
 	}, nil
+}
+
+// small utiliy to work with SQL temlates as STD Text Template
+type SqlTemplate struct {
+	t *template.Template
+}
+
+func SqlT(sql string) SqlTemplate {
+	return SqlTemplate{template.Must(template.New("sql").Parse(sql))}
+}
+
+func (st *SqlTemplate) Exec(data any) string {
+	var sql strings.Builder
+	st.t.Execute(&sql, data)
+
+	return sql.String()
 }
