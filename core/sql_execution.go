@@ -77,15 +77,15 @@ func (req *SQLExecutionRequest) Execute(db *pgxpool.Pool) (*SQLExecutionResponse
 }
 
 // small utiliy to work with SQL temlates as STD Text Template
-type SqlTemplate struct {
+type sqlTemplate struct {
 	t *template.Template
 }
 
-func SqlT(sql string) SqlTemplate {
-	return SqlTemplate{template.Must(template.New("sql").Parse(sql))}
+func SqlT(sql string) sqlTemplate {
+	return sqlTemplate{template.Must(template.New("sql").Parse(sql))}
 }
 
-func (st *SqlTemplate) Exec(data any) string {
+func (st *sqlTemplate) Exec(data any) string {
 	var sql strings.Builder
 	st.t.Execute(&sql, data)
 
