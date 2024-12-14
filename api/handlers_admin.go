@@ -27,6 +27,7 @@ func adminLoginHandler(app *core.App) ApiHandler {
 			return NewApiError(http.StatusBadRequest, err)
 		}
 
+		// Hardcoded creds for dev process
 		if creds.Username != "admin" {
 			return NewApiError(http.StatusUnauthorized, errors.New("can't find this admin user"))
 		}
