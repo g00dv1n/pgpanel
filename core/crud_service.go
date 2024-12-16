@@ -224,16 +224,3 @@ func (s CrudService) DeleteRows(tableName string, filters Filters) (json.RawMess
 
 	return s.queryAsJson(sql, args)
 }
-
-// ---------------------- Relations (as separate Query) -------------------------------
-
-var getRelatedRows = SqlT(`
-	  SELECT *
-    FROM ${sql(relationTable)}
-    JOIN ${sql(joinTable)} ON ${sql(joinTable)}.${sql(relationJoinField)} = ${sql(relationTable)}.id
-    WHERE ${sql(joinTable)}.${sql(mainJoinField)} = ${id}
-`)
-
-func (s CrudService) GetRelatedRows(conf *RelationsConfig, params *GetRowsParams) {
-
-}
