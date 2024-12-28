@@ -13,6 +13,7 @@ type App struct {
 	DB               *pgxpool.Pool
 	Logger           *slog.Logger
 	SchemaRepository *SchemaRepository
+	AdminRepository  *AdminRepository
 	CrudService      *CrudService
 }
 
@@ -33,6 +34,8 @@ func NewApp(config *Config) *App {
 		config.IncludedTables,
 	)
 
+	adminRepo := NewAdminRepository(pool, logger)
+
 	if err != nil {
 		logger.Error("can't extract tables", "error", err)
 		os.Exit(1)
@@ -51,6 +54,7 @@ func NewApp(config *Config) *App {
 		DB:               pool,
 		Logger:           logger,
 		SchemaRepository: schema,
+		AdminRepository:  adminRepo,
 		CrudService:      crud,
 	}
 }
