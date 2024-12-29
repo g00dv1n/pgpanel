@@ -8,5 +8,5 @@ import (
 func main() {
 	godotenv.Load()
 
-	pgpanel.NewWithEnv().Serve()
+	pgpanel.NewWithEnv().ProcessCommands()
 }
