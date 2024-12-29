@@ -60,6 +60,36 @@ func (r *AdminRepository) GetAdmin(username string) (*AdminUser, error) {
 	return &au, err
 }
 
+func (r *AdminRepository) GetAdminList() ([]string, error) {
+	sql := `
+		SELECT username 
+		FROM pgpanel.admins
+		ORDER BY created_at DESC
+	`
+
+	var admins []string
+
+	rows, err := r.db.Query(context.Background(), sql)
+
+	if err != nil {
+		return admins, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var username string
+
+		if err := rows.Scan(&username); err != nil {
+			return admins, err
+		}
+
+		admins = append(admins, username)
+	}
+
+	return admins, nil
+}
+
 func (r *AdminRepository) AddAdmin(username string, password string) error {
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 
