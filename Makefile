@@ -10,7 +10,7 @@ build-ui:
 
 build-server:
 	@go build -ldflags="-s -w" -o ./bin/$(bin_name) cmd/main.go
-	@echo "go built ✓"
+	@echo "server built ✓"
 
 run-server:
 	@go run cmd/main.go
