@@ -48,8 +48,20 @@ func New(app *core.App) *PgPanel {
 
 func NewWithEnv() *PgPanel {
 	app := core.NewAppWithEnvConfig()
+	panel := New(app)
 
-	return New(app)
+	envPort := os.Getenv("PORT")
+	envHost := os.Getenv("HOST")
+
+	if envPort != "" {
+		panel.Port = envPort
+	}
+
+	if envHost != "" {
+		panel.Host = envHost
+	}
+
+	return panel
 }
 
 // Add a custom router before run Serve
