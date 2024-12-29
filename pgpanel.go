@@ -81,7 +81,7 @@ func (panel *PgPanel) Serve() {
 	}
 }
 
-// Command line proccesing logic
+// ---------------------- COMMANDS -------------------------------
 
 func (panel *PgPanel) addAdminCommand(args []string) bool {
 	if len(args) < 2 {
