@@ -27,12 +27,13 @@ func adminLoginHandler(app *core.App) ApiHandler {
 			return NewApiError(http.StatusBadRequest, err)
 		}
 
-		// Hardcoded creds for dev process
-		if creds.Username != "admin" {
+		admin, err := app.AdminRepository.GetAdmin(creds.Username)
+
+		if err != nil {
 			return NewApiError(http.StatusUnauthorized, errors.New("can't find this admin user"))
 		}
 
-		if creds.Password != "admin" {
+		if !admin.CheckPassword(creds.Password) {
 			return NewApiError(http.StatusUnauthorized, errors.New("invalid password"))
 		}
 
