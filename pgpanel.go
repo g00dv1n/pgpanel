@@ -1,10 +1,14 @@
 package pgpanel
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/g00dv1n/pgpanel/api"
 	"github.com/g00dv1n/pgpanel/core"
@@ -72,12 +76,44 @@ func (panel *PgPanel) AddRoute(pattern string, handler api.ApiHandler, middlewar
 func (panel *PgPanel) Serve() {
 	defer panel.Close()
 
-	addr := net.JoinHostPort(panel.Host, panel.Port)
+	srv := &http.Server{
+		Addr:    net.JoinHostPort(panel.Host, panel.Port),
+		Handler: panel.mux,
+	}
 
-	panel.Logger.Info("Running server on http://" + addr)
-	if err := http.ListenAndServe(addr, panel.mux); err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to ListenAndServe: %v\n", err)
-		os.Exit(1)
+	serverErrors := make(chan error, 1)
+
+	// Start server in a goroutine
+	go func() {
+		panel.Logger.Info("Running server on http://" + srv.Addr)
+		serverErrors <- srv.ListenAndServe()
+	}()
+
+	// Channel to listen for interrupt signals
+	shutdown := make(chan os.Signal, 1)
+	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
+
+	// Block until shutdown
+	select {
+	case err := <-serverErrors:
+		panel.Logger.Error("Could not start server", "error", err)
+		return
+	case sig := <-shutdown:
+		panel.Logger.Info("Shutdown", "signal", sig)
+
+		// Create shutdown context with timeout
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		// Attempt graceful shutdown
+		if err := srv.Shutdown(ctx); err != nil {
+			panel.Logger.Error("Could not stop server gracefully", "error", err)
+
+			// Force shutdown
+			if err := srv.Close(); err != nil {
+				panel.Logger.Error("Could not force close server", "error", err)
+			}
+		}
 	}
 }
 
