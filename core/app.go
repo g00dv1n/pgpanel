@@ -15,6 +15,7 @@ type App struct {
 	SchemaRepository *SchemaRepository
 	AdminRepository  *AdminRepository
 	CrudService      *CrudService
+	SecretKey        []byte
 }
 
 func NewApp(config *Config) *App {
@@ -24,6 +25,8 @@ func NewApp(config *Config) *App {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 		os.Exit(1)
 	}
+
+	secretKey := []byte(config.SecretKey)
 
 	logger := config.GetLogger()
 
@@ -56,6 +59,7 @@ func NewApp(config *Config) *App {
 		SchemaRepository: schema,
 		AdminRepository:  adminRepo,
 		CrudService:      crud,
+		SecretKey:        secretKey,
 	}
 }
 

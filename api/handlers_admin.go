@@ -37,7 +37,7 @@ func adminLoginHandler(app *core.App) ApiHandler {
 			return NewApiError(http.StatusUnauthorized, errors.New("invalid password"))
 		}
 
-		token, err := core.GenerateJwtToken(creds.Username, 24*time.Hour)
+		token, err := core.GenerateJwtToken(creds.Username, app.SecretKey, 24*time.Hour)
 
 		if err != nil {
 			return NewApiError(http.StatusUnauthorized, err)

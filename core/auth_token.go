@@ -15,10 +15,6 @@ const (
 	AdminContextKey = "admin"
 )
 
-// Secret key for signing and verifying tokens
-// @TODO SECURE KEY SETTING
-var secretKey = []byte("your-secret-key")
-
 // CustomClaims extends standard JWT claims
 type AdminClaims struct {
 	Username string `json:"username"`
@@ -26,7 +22,7 @@ type AdminClaims struct {
 }
 
 // GenerateJwtToken creates a new JWT token
-func GenerateJwtToken(username string, ttl time.Duration) (string, error) {
+func GenerateJwtToken(username string, secretKey []byte, ttl time.Duration) (string, error) {
 	// Set token expiration
 	expirationTime := time.Now().Add(ttl)
 
@@ -48,7 +44,7 @@ func GenerateJwtToken(username string, ttl time.Duration) (string, error) {
 }
 
 // ValidateJwtToken checks if the token is valid
-func ValidateJwtToken(tokenString string) (*AdminClaims, error) {
+func ValidateJwtToken(tokenString string, secretKey []byte) (*AdminClaims, error) {
 	var claims AdminClaims
 	token, err := jwt.ParseWithClaims(tokenString, &claims, func(t *jwt.Token) (interface{}, error) {
 		// Validate the signing method (optional but recommended)

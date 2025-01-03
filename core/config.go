@@ -15,9 +15,10 @@ const (
 )
 
 type Config struct {
-	// required DatabaseUrl or Pool
+	// required DatabaseUrl or Pool, SecretKey
 	DatabaseUrl string
 	Pool        *pgxpool.Pool
+	SecretKey   string
 
 	// optional fields
 	Logger         *slog.Logger
@@ -32,6 +33,12 @@ func ParseConfigFromEnv() (*Config, error) {
 
 	if config.DatabaseUrl == "" {
 		return nil, errors.New("empty DATABASE_URL env")
+	}
+
+	config.SecretKey = os.Getenv("SECRET_KEY")
+
+	if config.SecretKey == "" {
+		return nil, errors.New("empty SECRET_KEY env")
 	}
 
 	config.SchemaName = os.Getenv("SCHEMA_NAME")
