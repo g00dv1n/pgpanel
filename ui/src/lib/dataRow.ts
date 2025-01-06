@@ -60,6 +60,11 @@ export class DataRow {
     return { filters };
   }
 
+  updateLink() {
+    const s = new URLSearchParams(this.getPKeysFilters());
+    return `/${this.#table.name}/row/update?${s}`;
+  }
+
   getUniqueKey() {
     const pk = this.getPKeys();
     const tableName = this.#table.name;

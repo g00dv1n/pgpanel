@@ -6,7 +6,6 @@ import {
   rowsParamsToSearchParams,
 } from "@/api/data";
 import { getTableSettings } from "@/api/schema";
-import { useRowSheet } from "@/components/form/RowSheet";
 import { useTableSheet } from "@/components/form/table-settings/TableSheet";
 import { Controls } from "@/components/table/Controls";
 import { DataTable } from "@/components/table/DataTable";
@@ -64,23 +63,12 @@ export function TablePage() {
   };
 
   // INSERT & EDIT
-  const { openRowSheet } = useRowSheet();
-
   const openEditRow = (row: DataRow) => {
-    openRowSheet({
-      table,
-      tableSettings,
-      row,
-      onSuccess: refresh,
-    });
+    return navigate(row.updateLink());
   };
 
   const openInsertRow = () => {
-    openRowSheet({
-      table,
-      tableSettings,
-      onSuccess: refresh,
-    });
+    return navigate(`/${tableName}/row/insert`);
   };
 
   // Rows selection logic

@@ -17,6 +17,7 @@ export interface RowFormProps {
   mode: RowMode;
   row?: DataRow;
   onRowUpdate?: (row: DataRow) => void;
+  onCancel?: () => void;
 }
 
 export function RowForm({
@@ -25,6 +26,7 @@ export function RowForm({
   tableSettings,
   row,
   onRowUpdate = () => {},
+  onCancel = () => {},
 }: RowFormProps) {
   const [updatedRow, setUpdatedRow] = useState({});
   const canSave = Object.keys(updatedRow).length > 0;
@@ -110,9 +112,15 @@ export function RowForm({
       })}
 
       <Separator className="my-1" />
-      <Button className="ml-auto" size="sm" type="submit" disabled={!canSave}>
-        Save changes
-      </Button>
+      <div className="flex gap-3">
+        <Button size="sm" type="submit" disabled={!canSave}>
+          Save changes
+        </Button>
+
+        <Button size="sm" variant="outline" type="button" onClick={onCancel}>
+          Cancel
+        </Button>
+      </div>
     </form>
   );
 }

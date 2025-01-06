@@ -4,7 +4,7 @@ import { RowForm, RowMode } from "@/components/form/RowForm";
 import { Button } from "@/components/ui/button";
 import { useTable } from "@/hooks/use-tables";
 import { DataRow } from "@/lib/dataRow";
-import { ExternalLink } from "lucide-react";
+import { ChevronLeft, ExternalLink } from "lucide-react";
 import {
   data,
   LoaderFunctionArgs,
@@ -54,16 +54,22 @@ export function RowPage() {
 
   const onRowUpdate = (row: DataRow) => {
     if (mode === "insert") {
-      const s = new URLSearchParams(row.getPKeysFilters());
-      return navigate(`/${tableName}/row/update?${s}`);
+      return navigate(row.updateLink());
     }
 
     revalidator.revalidate();
   };
 
+  const goBack = () => {
+    navigate(-1);
+  };
+
   return (
     <div>
       <div className="flex gap-3 items-baseline">
+        <Button variant="outline" size="icon" onClick={goBack}>
+          <ChevronLeft />
+        </Button>
         <h1 className="scroll-m-20 pb-2 text-2xl font-semibold mb-4">
           {mode} {table.name} row
         </h1>
@@ -79,6 +85,7 @@ export function RowPage() {
       <RowForm
         key={formKey}
         onRowUpdate={onRowUpdate}
+        onCancel={goBack}
         row={row}
         mode={mode}
         table={table}
