@@ -54,7 +54,7 @@ export function RowPage() {
 
   const onRowUpdate = (row: DataRow) => {
     if (mode === "insert") {
-      return navigate(row.updateLink());
+      return navigate(row.updateLink(), { replace: true });
     }
 
     revalidator.revalidate();
