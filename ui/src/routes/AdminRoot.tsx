@@ -1,5 +1,4 @@
 import { getTables } from "@/api/schema";
-import { RowSheetProvider } from "@/components/form/RowSheet";
 import { TableSheetProvider } from "@/components/form/table-settings/TableSheet";
 import { alert, GlobalAlert } from "@/components/ui/global-alert";
 import { LoadingButton } from "@/components/ui/loading-button";
@@ -106,9 +105,7 @@ export function AdminRoot() {
         <GlobalAlert />
         <TablesContext.Provider value={tables}>
           <TableSheetProvider>
-            <RowSheetProvider>
-              <Outlet />
-            </RowSheetProvider>
+            <Outlet />
           </TableSheetProvider>
         </TablesContext.Provider>
       </main>
