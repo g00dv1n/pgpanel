@@ -37,6 +37,26 @@ export function rowsParamsToSearchParams(params: GetTableRowsParams) {
   return searchParams;
 }
 
+export async function getTableRow(
+  tableName: string,
+  rowParams: Pick<GetTableRowsParams, "textFilters" | "filters" | "filtersArgs">
+) {
+  const { textFilters, filters, filtersArgs } = rowParams;
+
+  const s = rowsParamsToSearchParams({
+    textFilters,
+    filters,
+    filtersArgs,
+    offset: 0,
+    limit: 1,
+  });
+  const { data: rows = [], error } = await fetchApiwithAuth<Row[]>(
+    `/api/data/${tableName}?${s}`
+  );
+
+  return { row: rows.at(0), error };
+}
+
 export async function getTableRows(
   tableName: string,
   rowParams: GetTableRowsParams

@@ -46,6 +46,20 @@ export class DataRow {
     return map;
   }
 
+  getPKeysFilters() {
+    const pkeys = this.getPKeys();
+
+    const filters = Object.entries(pkeys)
+      .map((e) => {
+        const [pkey, val] = e;
+
+        return `${pkey}=${val}`;
+      })
+      .join(" AND");
+
+    return { filters };
+  }
+
   getUniqueKey() {
     const pk = this.getPKeys();
     const tableName = this.#table.name;

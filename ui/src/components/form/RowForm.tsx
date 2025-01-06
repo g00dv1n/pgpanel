@@ -10,12 +10,13 @@ import { TableSettings } from "@/lib/tableSettings";
 import { useState } from "react";
 import { resolveInputType } from "./InputsRegistry";
 
-interface RowFormProps {
+export type RowMode = "insert" | "update";
+export interface RowFormProps {
   table: PgTable;
   tableSettings: TableSettings;
-  mode: "insert" | "update";
+  mode: RowMode;
   row?: DataRow;
-  onRowUpdate?: () => void;
+  onRowUpdate?: (row: DataRow) => void;
 }
 
 export function RowForm({
@@ -31,7 +32,7 @@ export function RowForm({
   const update = async () => {
     if (!row) return;
 
-    const { error } = await updateTableRowByPKeys(
+    const { error, rows } = await updateTableRowByPKeys(
       table.name,
       row.getPKeys(),
       updatedRow
@@ -43,10 +44,13 @@ export function RowForm({
     }
 
     alert.success("Updated");
+    const [updatedRowFromResp] = rows;
+
+    onRowUpdate(new DataRow(table, tableSettings, updatedRowFromResp));
   };
 
   const insert = async () => {
-    const { error } = await insertTableRow(table.name, updatedRow);
+    const { error, rows } = await insertTableRow(table.name, updatedRow);
 
     if (error) {
       alert.error(error.message);
@@ -54,6 +58,9 @@ export function RowForm({
     }
 
     alert.success("Inserted");
+    const [insertedRowFromResp] = rows;
+
+    onRowUpdate(new DataRow(table, tableSettings, insertedRowFromResp));
   };
 
   const saveChanges = async () => {
@@ -62,8 +69,6 @@ export function RowForm({
     } else {
       await update();
     }
-
-    onRowUpdate();
   };
 
   return (
