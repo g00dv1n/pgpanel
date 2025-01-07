@@ -23,6 +23,7 @@ const (
 	CmdAddAdmin    = "add-admin"
 	CmdDeleteAdmin = "delete-admin"
 	CmdAdminList   = "admin-list"
+	CmdGenJwt      = "gen-jwt"
 )
 
 type PgPanel struct {
@@ -184,6 +185,18 @@ func (panel *PgPanel) serveCommand(args []string) bool {
 	return true
 }
 
+func (panel *PgPanel) genJwtCommand(args []string) bool {
+	token, err := core.GenerateJwtToken("dev", panel.SecretKey, 24*time.Hour)
+	if err != nil {
+		fmt.Println("Can't generate jwt")
+		fmt.Println(err)
+		return false
+	}
+
+	fmt.Println(token)
+	return true
+}
+
 func (panel *PgPanel) ProcessCommands() {
 	args := os.Args[1:] // skip bin name
 	// set Serve as default command
@@ -204,6 +217,7 @@ func (panel *PgPanel) ProcessCommands() {
 	commands[CmdDeleteAdmin] = panel.deleteAdminCommand
 	commands[CmdAdminList] = panel.adminListCommand
 	commands[CmdServe] = panel.serveCommand
+	commands[CmdGenJwt] = panel.genJwtCommand
 
 	if cmd, ok := commands[command]; ok {
 		success := cmd(commandArgs)
