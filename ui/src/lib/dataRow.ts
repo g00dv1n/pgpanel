@@ -55,7 +55,7 @@ export class DataRow {
 
         return `${pkey}=${val}`;
       })
-      .join(" AND");
+      .join(" AND ");
 
     return { filters };
   }
