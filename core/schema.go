@@ -8,18 +8,25 @@ import (
 )
 
 type Column struct {
-	Name         string  `json:"name"`
-	OID          int     `json:"OID"`
-	RegType      string  `json:"regType"`
-	UdtName      string  `json:"udtName"`
-	IsNullable   bool    `json:"isNullable"`
-	Default      *string `json:"default"`
-	IsPrimaryKey bool    `json:"isPrimaryKey"`
+	Name         string          `json:"name"`
+	OID          int             `json:"OID"`
+	RegType      string          `json:"regType"`
+	UdtName      string          `json:"udtName"`
+	IsNullable   bool            `json:"isNullable"`
+	Default      *string         `json:"default"`
+	IsPrimaryKey bool            `json:"isPrimaryKey"`
+	ForeignKey   *ForeignKeyInfo `json:"foreignKey"`
 }
 
 // Safe name to use in SQL
 func (c *Column) SafeName() string {
 	return `"` + c.Name + `"`
+}
+
+type ForeignKeyInfo struct {
+	TableName      string `json:"tableName"`
+	ColumnName     string `json:"columnName"`
+	ConstraintName string `json:"constraintName"`
 }
 
 type Table struct {
@@ -128,7 +135,26 @@ func GetTablesFromDB(db *pgxpool.Pool, schemaName string, includedTables []strin
 							AND tc.table_name = c.table_name
 							AND tc.constraint_type = 'PRIMARY KEY'
 							AND kcu.column_name = c.column_name
-					) AS is_primary_key
+					) AS is_primary_key,
+					(
+						SELECT json_build_object(
+							'tableName', cl.table_name,
+							'columnName', cl.column_name,
+							'constraintName', fk.constraint_name
+						)
+						FROM information_schema.constraint_column_usage AS cl
+						JOIN information_schema.referential_constraints fk 
+								ON cl.constraint_name = fk.unique_constraint_name 
+								AND cl.constraint_schema = fk.unique_constraint_schema
+						JOIN information_schema.key_column_usage AS kcu
+								ON kcu.constraint_name = fk.constraint_name
+								AND kcu.constraint_schema = fk.constraint_schema
+						WHERE 
+								kcu.table_schema = c.table_schema
+								AND kcu.table_name = c.table_name
+								AND kcu.column_name = c.column_name
+						
+					) AS foreign_key_info
 				FROM 
 					information_schema.columns c
 				WHERE 
@@ -155,6 +181,7 @@ func GetTablesFromDB(db *pgxpool.Pool, schemaName string, includedTables []strin
 			&col.IsNullable,
 			&col.Default,
 			&col.IsPrimaryKey,
+			&col.ForeignKey,
 		); err != nil {
 			return nil, err
 		}
