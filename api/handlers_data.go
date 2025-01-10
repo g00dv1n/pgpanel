@@ -76,6 +76,25 @@ func deleteRowsHandler(app *core.App) ApiHandler {
 	}
 }
 
+func getRelatedRowsHandler(app *core.App) ApiHandler {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		id := r.PathValue("id")
+
+		relations, err := core.ParseRelationsConfigFromQuery(r.URL.Query())
+		if err != nil {
+			return mapDataError(err)
+		}
+
+		rows, err := app.CrudService.GetRelatedRows(id, relations)
+
+		if err != nil {
+			return mapDataError(err)
+		}
+
+		return WriteJson(w, rows)
+	}
+}
+
 // helper to proccess all CRUD related errors
 func mapDataError(err error) ApiError {
 	if errors.Is(err, core.ErrUnknownTable) {

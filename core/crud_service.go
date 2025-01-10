@@ -224,3 +224,33 @@ func (s CrudService) DeleteRows(tableName string, filters Filters) (json.RawMess
 
 	return s.queryAsJson(sql, args)
 }
+
+// ---------------------- Relations -------------------------------
+
+var getRelatedRows = SqlT(`
+	SELECT {{.Select}}
+	FROM {{.RelationTable}}
+	JOIN {{.JoinTable}} ON {{.JoinTable}}.{{.RelationJoinField}} = {{.RelationTable}}.{{.RelationTableField}}
+	WHERE {{.JoinTable}}.{{.MainJoinField}} = $1
+`)
+
+type getRelatedRowsTmplParams struct {
+	*RelationsConfig
+	Select string
+}
+
+func (s CrudService) GetRelatedRows(mainTableId any, relations *RelationsConfig) (json.RawMessage, error) {
+	relationTable, err := s.schema.GetTable(relations.RelationTable)
+
+	if err != nil {
+		return nil, err
+	}
+
+	selectColumns := strings.Join(relationTable.SafeColumnNames(), ",")
+	params := getRelatedRowsTmplParams{relations, selectColumns}
+
+	sql := getRelatedRows.Exec(&params)
+	args := []any{mainTableId}
+
+	return s.queryAsJson(sql, args)
+}

@@ -183,10 +183,10 @@ type InputTypeLookup struct {
 // Table Relations related structs
 
 type RelationsConfig struct {
-	MainTable         string `json:"mainTable"`         // The main table in the relationship
-	RelationTable     string `json:"relationTable"`     // The related table in the relationship
-	JoinTable         string `json:"joinTable"`         // The table used to join (for many-to-many relationships)
-	MainJoinField     string `json:"mainJoinField"`     // The field in the main table used for the join
-	RelationJoinField string `json:"relationJoinField"` // The field in the related table used for the join
-	Bidirectional     bool   `json:"bidirectional"`     // Indicates if the relationship is bidirectional (optional)
+	RelationTable      string `json:"relationTable"`      // The related table in the relationship
+	RelationTableField string `json:"relationTableField"` // The related table id field to used in join
+	JoinTable          string `json:"joinTable"`          // The table used to join (for many-to-many relationships)
+	MainJoinField      string `json:"mainJoinField"`      // The field in the main table used for the join
+	RelationJoinField  string `json:"relationJoinField"`  // The field in the related table used for the join
+	Bidirectional      bool   `json:"bidirectional"`      // Indicates if the relationship is bidirectional (optional)
 }
