@@ -121,6 +121,13 @@ export interface PgColumn {
   udtName: string;
   isNullable: boolean;
   default?: string | null;
+  foreignKey: PgForeignKeyInfo | null;
+}
+
+interface PgForeignKeyInfo {
+  tableName: string;
+  columnName: string;
+  constraintName: string;
 }
 
 export interface PgTable {
