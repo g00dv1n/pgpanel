@@ -234,6 +234,7 @@ var getRelatedRows = SqlT(`
 	WHERE {{.JoinTable}}.{{.MainJoinCol}} = $1
 `)
 
+// Return all related rows for specific main table row ID
 func (s CrudService) GetRelatedRows(relation *RelationsConfig, mainTableRowId any) (json.RawMessage, error) {
 	mainTable, err := s.schema.GetTable(relation.MainTable)
 	if err != nil {
