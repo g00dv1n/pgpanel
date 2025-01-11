@@ -267,12 +267,12 @@ func (s CrudService) GetRelatedRows(relation *RelationsConfig, mainTableRowId an
 	selectColumns := strings.Join(relationTable.SafeColumnNames(), ",")
 	params := map[string]string{
 		"Select":        selectColumns,
-		"RelationTable": relationTable.Name,
-		"JoinTable":     joinTable.Name,
+		"RelationTable": relationTable.SafeName(),
+		"JoinTable":     joinTable.SafeName(),
 
-		"MainJoinCol":      mainJoinCol.Name,
-		"RelationJoinCol":  relationJoinCol.Name,
-		"RelationTableCol": relationTableCol.Name,
+		"MainJoinCol":      mainJoinCol.SafeName(),
+		"RelationJoinCol":  relationJoinCol.SafeName(),
+		"RelationTableCol": relationTableCol.SafeName(),
 	}
 
 	sql := getRelatedRows.Exec(&params)
