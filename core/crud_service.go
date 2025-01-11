@@ -249,9 +249,20 @@ func (s CrudService) GetRelatedRows(relation *RelationsConfig, mainTableRowId an
 		return nil, errors.New("unknown joinTable")
 	}
 
-	mainJoinCol, _ := joinTable.GetForeignKeyColumnByTable(mainTable.Name)
-	relationJoinCol, _ := joinTable.GetForeignKeyColumnByTable(relationTable.Name)
-	relationTableCol, _ := relationTable.GetColumn(relationJoinCol.ForeignKey.ColumnName)
+	mainJoinCol, ok := joinTable.GetForeignKeyColumnByTable(mainTable.Name)
+	if !ok {
+		return nil, errors.New("can't get mainJoinCol")
+	}
+
+	relationJoinCol, ok := joinTable.GetForeignKeyColumnByTable(relationTable.Name)
+	if !ok {
+		return nil, errors.New("can't get relationJoinCol")
+	}
+
+	relationTableCol, ok := relationTable.GetColumn(relationJoinCol.ForeignKey.ColumnName)
+	if !ok {
+		return nil, errors.New("can't get relationTableCol")
+	}
 
 	selectColumns := strings.Join(relationTable.SafeColumnNames(), ",")
 	params := map[string]string{
