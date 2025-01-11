@@ -78,14 +78,24 @@ func deleteRowsHandler(app *core.App) ApiHandler {
 
 func getRelatedRowsHandler(app *core.App) ApiHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
-		id := r.PathValue("id")
+		mainTable := r.PathValue("mainTable")
+		id := r.PathValue("mainTableRowId")
 
-		relations, err := core.ParseRelationsConfigFromQuery(r.URL.Query())
-		if err != nil {
-			return mapDataError(err)
+		relationTable := r.URL.Query().Get("relationTable")
+		if relationTable == "" {
+			return NewApiError(http.StatusBadRequest, errors.New("empty relationTable query param"))
 		}
 
-		rows, err := app.CrudService.GetRelatedRows(id, relations)
+		joinTable := r.URL.Query().Get("joinTable")
+		if joinTable == "" {
+			return NewApiError(http.StatusBadRequest, errors.New("empty joinTable query param"))
+		}
+
+		rows, err := app.CrudService.GetRelatedRows(&core.RelationsConfig{
+			MainTable:     mainTable,
+			RelationTable: relationTable,
+			JoinTable:     joinTable,
+		}, id)
 
 		if err != nil {
 			return mapDataError(err)

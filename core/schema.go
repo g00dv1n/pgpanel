@@ -60,6 +60,22 @@ func (t *Table) GetColumn(name string) (*Column, bool) {
 	return nil, false
 }
 
+func (t *Table) GetForeignKeyColumnByTable(tableName string) (*Column, bool) {
+	for _, col := range t.Columns {
+		fk := col.ForeignKey
+
+		if fk == nil {
+			continue
+		}
+
+		if fk.TableName == tableName {
+			return &col, true
+		}
+	}
+
+	return nil, false
+}
+
 // Map to easily look up stored tables
 type TablesMap map[string]*Table
 
@@ -210,10 +226,8 @@ type InputTypeLookup struct {
 // Table Relations related structs
 
 type RelationsConfig struct {
-	RelationTable      string `json:"relationTable"`      // The related table in the relationship
-	RelationTableField string `json:"relationTableField"` // The related table id field to used in join
-	JoinTable          string `json:"joinTable"`          // The table used to join (for many-to-many relationships)
-	MainJoinField      string `json:"mainJoinField"`      // The field in the main table used for the join
-	RelationJoinField  string `json:"relationJoinField"`  // The field in the related table used for the join
-	Bidirectional      bool   `json:"bidirectional"`      // Indicates if the relationship is bidirectional (optional)
+	MainTable     string `json:"mainTable"`     // The main table in the relationship
+	RelationTable string `json:"relationTable"` // The related table in the relationship
+	JoinTable     string `json:"joinTable"`     // The table used to join (for many-to-many relationships)
+	Bidirectional bool   `json:"bidirectional"` // Indicates if the relationship is bidirectional (optional)
 }

@@ -1,7 +1,6 @@
 package core
 
 import (
-	"errors"
 	"fmt"
 	"net/url"
 	"strconv"
@@ -227,24 +226,4 @@ func ParseGetRowsParamsFromQuery(q url.Values) GetRowsParams {
 		Pagination: ParsePaginationFromQuery(q),
 		Sorting:    ParseSortingFromQuery(q),
 	}
-}
-
-// ---------------------- Relations -------------------------------
-
-func ParseRelationsConfigFromQuery(q url.Values) (*RelationsConfig, error) {
-	var config RelationsConfig
-
-	config.RelationTable = q.Get("relationTable")
-	config.RelationTableField = q.Get("RelationTableField")
-	config.JoinTable = q.Get("joinTable")
-	config.MainJoinField = q.Get("mainJoinField")
-	config.RelationJoinField = q.Get("relationJoinField")
-
-	config.Bidirectional = q.Get("bidirectional") == "true"
-
-	if config.RelationTable == "" || config.RelationTableField == "" || config.JoinTable == "" || config.MainJoinField == "" || config.RelationJoinField == "" {
-		return nil, errors.New("can't parse RelationsConfig from query")
-	}
-
-	return &config, nil
 }

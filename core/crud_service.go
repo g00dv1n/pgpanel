@@ -230,27 +230,41 @@ func (s CrudService) DeleteRows(tableName string, filters Filters) (json.RawMess
 var getRelatedRows = SqlT(`
 	SELECT {{.Select}}
 	FROM {{.RelationTable}}
-	JOIN {{.JoinTable}} ON {{.JoinTable}}.{{.RelationJoinField}} = {{.RelationTable}}.{{.RelationTableField}}
-	WHERE {{.JoinTable}}.{{.MainJoinField}} = $1
+	JOIN {{.JoinTable}} ON {{.JoinTable}}.{{.RelationJoinCol}} = {{.RelationTable}}.{{.RelationTableCol}}
+	WHERE {{.JoinTable}}.{{.MainJoinCol}} = $1
 `)
 
-type getRelatedRowsTmplParams struct {
-	*RelationsConfig
-	Select string
-}
-
-func (s CrudService) GetRelatedRows(mainTableId any, relations *RelationsConfig) (json.RawMessage, error) {
-	relationTable, err := s.schema.GetTable(relations.RelationTable)
-
+func (s CrudService) GetRelatedRows(relation *RelationsConfig, mainTableRowId any) (json.RawMessage, error) {
+	mainTable, err := s.schema.GetTable(relation.MainTable)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("unknown mainTable")
+	}
+	relationTable, err := s.schema.GetTable(relation.RelationTable)
+	if err != nil {
+		return nil, errors.New("unknown relationTable")
+	}
+	joinTable, err := s.schema.GetTable(relation.JoinTable)
+	if err != nil {
+		return nil, errors.New("unknown joinTable")
 	}
 
+	mainJoinCol, _ := joinTable.GetForeignKeyColumnByTable(mainTable.Name)
+	relationJoinCol, _ := joinTable.GetForeignKeyColumnByTable(relationTable.Name)
+	relationTableCol, _ := relationTable.GetColumn(relationJoinCol.ForeignKey.ColumnName)
+
 	selectColumns := strings.Join(relationTable.SafeColumnNames(), ",")
-	params := getRelatedRowsTmplParams{relations, selectColumns}
+	params := map[string]string{
+		"Select":        selectColumns,
+		"RelationTable": relationTable.Name,
+		"JoinTable":     joinTable.Name,
+
+		"MainJoinCol":      mainJoinCol.Name,
+		"RelationJoinCol":  relationJoinCol.Name,
+		"RelationTableCol": relationTableCol.Name,
+	}
 
 	sql := getRelatedRows.Exec(&params)
-	args := []any{mainTableId}
+	args := []any{mainTableRowId}
 
 	return s.queryAsJson(sql, args)
 }
