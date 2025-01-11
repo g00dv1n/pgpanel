@@ -4,6 +4,14 @@ import { Row } from "@/lib/pgTypes";
 export interface TableSettings {
   viewLinkPattern: string | null;
   overriddenInputs: OverriddenInputsMap | null;
+  relations?: RelationsConfig[];
+}
+
+interface RelationsConfig {
+  mainTable: string;
+  relationTable: string;
+  joinTable: string;
+  bidirectional?: boolean;
 }
 
 // pattern format: 'https://admin.example.com/users/{user_id}/{role_id}'
