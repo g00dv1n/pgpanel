@@ -76,26 +76,38 @@ func deleteRowsHandler(app *core.App) ApiHandler {
 	}
 }
 
+// ---------------------- Relations -------------------------------
+
+func parseRelationsConfig(r *http.Request) (*core.RelationsConfig, error) {
+	mainTable := r.PathValue("mainTable")
+
+	relationTable := r.URL.Query().Get("relationTable")
+	if relationTable == "" {
+		return nil, NewApiError(http.StatusBadRequest, errors.New("empty relationTable query param"))
+	}
+
+	joinTable := r.URL.Query().Get("joinTable")
+	if joinTable == "" {
+		return nil, NewApiError(http.StatusBadRequest, errors.New("empty joinTable query param"))
+	}
+
+	return &core.RelationsConfig{
+		MainTable:     mainTable,
+		RelationTable: relationTable,
+		JoinTable:     joinTable,
+	}, nil
+}
+
 func getRelatedRowsHandler(app *core.App) ApiHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
-		mainTable := r.PathValue("mainTable")
 		id := r.PathValue("mainTableRowId")
+		relationsConf, err := parseRelationsConfig(r)
 
-		relationTable := r.URL.Query().Get("relationTable")
-		if relationTable == "" {
-			return NewApiError(http.StatusBadRequest, errors.New("empty relationTable query param"))
+		if err != nil {
+			return err
 		}
 
-		joinTable := r.URL.Query().Get("joinTable")
-		if joinTable == "" {
-			return NewApiError(http.StatusBadRequest, errors.New("empty joinTable query param"))
-		}
-
-		rows, err := app.CrudService.GetRelatedRows(&core.RelationsConfig{
-			MainTable:     mainTable,
-			RelationTable: relationTable,
-			JoinTable:     joinTable,
-		}, id)
+		rows, err := app.CrudService.GetRelatedRows(relationsConf, id)
 
 		if err != nil {
 			return mapDataError(err)
@@ -107,17 +119,12 @@ func getRelatedRowsHandler(app *core.App) ApiHandler {
 
 func updateRelatedRowsHandler(app *core.App) ApiHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
-		mainTable := r.PathValue("mainTable")
 		id := r.PathValue("mainTableRowId")
 
-		relationTable := r.URL.Query().Get("relationTable")
-		if relationTable == "" {
-			return NewApiError(http.StatusBadRequest, errors.New("empty relationTable query param"))
-		}
+		relationsConf, err := parseRelationsConfig(r)
 
-		joinTable := r.URL.Query().Get("joinTable")
-		if joinTable == "" {
-			return NewApiError(http.StatusBadRequest, errors.New("empty joinTable query param"))
+		if err != nil {
+			return err
 		}
 
 		var actions core.UpdateRelatedRowsActions
@@ -125,11 +132,7 @@ func updateRelatedRowsHandler(app *core.App) ApiHandler {
 			return mapDataError(err)
 		}
 
-		err := app.CrudService.UpdateRelatedRows(&core.RelationsConfig{
-			MainTable:     mainTable,
-			RelationTable: relationTable,
-			JoinTable:     joinTable,
-		}, id, &actions)
+		err = app.CrudService.UpdateRelatedRows(relationsConf, id, &actions)
 
 		if err != nil {
 			return mapDataError(err)
