@@ -128,6 +128,25 @@ export async function getRelatedRows(
   return { rows, error };
 }
 
+export async function updateRelatedRows(
+  relation: RelationsConfig,
+  mainTableRowId: any,
+  actions: { addIds: any[]; deleteIds: any[] }
+) {
+  const { relationTable, joinTable } = relation;
+  const s = new URLSearchParams({ relationTable, joinTable });
+
+  const { data: status, error } = await fetchApiwithAuth<Row[]>(
+    `/api/data/${relation.mainTable}/relations/${mainTableRowId}?${s}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(actions),
+    }
+  );
+
+  return { status, error };
+}
+
 function pkeysMapToFilters(pkeysMap: RowPkeysMap) {
   if (Object.keys(pkeysMap).length === 0) {
     return "";

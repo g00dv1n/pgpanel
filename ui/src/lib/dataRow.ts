@@ -52,6 +52,21 @@ export class DataRow {
     return map;
   }
 
+  // get first private key that can be used as ID
+  // almost all tables have one private key
+  // usually multiple private keys have join tables only
+  getPKey() {
+    for (const col of this.#table.columns) {
+      if (!col.isPrimaryKey) continue;
+
+      const val = this.#data[col.name];
+
+      return val;
+    }
+
+    return null;
+  }
+
   getPKeysFilters() {
     const pkeys = this.getPKeys();
 
