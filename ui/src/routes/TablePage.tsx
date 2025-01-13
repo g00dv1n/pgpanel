@@ -152,7 +152,7 @@ export function TablePage() {
         />
       </div>
 
-      <div className="mt-10 max-w-[750px]">
+      <div className="my-5 max-w-[750px]">
         <FiltersSearch
           table={table}
           q={rowsParams.textFilters || rowsParams.filters}
@@ -171,23 +171,21 @@ export function TablePage() {
         />
       </div>
 
-      <div className="mt-5">
-        <DataTable
-          table={table}
-          rows={rows}
-          sortValue={rowsParams.sort}
-          selectedRows={selectedRowsKeys}
-          onSortChange={(newSortVal) => {
-            onRowsParamsChange({
-              ...rowsParams,
-              sort: [newSortVal],
-            });
-          }}
-          onRowOpen={openEditRow}
-          onRowSelect={onRowSelect}
-          onAllRowsSelect={onAllRowsSelect}
-        />
-      </div>
+      <DataTable
+        table={table}
+        rows={rows}
+        sortValue={rowsParams.sort}
+        selectedRows={selectedRowsKeys}
+        onSortChange={(newSortVal) => {
+          onRowsParamsChange({
+            ...rowsParams,
+            sort: [newSortVal],
+          });
+        }}
+        onRowClick={openEditRow}
+        onRowSelect={onRowSelect}
+        onAllRowsSelect={onAllRowsSelect}
+      />
 
       {rowsError && (
         <div className="my-5 text-red-600 max-w-[750px]">

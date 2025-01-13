@@ -1,5 +1,9 @@
 import { AdminRoot, loader as adminRootLoader } from "@/routes/AdminRoot";
 import { LoginPage } from "@/routes/LoginPage";
+import {
+  loader as relationsLoader,
+  RelationsPage,
+} from "@/routes/RelationsPage";
 import { loader as rowLoader, RowPage } from "@/routes/RowPage";
 import { SqlPage } from "@/routes/SqlPage";
 import { loader as tableLoader, TablePage } from "@/routes/TablePage";
@@ -25,6 +29,12 @@ const routes: RouteObject[] = [
         element: <RowPage />,
         errorElement: <TablePageError />,
         loader: rowLoader,
+      },
+      {
+        path: ":mainTableName/relations/:mainTableRowId",
+        element: <RelationsPage />,
+        errorElement: <TablePageError />,
+        loader: relationsLoader,
       },
       {
         path: "sql",

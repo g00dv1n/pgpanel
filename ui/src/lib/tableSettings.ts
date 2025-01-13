@@ -7,7 +7,7 @@ export interface TableSettings {
   relations?: RelationsConfig[];
 }
 
-interface RelationsConfig {
+export interface RelationsConfig {
   mainTable: string;
   relationTable: string;
   joinTable: string;

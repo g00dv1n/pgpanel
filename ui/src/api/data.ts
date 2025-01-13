@@ -1,5 +1,6 @@
 import { fetchApiwithAuth } from "@/api/admin";
 import { Row, RowPkeysMap } from "@/lib/pgTypes";
+import { RelationsConfig } from "@/lib/tableSettings";
 
 export interface GetTableRowsParams {
   offset: number;
@@ -108,6 +109,20 @@ export async function insertTableRow(tableName: string, row: any) {
       method: "POST",
       body: JSON.stringify(row),
     }
+  );
+
+  return { rows, error };
+}
+
+export async function getRelatedRows(
+  relation: RelationsConfig,
+  mainTableRowId: any
+) {
+  const { relationTable, joinTable } = relation;
+  const s = new URLSearchParams({ relationTable, joinTable });
+
+  const { data: rows = [], error } = await fetchApiwithAuth<Row[]>(
+    `/api/data/${relation.mainTable}/relations/${mainTableRowId}?${s}`
   );
 
   return { rows, error };

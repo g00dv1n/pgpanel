@@ -60,7 +60,7 @@ func (t *Table) GetColumn(name string) (*Column, bool) {
 	return nil, false
 }
 
-func (t *Table) GetForeignKeyColumnByTable(tableName string) (*Column, bool) {
+func (t *Table) GetForeignKeyColumnByTable(foreignTableName string) (*Column, bool) {
 	for _, col := range t.Columns {
 		fk := col.ForeignKey
 
@@ -68,7 +68,7 @@ func (t *Table) GetForeignKeyColumnByTable(tableName string) (*Column, bool) {
 			continue
 		}
 
-		if fk.TableName == tableName {
+		if fk.TableName == foreignTableName {
 			return &col, true
 		}
 	}
