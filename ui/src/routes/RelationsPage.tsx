@@ -17,7 +17,12 @@ import { RelationsConfig } from "@/lib/tableSettings";
 import { X } from "lucide-react";
 import { useState } from "react";
 
-import { data, LoaderFunctionArgs, useLoaderData } from "react-router";
+import {
+  data,
+  LoaderFunctionArgs,
+  useLoaderData,
+  useRevalidator,
+} from "react-router";
 
 const DefaultRowsParams: GetTableRowsParams = { offset: 0, limit: 50 };
 
@@ -84,6 +89,7 @@ export function RelationsPage() {
     tableSettings,
     relatedRowsRaw
   );
+
   const [selectedRows, setSelectedRows] = useState(initRelatedRows);
 
   const onRowsParamsChange = async (newParams: GetTableRowsParams) => {
@@ -105,6 +111,7 @@ export function RelationsPage() {
     setSelectedRows(selectedRows.filter((sr) => sr.getUniqueKey() != rowKey));
   };
 
+  const revalidator = useRevalidator();
   const onUpdate = async () => {
     const updatedIds = selectedRows.map((sr) => sr.getPKey());
     const initIds = initRelatedRows.map((rr) => rr.getPKey());
@@ -123,9 +130,7 @@ export function RelationsPage() {
     if (error) {
       alert.error(error.message);
     } else {
-      const res = await getRelatedRows(relationConfig, mainTableRowId);
-      setSelectedRows(DataRow.fromArray(relatedTable, tableSettings, res.rows));
-
+      revalidator.revalidate();
       alert.success("Updated");
     }
   };
@@ -133,8 +138,8 @@ export function RelationsPage() {
   return (
     <>
       <title>{`${relationsName} - relations`}</title>
-      <div className="flex gap-5 items-center">
-        <h1 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
+      <div className="flex gap-3 items-baseline">
+        <h1 className="scroll-m-20 pb-2 text-2xl font-semibold tracking-tight first:mt-0">
           Relations {relationsName}
         </h1>
 
