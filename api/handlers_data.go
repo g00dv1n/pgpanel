@@ -105,6 +105,40 @@ func getRelatedRowsHandler(app *core.App) ApiHandler {
 	}
 }
 
+func updateRelatedRowsHandler(app *core.App) ApiHandler {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		mainTable := r.PathValue("mainTable")
+		id := r.PathValue("mainTableRowId")
+
+		relationTable := r.URL.Query().Get("relationTable")
+		if relationTable == "" {
+			return NewApiError(http.StatusBadRequest, errors.New("empty relationTable query param"))
+		}
+
+		joinTable := r.URL.Query().Get("joinTable")
+		if joinTable == "" {
+			return NewApiError(http.StatusBadRequest, errors.New("empty joinTable query param"))
+		}
+
+		var actions core.UpdateRelatedRowsActions
+		if err := json.NewDecoder(r.Body).Decode(&actions); err != nil {
+			return mapDataError(err)
+		}
+
+		err := app.CrudService.UpdateRelatedRows(&core.RelationsConfig{
+			MainTable:     mainTable,
+			RelationTable: relationTable,
+			JoinTable:     joinTable,
+		}, id, &actions)
+
+		if err != nil {
+			return mapDataError(err)
+		}
+
+		return WriteJson(w, `{"succes": true}`)
+	}
+}
+
 // helper to proccess all CRUD related errors
 func mapDataError(err error) ApiError {
 	if errors.Is(err, core.ErrUnknownTable) {

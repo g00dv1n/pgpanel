@@ -35,6 +35,7 @@ var routes = []routeConfig{
 	{"DELETE /data/{table}", deleteRowsHandler, authEnabled},
 
 	{"GET /data/{mainTable}/relations/{mainTableRowId}", getRelatedRowsHandler, authEnabled},
+	{"PUT /data/{mainTable}/relations/{mainTableRowId}", updateRelatedRowsHandler, authEnabled},
 
 	// SQL API endpoints
 	{"POST /sql/execute", executeSQLHandler, authEnabled},

@@ -234,8 +234,17 @@ var getRelatedRows = SqlT(`
 	WHERE {{.JoinTable}}.{{.MainJoinCol}} = $1
 `)
 
-// Return all related rows for specific main table row ID
-func (s CrudService) GetRelatedRows(relation *RelationsConfig, mainTableRowId any) (json.RawMessage, error) {
+type relationData struct {
+	mainTable     *Table
+	relationTable *Table
+	joinTable     *Table
+
+	mainJoinCol      *Column
+	relationJoinCol  *Column
+	relationTableCol *Column
+}
+
+func (s CrudService) getRelationData(relation *RelationsConfig) (*relationData, error) {
 	mainTable, err := s.schema.GetTable(relation.MainTable)
 	if err != nil {
 		return nil, errors.New("unknown mainTable")
@@ -264,19 +273,115 @@ func (s CrudService) GetRelatedRows(relation *RelationsConfig, mainTableRowId an
 		return nil, errors.New("can't get relationTableCol")
 	}
 
-	selectColumns := strings.Join(relationTable.SafeColumnNames(), ",")
+	return &relationData{
+		mainTable:     mainTable,
+		relationTable: relationTable,
+		joinTable:     joinTable,
+
+		mainJoinCol:      mainJoinCol,
+		relationJoinCol:  relationJoinCol,
+		relationTableCol: relationTableCol,
+	}, nil
+}
+
+// Return all related rows for specific main table row ID
+func (s CrudService) GetRelatedRows(relation *RelationsConfig, mainTableRowId any) (json.RawMessage, error) {
+	rd, err := s.getRelationData(relation)
+
+	if err != nil {
+		return nil, err
+	}
+
+	selectColumns := strings.Join(rd.relationTable.SafeColumnNames(), ",")
 	params := map[string]string{
 		"Select":        selectColumns,
-		"RelationTable": relationTable.SafeName(),
-		"JoinTable":     joinTable.SafeName(),
+		"RelationTable": rd.relationTable.SafeName(),
+		"JoinTable":     rd.joinTable.SafeName(),
 
-		"MainJoinCol":      mainJoinCol.SafeName(),
-		"RelationJoinCol":  relationJoinCol.SafeName(),
-		"RelationTableCol": relationTableCol.SafeName(),
+		"MainJoinCol":      rd.mainJoinCol.SafeName(),
+		"RelationJoinCol":  rd.relationJoinCol.SafeName(),
+		"RelationTableCol": rd.relationTableCol.SafeName(),
 	}
 
 	sql := getRelatedRows.Exec(&params)
 	args := []any{mainTableRowId}
 
 	return s.queryAsJson(sql, args)
+}
+
+var deleteRelatedRow = SqlT(`
+    DELETE FROM {{.JoinTable}}
+    WHERE {{.MainJoinCol}} = $1 AND {{.RelationJoinCol}} = $2
+`)
+
+var insertRelatedRow = SqlT(`
+    INSERT INTO {{.JoinTable}} ({{.MainJoinCol}}, {{.RelationJoinCol}})
+    VALUES ($1, $2)
+    ON CONFLICT ({{.MainJoinCol}}, {{.RelationJoinCol}}) DO NOTHING
+`)
+
+type UpdateRelatedRowsActions struct {
+	AddIds    []any `json:"addIds"`
+	DeleteIds []any `json:"deleteIds"`
+}
+
+func (s CrudService) UpdateRelatedRows(relation *RelationsConfig, mainTableRowId any, actions *UpdateRelatedRowsActions) error {
+	rd, err := s.getRelationData(relation)
+	if err != nil {
+		return err
+	}
+
+	params := map[string]string{
+		"JoinTable":       rd.joinTable.SafeName(),
+		"MainJoinCol":     rd.mainJoinCol.SafeName(),
+		"RelationJoinCol": rd.relationJoinCol.SafeName(),
+	}
+
+	ctx := context.Background()
+
+	// Start transaction
+	tx, err := s.db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	// Process deletions
+	deleteSQL := deleteRelatedRow.Exec(&params)
+	for _, deleteId := range actions.DeleteIds {
+		// Delete main direction
+		if _, err := tx.Exec(ctx, deleteSQL, mainTableRowId, deleteId); err != nil {
+			return err
+		}
+
+		// If bidirectional, delete reverse direction
+		if relation.Bidirectional {
+			if _, err := tx.Exec(ctx, deleteSQL, deleteId, mainTableRowId); err != nil {
+				return err
+			}
+		}
+	}
+
+	// Process additions
+	insertSQL := insertRelatedRow.Exec(&params)
+	for _, addId := range actions.AddIds {
+		// Insert main direction
+		if _, err := tx.Exec(ctx, insertSQL, mainTableRowId, addId); err != nil {
+			return err
+		}
+
+		// If bidirectional, insert reverse direction
+		if relation.Bidirectional {
+			if _, err := tx.Exec(ctx, insertSQL, addId, mainTableRowId); err != nil {
+				return err
+			}
+		}
+	}
+
+	// Commit transaction
+	if err := tx.Commit(ctx); err != nil {
+		return err
+	}
+
+	return nil
 }
