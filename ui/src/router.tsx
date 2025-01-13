@@ -1,4 +1,5 @@
 import { AdminRoot, loader as adminRootLoader } from "@/routes/AdminRoot";
+import { ErrorPage } from "@/routes/ErrorPage";
 import { LoginPage } from "@/routes/LoginPage";
 import {
   loader as relationsLoader,
@@ -7,7 +8,6 @@ import {
 import { loader as rowLoader, RowPage } from "@/routes/RowPage";
 import { SqlPage } from "@/routes/SqlPage";
 import { loader as tableLoader, TablePage } from "@/routes/TablePage";
-import { TablePageError } from "@/routes/TablePageError";
 
 import { createBrowserRouter, RouteObject } from "react-router";
 
@@ -21,19 +21,19 @@ const routes: RouteObject[] = [
       {
         path: ":tableName",
         element: <TablePage />,
-        errorElement: <TablePageError />,
+        errorElement: <ErrorPage />,
         loader: tableLoader,
       },
       {
         path: ":tableName/row/:mode",
         element: <RowPage />,
-        errorElement: <TablePageError />,
+        errorElement: <ErrorPage />,
         loader: rowLoader,
       },
       {
         path: ":mainTableName/relations/:mainTableRowId",
         element: <RelationsPage />,
-        errorElement: <TablePageError />,
+        errorElement: <ErrorPage />,
         loader: relationsLoader,
       },
       {

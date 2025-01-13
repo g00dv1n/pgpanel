@@ -1,6 +1,6 @@
 import { isRouteErrorResponse, useRouteError } from "react-router";
 
-export function TablePageError() {
+export function ErrorPage() {
   const error = useRouteError();
 
   if (isRouteErrorResponse(error)) {
