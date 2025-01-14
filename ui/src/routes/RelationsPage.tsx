@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { alert } from "@/components/ui/global-alert";
 import { useTable } from "@/hooks/use-tables";
 import { DataRow } from "@/lib/dataRow";
+import { getForeignKeyColumnByTable } from "@/lib/pgTypes";
 import { RelationsConfig } from "@/lib/tableSettings";
 import { X } from "lucide-react";
 import { useState } from "react";
@@ -79,6 +80,13 @@ export function RelationsPage() {
   const relationsName = relationConfig.joinTable;
 
   const relatedTable = useTable(relationConfig.relationTable);
+  const joinTable = useTable(relationConfig.joinTable);
+
+  const mainTableIdKey = getForeignKeyColumnByTable(
+    joinTable,
+    relationConfig.mainTable
+  );
+
   const [rows, setRows] = useState(
     DataRow.fromArray(relatedTable, tableSettings, rowsRaw)
   );
@@ -113,8 +121,12 @@ export function RelationsPage() {
 
   const revalidator = useRevalidator();
   const onUpdate = async () => {
-    const updatedIds = selectedRows.map((sr) => sr.getPKey());
-    const initIds = initRelatedRows.map((rr) => rr.getPKey());
+    const updatedIds = selectedRows.map((sr) =>
+      mainTableIdKey ? sr.get(mainTableIdKey) : sr.getPKey()
+    );
+    const initIds = initRelatedRows.map((rr) =>
+      mainTableIdKey ? rr.get(mainTableIdKey) : rr.getPKey()
+    );
 
     const actions = {
       addIds: updatedIds.filter((id) => !initIds.includes(id)),
