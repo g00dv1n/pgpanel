@@ -34,7 +34,7 @@ export class DataRow {
     return fieldToString(this.#data[key]);
   }
 
-  getPKeys(): RowPkeysMap {
+  pKeys(): RowPkeysMap {
     const map: RowPkeysMap = {};
 
     for (const col of this.#table.columns) {
@@ -53,7 +53,7 @@ export class DataRow {
   // get first private key that can be used as ID
   // almost all tables have one private key
   // usually multiple private keys have join tables only
-  getPKey() {
+  pKey() {
     for (const col of this.#table.columns) {
       if (!col.isPrimaryKey) continue;
 
@@ -65,8 +65,8 @@ export class DataRow {
     return null;
   }
 
-  getPKeysFilters() {
-    const pkeys = this.getPKeys();
+  pKeysFilters() {
+    const pkeys = this.pKeys();
 
     const filters = Object.entries(pkeys)
       .map((e) => {
@@ -80,21 +80,21 @@ export class DataRow {
   }
 
   updateLink() {
-    const s = new URLSearchParams(this.getPKeysFilters());
+    const s = new URLSearchParams(this.pKeysFilters());
     return `/${this.#table.name}/row/update?${s}`;
   }
 
-  getUniqueKey() {
-    const pk = this.getPKeys();
+  uniqueKey() {
+    const pk = this.pKeys();
     const tableName = this.#table.name;
     return `${tableName}-${Object.values(pk).join("-")}`;
   }
 
   isEq(to: DataRow) {
-    return this.getUniqueKey() === to.getUniqueKey();
+    return this.uniqueKey() === to.uniqueKey();
   }
 
-  getTextLabel() {
+  textLabel() {
     const firstTextColumn = this.#table.columns.find((col) => {
       return col.OID === PgTypeOID.TextOID || col.OID === PgTypeOID.VarcharOID;
     });
@@ -108,7 +108,7 @@ export class DataRow {
     }
 
     // return ID as fallback
-    const pk = this.getPKeys();
+    const pk = this.pKeys();
     return Object.values(pk).join("-");
   }
 

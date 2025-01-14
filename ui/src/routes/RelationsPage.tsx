@@ -108,10 +108,10 @@ export function RelationsPage() {
   const initRelatedRows = DataRow.fromArray(relatedTable, relatedRowsRaw);
 
   const [selectedRows, setSelectedRows] = useState(initRelatedRows);
-  const selectedRowsKeys = selectedRows.map((r) => r.getUniqueKey());
+  const selectedRowsKeys = selectedRows.map((r) => r.uniqueKey());
 
   const onRowSelect = (rowKey: string, selected: boolean) => {
-    const row = rows.find((r) => r.getUniqueKey() === rowKey);
+    const row = rows.find((r) => r.uniqueKey() === rowKey);
 
     if (!(selected && row)) return;
 
@@ -130,16 +130,16 @@ export function RelationsPage() {
   };
 
   const onRowRemove = (rowKey: string) => {
-    setSelectedRows(selectedRows.filter((sr) => sr.getUniqueKey() != rowKey));
+    setSelectedRows(selectedRows.filter((sr) => sr.uniqueKey() != rowKey));
   };
 
   const revalidator = useRevalidator();
   const onUpdate = async () => {
     const updatedIds = selectedRows.map((sr) =>
-      mainTableIdKey ? sr.get(mainTableIdKey) : sr.getPKey()
+      mainTableIdKey ? sr.get(mainTableIdKey) : sr.pKey()
     );
     const initIds = initRelatedRows.map((rr) =>
-      mainTableIdKey ? rr.get(mainTableIdKey) : rr.getPKey()
+      mainTableIdKey ? rr.get(mainTableIdKey) : rr.pKey()
     );
 
     const actions = {
@@ -171,7 +171,7 @@ export function RelationsPage() {
         {mainTableRow && (
           <Button className="text-2xl" variant="link" asChild>
             <NavLink to={mainTableRow.updateLink()}>
-              {mainTableRow.getTextLabel()}
+              {mainTableRow.textLabel()}
             </NavLink>
           </Button>
         )}
@@ -185,7 +185,7 @@ export function RelationsPage() {
 
       <div className="flex gap-3 my-4">
         {selectedRows.map((row) => {
-          const rowKey = row.getUniqueKey();
+          const rowKey = row.uniqueKey();
 
           return (
             <Badge variant="outline" className="text-lg" key={rowKey}>
@@ -196,7 +196,7 @@ export function RelationsPage() {
               >
                 <X size={18} aria-hidden="true" />
               </div>
-              {row.getTextLabel()}
+              {row.textLabel()}
             </Badge>
           );
         })}

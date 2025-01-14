@@ -36,7 +36,7 @@ export function RowForm({
 
     const { error, rows } = await updateTableRowByPKeys(
       table.name,
-      row.getPKeys(),
+      row.pKeys(),
       updatedRow
     );
 
@@ -48,7 +48,7 @@ export function RowForm({
     alert.success("Updated");
     const [updatedRowFromResp] = rows;
 
-    onRowUpdate(new DataRow(table, tableSettings, updatedRowFromResp));
+    onRowUpdate(new DataRow(table, updatedRowFromResp));
   };
 
   const insert = async () => {
@@ -62,7 +62,7 @@ export function RowForm({
     alert.success("Inserted");
     const [insertedRowFromResp] = rows;
 
-    onRowUpdate(new DataRow(table, tableSettings, insertedRowFromResp));
+    onRowUpdate(new DataRow(table, insertedRowFromResp));
   };
 
   const saveChanges = async () => {
