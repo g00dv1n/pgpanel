@@ -15,7 +15,7 @@ import { ColumnSortable } from "./ColumnSortable";
 interface DataTableProps {
   table: PgTable;
   rows: DataRow[];
-  showSelects?: boolean;
+  showSelectAll?: boolean;
   sortValue?: string[];
   selectedRows?: string[];
 
@@ -29,7 +29,7 @@ export function DataTable({
   table,
   rows,
   sortValue,
-  showSelects = true,
+  showSelectAll = true,
   selectedRows = [],
   onSortChange,
   onRowClick,
@@ -42,7 +42,7 @@ export function DataTable({
     <Table className="rounded-md border">
       <TableHeader>
         <TableRow>
-          {showSelects && (
+          {showSelectAll ? (
             <TableHead>
               <Checkbox
                 className="mr-5"
@@ -57,6 +57,8 @@ export function DataTable({
                 }}
               />
             </TableHead>
+          ) : (
+            <TableHead className="mx-5" />
           )}
           {table.columns.map((c) => {
             return (
@@ -79,18 +81,16 @@ export function DataTable({
 
           return (
             <TableRow key={rowKey}>
-              {showSelects && (
-                <TableCell>
-                  <Checkbox
-                    checked={isRowSelected}
-                    onCheckedChange={(checked) => {
-                      if (onRowSelect) {
-                        onRowSelect(rowKey, Boolean(checked));
-                      }
-                    }}
-                  />
-                </TableCell>
-              )}
+              <TableCell>
+                <Checkbox
+                  checked={isRowSelected}
+                  onCheckedChange={(checked) => {
+                    if (onRowSelect) {
+                      onRowSelect(rowKey, Boolean(checked));
+                    }
+                  }}
+                />
+              </TableCell>
               {table.columns.map((c) => {
                 const cellKey = `${rowKey}-${c.name}`;
                 return (

@@ -99,20 +99,25 @@ export function RelationsPage() {
   );
 
   const [selectedRows, setSelectedRows] = useState(initRelatedRows);
+  const selectedRowsKeys = selectedRows.map((r) => r.getUniqueKey());
+
+  const onRowSelect = (rowKey: string, selected: boolean) => {
+    const row = rows.find((r) => r.getUniqueKey() === rowKey);
+
+    if (!(selected && row)) return;
+
+    const alreadySelected = selectedRows.some((sr) => sr.isEq(row));
+
+    if (alreadySelected) return;
+
+    setSelectedRows([...selectedRows, row]);
+  };
 
   const onRowsParamsChange = async (newParams: GetTableRowsParams) => {
     const res = await getTableRows(relatedTable.name, newParams);
 
     setRowsParams(newParams);
     setRows(DataRow.fromArray(relatedTable, tableSettings, res.rows));
-  };
-
-  const onRowAdd = (row: DataRow) => {
-    const alreadySelected = selectedRows.some((sr) => sr.isEq(row));
-
-    if (!alreadySelected) {
-      setSelectedRows([...selectedRows, row]);
-    }
   };
 
   const onRowRemove = (rowKey: string) => {
@@ -216,9 +221,10 @@ export function RelationsPage() {
       <DataTable
         table={relatedTable}
         rows={rows}
-        showSelects={false}
+        showSelectAll={false}
+        selectedRows={selectedRowsKeys}
+        onRowSelect={onRowSelect}
         sortValue={rowsParams.sort}
-        onRowClick={onRowAdd}
         onSortChange={(newSortVal) => {
           onRowsParamsChange({
             ...rowsParams,
