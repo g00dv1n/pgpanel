@@ -32,7 +32,7 @@ export function RowSheet({
   onSuccess,
 }: RowSheetProps) {
   const mode = row ? "update" : "insert";
-  const viewLink = row?.viewLink();
+  const viewLink = row?.viewLink(tableSettings.viewLinkPattern);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
