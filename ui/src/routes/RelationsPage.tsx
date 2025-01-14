@@ -180,7 +180,7 @@ export function RelationsPage() {
 
   return (
     <>
-      <title>{`${relationsName} - relations`}</title>
+      <title>{`${relationsName} relations for ${mainRow.textLabel()}`}</title>
       <div className="flex items-baseline">
         <h1 className="scroll-m-20 pb-2 text-2xl font-semibold tracking-tight first:mt-0">
           Relations {relationsName} for
