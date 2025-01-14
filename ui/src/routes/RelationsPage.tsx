@@ -13,10 +13,9 @@ import { Button } from "@/components/ui/button";
 import { alert } from "@/components/ui/global-alert";
 import { useTable } from "@/hooks/use-tables";
 import { DataRow } from "@/lib/dataRow";
-import { getForeignKeyColumnByTable } from "@/lib/pgTypes";
 import { RelationsConfig } from "@/lib/tableSettings";
 import { X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import {
   data,
@@ -43,10 +42,20 @@ async function getMainTableRow(tableName: string, idKey: string, idVal: any) {
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
 
-  const mainTableName = params.mainTableName || "";
-  const mainTableRowId = params.mainTableRowId || "";
-  const relationTableName = url.searchParams.get("relationTable") || "";
-  const joinTableName = url.searchParams.get("joinTable") || "";
+  const mainTableName = params.mainTableName;
+  if (!mainTableName) throw data("Missing mainTableName param");
+
+  const mainTableRowId = url.searchParams.get("mainTableRowId");
+  if (!mainTableRowId) throw data("Missing mainTableRowId query param");
+
+  const mainTableIdKey = url.searchParams.get("mainTableIdKey");
+  if (!mainTableIdKey) throw data("Missing mainTableIdKey query param");
+
+  const relationTableName = url.searchParams.get("relationTable");
+  if (!relationTableName) throw data("Missing relationTable query param");
+
+  const joinTableName = url.searchParams.get("joinTable");
+  if (!joinTableName) throw data("Missing joinTable query param");
 
   const relationConfig: RelationsConfig = {
     mainTable: mainTableName,
@@ -54,15 +63,25 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     joinTable: joinTableName,
   };
 
-  const [settingsRes, rowsRes, relatedRowsRes] = await Promise.all([
+  const [mainRowRes, settingsRes, rowsRes, relatedRowsRes] = await Promise.all([
+    getMainTableRow(mainTableName, mainTableIdKey, mainTableRowId),
     getTableSettings(relationTableName),
     getTableRows(relationTableName, DefaultRowsParams),
     getRelatedRows(relationConfig, mainTableRowId),
   ]);
 
+  const { row: mainRowRaw, error: mainRowError } = mainRowRes;
   const { rows: rowsRaw, error: rowsError } = rowsRes;
   const { tableSettings, error: settingsError } = settingsRes;
   const { rows: relatedRowsRaw, error: relatedRowsError } = relatedRowsRes;
+
+  if (mainRowError) {
+    throw data(mainRowError.message, { status: mainRowError.code });
+  }
+
+  if (!mainRowRaw) {
+    throw data(`Can't get main row ${mainTableIdKey}=${mainTableRowId}`);
+  }
 
   if (settingsError) {
     throw data(settingsError.message, { status: settingsError.code });
@@ -75,6 +94,8 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   return {
     relationConfig,
     mainTableRowId,
+    mainTableIdKey,
+    mainRowRaw,
     tableSettings,
     rowsRaw,
     relatedRowsRaw,
@@ -83,24 +104,20 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 }
 
 export function RelationsPage() {
-  const { relationConfig, mainTableRowId, rowsRaw, relatedRowsRaw } =
-    useLoaderData<typeof loader>();
+  const {
+    relationConfig,
+    mainTableIdKey,
+    mainTableRowId,
+    mainRowRaw,
+    rowsRaw,
+    relatedRowsRaw,
+  } = useLoaderData<typeof loader>();
   const relationsName = relationConfig.joinTable;
 
   const mainTable = useTable(relationConfig.mainTable);
   const relatedTable = useTable(relationConfig.relationTable);
-  const joinTable = useTable(relationConfig.joinTable);
 
-  const mainTableIdKey =
-    getForeignKeyColumnByTable(joinTable, relationConfig.mainTable) || "id";
-
-  const [mainTableRow, setMainTableRow] = useState<DataRow | undefined>();
-
-  useEffect(() => {
-    getMainTableRow(mainTable.name, mainTableIdKey, mainTableRowId).then(
-      (res) => setMainTableRow(res.row && new DataRow(mainTable, res.row))
-    );
-  }, [mainTableIdKey, mainTableRowId, mainTable]);
+  const mainRow = new DataRow(mainTable, mainRowRaw);
 
   const [rows, setRows] = useState(DataRow.fromArray(relatedTable, rowsRaw));
   const [rowsParams, setRowsParams] = useState(DefaultRowsParams);
@@ -168,13 +185,10 @@ export function RelationsPage() {
         <h1 className="scroll-m-20 pb-2 text-2xl font-semibold tracking-tight first:mt-0">
           Relations {relationsName} for
         </h1>
-        {mainTableRow && (
-          <Button className="text-2xl" variant="link" asChild>
-            <NavLink to={mainTableRow.updateLink()}>
-              {mainTableRow.textLabel()}
-            </NavLink>
-          </Button>
-        )}
+
+        <Button className="text-2xl" variant="link" asChild>
+          <NavLink to={mainRow.updateLink()}>{mainRow.textLabel()}</NavLink>
+        </Button>
 
         <Button onClick={onUpdate}>Update</Button>
       </div>

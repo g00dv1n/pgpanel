@@ -31,7 +31,7 @@ const routes: RouteObject[] = [
         loader: rowLoader,
       },
       {
-        path: ":mainTableName/relations/:mainTableRowId",
+        path: ":mainTableName/relations",
         element: <RelationsPage />,
         errorElement: <ErrorPage />,
         loader: relationsLoader,
