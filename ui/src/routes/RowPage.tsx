@@ -44,8 +44,8 @@ export function RowPage() {
 
   const table = useTable(tableName);
 
-  const row = rawRow ? new DataRow(table, tableSettings, rawRow) : undefined;
-  const viewLink = row?.viewLink();
+  const row = rawRow ? new DataRow(table, rawRow) : undefined;
+  const viewLink = row?.viewLink(tableSettings.viewLinkPattern);
   // key needed to trigger form re-render
   const formKey = row?.getUniqueKey() || `insert-to-${tableName}`;
 

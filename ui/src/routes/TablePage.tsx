@@ -49,7 +49,7 @@ export function TablePage() {
     loaderData;
 
   const table = useTable(tableName);
-  const rows = DataRow.fromArray(table, tableSettings, rawRows);
+  const rows = DataRow.fromArray(table, rawRows);
 
   const navigate = useNavigate();
 

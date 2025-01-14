@@ -5,23 +5,21 @@ import {
   Row,
   RowPkeysMap,
 } from "@/lib/pgTypes";
-import { generateViewLink, TableSettings } from "@/lib/tableSettings";
+import { generateViewLink } from "@/lib/tableSettings";
 
 // Wrapped Row that provides different helpers
 // Should be used only in table context, can't be used for raw sql rows.
 export class DataRow {
-  readonly #table: PgTable;
-  readonly #tableSettings: TableSettings;
+  #table: PgTable;
   #data: Row;
 
-  constructor(table: PgTable, tableSettings: TableSettings, row: Row) {
+  constructor(table: PgTable, row: Row) {
     this.#table = table;
-    this.#tableSettings = tableSettings;
     this.#data = row;
   }
 
-  static fromArray(table: PgTable, tableSettings: TableSettings, rows: Row[]) {
-    return rows.map((r) => new DataRow(table, tableSettings, r));
+  static fromArray(table: PgTable, rows: Row[]) {
+    return rows.map((r) => new DataRow(table, r));
   }
 
   get(key: string) {
@@ -114,9 +112,7 @@ export class DataRow {
     return Object.values(pk).join("-");
   }
 
-  viewLink() {
-    const { viewLinkPattern } = this.#tableSettings;
-
+  viewLink(viewLinkPattern: string | null | undefined) {
     if (!viewLinkPattern) return undefined;
 
     return generateViewLink(viewLinkPattern, this.#data);

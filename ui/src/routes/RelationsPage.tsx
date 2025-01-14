@@ -16,16 +16,29 @@ import { DataRow } from "@/lib/dataRow";
 import { getForeignKeyColumnByTable } from "@/lib/pgTypes";
 import { RelationsConfig } from "@/lib/tableSettings";
 import { X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   data,
   LoaderFunctionArgs,
+  NavLink,
   useLoaderData,
   useRevalidator,
 } from "react-router";
 
 const DefaultRowsParams: GetTableRowsParams = { offset: 0, limit: 50 };
+
+async function getMainTableRow(tableName: string, idKey: string, idVal: any) {
+  const params: GetTableRowsParams = {
+    offset: 0,
+    limit: 1,
+    filters: `${idKey}=${idVal}`,
+  };
+
+  const { rows, error } = await getTableRows(tableName, params);
+
+  return { row: rows.at(0), error };
+}
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
@@ -70,33 +83,29 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 }
 
 export function RelationsPage() {
-  const {
-    relationConfig,
-    mainTableRowId,
-    tableSettings,
-    rowsRaw,
-    relatedRowsRaw,
-  } = useLoaderData<typeof loader>();
+  const { relationConfig, mainTableRowId, rowsRaw, relatedRowsRaw } =
+    useLoaderData<typeof loader>();
   const relationsName = relationConfig.joinTable;
 
+  const mainTable = useTable(relationConfig.mainTable);
   const relatedTable = useTable(relationConfig.relationTable);
   const joinTable = useTable(relationConfig.joinTable);
 
-  const mainTableIdKey = getForeignKeyColumnByTable(
-    joinTable,
-    relationConfig.mainTable
-  );
+  const mainTableIdKey =
+    getForeignKeyColumnByTable(joinTable, relationConfig.mainTable) || "id";
 
-  const [rows, setRows] = useState(
-    DataRow.fromArray(relatedTable, tableSettings, rowsRaw)
-  );
+  const [mainTableRow, setMainTableRow] = useState<DataRow | undefined>();
+
+  useEffect(() => {
+    getMainTableRow(mainTable.name, mainTableIdKey, mainTableRowId).then(
+      (res) => setMainTableRow(res.row && new DataRow(mainTable, res.row))
+    );
+  }, [mainTableIdKey, mainTableRowId, mainTable]);
+
+  const [rows, setRows] = useState(DataRow.fromArray(relatedTable, rowsRaw));
   const [rowsParams, setRowsParams] = useState(DefaultRowsParams);
 
-  const initRelatedRows = DataRow.fromArray(
-    relatedTable,
-    tableSettings,
-    relatedRowsRaw
-  );
+  const initRelatedRows = DataRow.fromArray(relatedTable, relatedRowsRaw);
 
   const [selectedRows, setSelectedRows] = useState(initRelatedRows);
   const selectedRowsKeys = selectedRows.map((r) => r.getUniqueKey());
@@ -117,7 +126,7 @@ export function RelationsPage() {
     const res = await getTableRows(relatedTable.name, newParams);
 
     setRowsParams(newParams);
-    setRows(DataRow.fromArray(relatedTable, tableSettings, res.rows));
+    setRows(DataRow.fromArray(relatedTable, res.rows));
   };
 
   const onRowRemove = (rowKey: string) => {
@@ -155,10 +164,17 @@ export function RelationsPage() {
   return (
     <>
       <title>{`${relationsName} - relations`}</title>
-      <div className="flex gap-3 items-baseline">
+      <div className="flex items-baseline">
         <h1 className="scroll-m-20 pb-2 text-2xl font-semibold tracking-tight first:mt-0">
-          Relations {relationsName}
+          Relations {relationsName} for
         </h1>
+        {mainTableRow && (
+          <Button className="text-2xl" variant="link" asChild>
+            <NavLink to={mainTableRow.updateLink()}>
+              {mainTableRow.getTextLabel()}
+            </NavLink>
+          </Button>
+        )}
 
         <Button onClick={onUpdate}>Update</Button>
       </div>
