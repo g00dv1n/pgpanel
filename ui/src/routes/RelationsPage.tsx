@@ -127,10 +127,27 @@ export function RelationsPage() {
   const [selectedRows, setSelectedRows] = useState(initRelatedRows);
   const selectedRowsKeys = selectedRows.map((r) => r.uniqueKey());
 
+  /// calculated arrays for update
+  const updatedIds = selectedRows.map((sr) =>
+    mainTableIdKey ? sr.get(mainTableIdKey) : sr.pKey()
+  );
+  const initIds = initRelatedRows.map((rr) =>
+    mainTableIdKey ? rr.get(mainTableIdKey) : rr.pKey()
+  );
+
+  const actions = {
+    addIds: updatedIds.filter((id) => !initIds.includes(id)),
+    deleteIds: initIds.filter((id) => !updatedIds.includes(id)),
+  };
+
+  const showUpdateBtn = actions.addIds.length + actions.deleteIds.length > 0;
+
   const onRowSelect = (rowKey: string, selected: boolean) => {
+    if (!selected) return onRowRemove(rowKey);
+
     const row = rows.find((r) => r.uniqueKey() === rowKey);
 
-    if (!(selected && row)) return;
+    if (!row) return;
 
     const alreadySelected = selectedRows.some((sr) => sr.isEq(row));
 
@@ -152,18 +169,6 @@ export function RelationsPage() {
 
   const revalidator = useRevalidator();
   const onUpdate = async () => {
-    const updatedIds = selectedRows.map((sr) =>
-      mainTableIdKey ? sr.get(mainTableIdKey) : sr.pKey()
-    );
-    const initIds = initRelatedRows.map((rr) =>
-      mainTableIdKey ? rr.get(mainTableIdKey) : rr.pKey()
-    );
-
-    const actions = {
-      addIds: updatedIds.filter((id) => !initIds.includes(id)),
-      deleteIds: initIds.filter((id) => !updatedIds.includes(id)),
-    };
-
     const { error } = await updateRelatedRows(
       relationConfig,
       mainTableRowId,
@@ -181,16 +186,25 @@ export function RelationsPage() {
   return (
     <>
       <title>{`${relationsName} relations for ${mainRow.textLabel()}`}</title>
-      <div className="flex items-baseline">
+      <div className="flex items-center">
         <h1 className="scroll-m-20 pb-2 text-2xl font-semibold tracking-tight first:mt-0">
-          Relations {relationsName} for
+          Relations {relationsName} for{" "}
+          <NavLink
+            className="text-2xl text-blue-600 underline"
+            to={mainRow.updateLink()}
+          >
+            {mainRow.textLabel()}
+          </NavLink>
         </h1>
 
-        <Button className="text-2xl" variant="link" asChild>
-          <NavLink to={mainRow.updateLink()}>{mainRow.textLabel()}</NavLink>
-        </Button>
-
-        <Button onClick={onUpdate}>Update</Button>
+        {showUpdateBtn && (
+          <Button
+            className="ml-5 bg-green-500 hover:bg-green-600"
+            onClick={onUpdate}
+          >
+            Update
+          </Button>
+        )}
       </div>
 
       <h2 className="scroll-m-20 pb-2 text-xl font-normal tracking-tight first:mt-0">
