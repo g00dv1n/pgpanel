@@ -152,7 +152,7 @@ export function TablePage() {
         />
       </div>
 
-      <div className="my-5 max-w-[750px]">
+      <div className="my-5 w-1/2">
         <FiltersSearch
           table={table}
           q={rowsParams.textFilters || rowsParams.filters}

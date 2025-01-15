@@ -231,22 +231,24 @@ export function RelationsPage() {
       </div>
 
       <div className="my-5 flex">
-        <FiltersSearch
-          table={relatedTable}
-          q={rowsParams.textFilters || rowsParams.filters}
-          sqlMode={Boolean(rowsParams.filters)}
-          onSearch={(q, sqlMode) => {
-            const filters = sqlMode && q.length > 0 ? q : undefined;
-            const textFilters = !sqlMode && q.length > 0 ? q : undefined;
+        <div className="w-1/2">
+          <FiltersSearch
+            table={relatedTable}
+            q={rowsParams.textFilters || rowsParams.filters}
+            sqlMode={Boolean(rowsParams.filters)}
+            onSearch={(q, sqlMode) => {
+              const filters = sqlMode && q.length > 0 ? q : undefined;
+              const textFilters = !sqlMode && q.length > 0 ? q : undefined;
 
-            onRowsParamsChange({
-              ...rowsParams,
-              offset: 0,
-              textFilters,
-              filters,
-            });
-          }}
-        />
+              onRowsParamsChange({
+                ...rowsParams,
+                offset: 0,
+                textFilters,
+                filters,
+              });
+            }}
+          />
+        </div>
 
         <Pagination
           tableName={relatedTable.name}
