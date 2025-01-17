@@ -258,14 +258,31 @@ func (s CrudService) getRelationData(relation *RelationsConfig) (*relationData, 
 		return nil, errors.New("unknown joinTable")
 	}
 
-	mainJoinCol, ok := joinTable.GetForeignKeyColumnByTable(mainTable.Name)
-	if !ok {
-		return nil, errors.New("can't get mainJoinCol")
-	}
+	var mainJoinCol *Column
+	var relationJoinCol *Column
+	var ok bool
 
-	relationJoinCol, ok := joinTable.GetForeignKeyColumnByTable(relationTable.Name)
-	if !ok {
-		return nil, errors.New("can't get relationJoinCol")
+	// handle edge case where MainTable and RelationTable are the same
+	if relation.MainTable == relation.RelationTable {
+		cols := joinTable.GetForeignKeyColumnsByTable(relation.MainTable)
+
+		if len(cols) < 2 {
+			return nil, errors.New("can't get mainJoinCol, relationJoinCol")
+		}
+
+		mainJoinCol = &cols[0]
+		relationJoinCol = &cols[1]
+
+	} else {
+		mainJoinCol, ok = joinTable.GetForeignKeyColumnByTable(mainTable.Name)
+		if !ok {
+			return nil, errors.New("can't get mainJoinCol")
+		}
+
+		relationJoinCol, ok = joinTable.GetForeignKeyColumnByTable(relationTable.Name)
+		if !ok {
+			return nil, errors.New("can't get relationJoinCol")
+		}
 	}
 
 	relationTableCol, ok := relationTable.GetColumn(relationJoinCol.ForeignKey.ColumnName)

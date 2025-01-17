@@ -21,6 +21,7 @@ import {
   data,
   LoaderFunctionArgs,
   NavLink,
+  ScrollRestoration,
   useLoaderData,
   useRevalidator,
 } from "react-router";
@@ -61,6 +62,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     mainTable: mainTableName,
     relationTable: relationTableName,
     joinTable: joinTableName,
+    bidirectional: url.searchParams.get("bidirectional") === "true",
   };
 
   const [mainRowRes, settingsRes, rowsRes, relatedRowsRes] = await Promise.all([
@@ -185,6 +187,7 @@ export function RelationsPage() {
 
   return (
     <>
+      <ScrollRestoration />
       <title>{`${relationsName} relations for ${mainRow.textLabel()}`}</title>
       <div className="flex items-center">
         <h1 className="scroll-m-20 pb-2 text-2xl font-semibold tracking-tight first:mt-0">
@@ -211,7 +214,7 @@ export function RelationsPage() {
         Linked Items:
       </h2>
 
-      <div className="flex gap-3 my-4">
+      <div className="flex gap-3 my-4 flex-wrap">
         {selectedRows.map((row) => {
           const rowKey = row.uniqueKey();
 

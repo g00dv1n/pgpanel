@@ -133,8 +133,12 @@ export async function updateRelatedRows(
   mainTableRowId: any,
   actions: { addIds: any[]; deleteIds: any[] }
 ) {
-  const { relationTable, joinTable } = relation;
-  const s = new URLSearchParams({ relationTable, joinTable });
+  const { relationTable, joinTable, bidirectional } = relation;
+  const s = new URLSearchParams({
+    relationTable,
+    joinTable,
+    bidirectional: bidirectional ? "true" : "false",
+  });
 
   const { data: status, error } = await fetchApiwithAuth<Row[]>(
     `/api/data/${relation.mainTable}/relations/${mainTableRowId}?${s}`,

@@ -76,6 +76,24 @@ func (t *Table) GetForeignKeyColumnByTable(foreignTableName string) (*Column, bo
 	return nil, false
 }
 
+func (t *Table) GetForeignKeyColumnsByTable(foreignTableName string) []Column {
+	var fkCols []Column
+
+	for _, col := range t.Columns {
+		fk := col.ForeignKey
+
+		if fk == nil {
+			continue
+		}
+
+		if fk.TableName == foreignTableName {
+			fkCols = append(fkCols, col)
+		}
+	}
+
+	return fkCols
+}
+
 // Map to easily look up stored tables
 type TablesMap map[string]*Table
 

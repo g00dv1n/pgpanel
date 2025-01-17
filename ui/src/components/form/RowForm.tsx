@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { alert } from "@/components/ui/global-alert";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { useTables } from "@/hooks/use-tables";
 import { DataRow } from "@/lib/dataRow";
 import { PgTable } from "@/lib/pgTypes";
-import { TableSettings } from "@/lib/tableSettings";
+import { generateEditRelationsLink, TableSettings } from "@/lib/tableSettings";
 import { useState } from "react";
+import { NavLink } from "react-router";
 import { resolveInputType } from "./InputsRegistry";
 
 export type RowMode = "insert" | "update";
@@ -73,6 +75,17 @@ export function RowForm({
     }
   };
 
+  const relations = tableSettings.relations || [];
+  const allTables = useTables();
+
+  const getTable = (tableName: string) => {
+    const res = allTables.find((t) => t.name === tableName);
+
+    if (!res) throw Error(`Can't getTable = ${tableName}`);
+
+    return res;
+  };
+
   return (
     <form className="grid gap-4" action={saveChanges}>
       {table.columns.map((column) => {
@@ -110,6 +123,17 @@ export function RowForm({
           </div>
         );
       })}
+
+      {row &&
+        relations.map((conf) => {
+          const link = generateEditRelationsLink(
+            row,
+            conf,
+            getTable(conf.joinTable)
+          );
+
+          return <NavLink to={link}>Edit {conf.joinTable} relations</NavLink>;
+        })}
 
       <Separator className="my-1" />
       <div className="flex gap-3">

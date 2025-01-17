@@ -190,16 +190,3 @@ export function fieldToString(value: RowField): string {
 
   return JSON.stringify("value");
 }
-
-export function getForeignKeyColumnByTable(
-  joinTable: PgTable,
-  foreignTableName: string
-) {
-  const fkCol = joinTable.columns.find(
-    (col) => col.foreignKey && col.foreignKey.tableName === foreignTableName
-  );
-
-  if (!(fkCol && fkCol.foreignKey)) return undefined;
-
-  return fkCol.foreignKey.columnName;
-}

@@ -91,10 +91,13 @@ func parseRelationsConfig(r *http.Request) (*core.RelationsConfig, error) {
 		return nil, NewApiError(http.StatusBadRequest, errors.New("empty joinTable query param"))
 	}
 
+	bidirectional := r.URL.Query().Get("bidirectional") == "true"
+
 	return &core.RelationsConfig{
 		MainTable:     mainTable,
 		RelationTable: relationTable,
 		JoinTable:     joinTable,
+		Bidirectional: bidirectional,
 	}, nil
 }
 

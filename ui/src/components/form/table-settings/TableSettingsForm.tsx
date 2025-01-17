@@ -4,6 +4,7 @@ import {
   DynamicInputProps,
 } from "@/components/form/DynamicInput";
 import { FieldTypesSelect } from "@/components/form/table-settings/FieldTypesSelect";
+import { RelationsSelect } from "@/components/form/table-settings/RelationsSelect";
 import { Button } from "@/components/ui/button";
 import { alert } from "@/components/ui/global-alert";
 import { Label } from "@/components/ui/label";
@@ -72,6 +73,20 @@ export function TableSettingsForm({
   return (
     <form className="grid gap-4" action={saveChanges}>
       {renderDynamicInput("viewLinkPattern")}
+      <div className="grid gap-2">
+        <Label>Relations</Label>
+        <RelationsSelect
+          relations={setttings.relations}
+          mainTable={table.name}
+          onChange={(relations) => {
+            setSettings({
+              ...setttings,
+              relations,
+            });
+          }}
+        />
+      </div>
+
       <FieldTypesSelect
         table={table}
         settings={setttings}
