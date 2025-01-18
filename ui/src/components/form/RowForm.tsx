@@ -8,6 +8,7 @@ import { useTables } from "@/hooks/use-tables";
 import { DataRow } from "@/lib/dataRow";
 import { PgTable } from "@/lib/pgTypes";
 import { generateEditRelationsLink, TableSettings } from "@/lib/tableSettings";
+import { Link2 } from "lucide-react";
 import { useState } from "react";
 import { NavLink } from "react-router";
 import { resolveInputType } from "./InputsRegistry";
@@ -124,16 +125,24 @@ export function RowForm({
         );
       })}
 
-      {row &&
-        relations.map((conf) => {
-          const link = generateEditRelationsLink(
-            row,
-            conf,
-            getTable(conf.joinTable)
-          );
+      <div className="flex flex-col items-start">
+        {row &&
+          relations.map((conf) => {
+            const link = generateEditRelationsLink(
+              row,
+              conf,
+              getTable(conf.joinTable)
+            );
 
-          return <NavLink to={link}>Edit {conf.joinTable} relations</NavLink>;
-        })}
+            return (
+              <Button className="p-0" variant="link" asChild>
+                <NavLink to={link}>
+                  Edit {conf.joinTable} relations <Link2 />
+                </NavLink>
+              </Button>
+            );
+          })}
+      </div>
 
       <Separator className="my-1" />
       <div className="flex gap-3">
