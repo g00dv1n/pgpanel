@@ -24,6 +24,7 @@ type Config struct {
 	Logger         *slog.Logger
 	SchemaName     string
 	IncludedTables []string
+	UploadDir      string
 }
 
 func ParseConfigFromEnv() (*Config, error) {
@@ -46,6 +47,12 @@ func ParseConfigFromEnv() (*Config, error) {
 	includedTablesEnv := os.Getenv("INCLUDED_TABLES")
 	if len(includedTablesEnv) > 0 {
 		config.IncludedTables = strings.Split(includedTablesEnv, ",")
+	}
+
+	config.UploadDir = os.Getenv("UPLOAD_DIR")
+
+	if config.UploadDir == "" {
+		config.UploadDir = "upload"
 	}
 
 	return &config, nil

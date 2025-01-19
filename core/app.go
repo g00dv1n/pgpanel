@@ -15,6 +15,7 @@ type App struct {
 	SchemaRepository *SchemaRepository
 	AdminRepository  *AdminRepository
 	CrudService      *CrudService
+	Storage          Storage
 	SecretKey        []byte
 }
 
@@ -53,12 +54,19 @@ func NewApp(config *Config) *App {
 
 	crud := NewCrudService(pool, schema, logger)
 
+	localStorage, err := NewLocalStorage(config.UploadDir)
+	if err != nil {
+		logger.Error("can't create local storage", "error", err)
+		os.Exit(1)
+	}
+
 	return &App{
 		DB:               pool,
 		Logger:           logger,
 		SchemaRepository: schema,
 		AdminRepository:  adminRepo,
 		CrudService:      crud,
+		Storage:          localStorage,
 		SecretKey:        secretKey,
 	}
 }

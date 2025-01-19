@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/g00dv1n/pgpanel"
 	"github.com/joho/godotenv"
 )
@@ -8,5 +10,9 @@ import (
 func main() {
 	godotenv.Load()
 
-	pgpanel.NewWithEnv().ProcessCommands()
+	panel := pgpanel.NewWithEnv()
+
+	list, _ := panel.Storage.List(".")
+
+	fmt.Println(list)
 }
