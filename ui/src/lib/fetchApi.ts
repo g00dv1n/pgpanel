@@ -5,6 +5,10 @@ export type ApiResult<T> =
   | { data: T; error?: never }
   | { data?: never; error: ApiError };
 
+export function defaultError(err: unknown) {
+  return { code: 500, message: `Fetch error: ${err}` };
+}
+
 export async function fetchApi<T>(
   url: ApiUrl,
   init?: RequestInit
@@ -27,11 +31,6 @@ export async function fetchApi<T>(
       return { error: jsonRes };
     }
   } catch (err) {
-    return {
-      error: {
-        code: 500,
-        message: `Fetch error: ${err}`,
-      },
-    };
+    return { error: defaultError(err) };
   }
 }

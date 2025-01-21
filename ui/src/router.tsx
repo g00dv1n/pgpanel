@@ -8,6 +8,7 @@ import {
 import { loader as rowLoader, RowPage } from "@/routes/RowPage";
 import { SqlPage } from "@/routes/SqlPage";
 import { loader as tableLoader, TablePage } from "@/routes/TablePage";
+import { UploadPage } from "@/routes/UploadPage";
 
 import { createBrowserRouter, RouteObject } from "react-router";
 
@@ -39,6 +40,10 @@ const routes: RouteObject[] = [
       {
         path: "sql",
         element: <SqlPage />,
+      },
+      {
+        path: "upload",
+        element: <UploadPage />,
       },
     ],
   },

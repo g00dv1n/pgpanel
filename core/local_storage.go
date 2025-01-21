@@ -27,16 +27,25 @@ func NewLocalStorage(uploadDir string) (*LocalStorage, error) {
 	return &LocalStorage{uploadDir: absPath}, nil
 }
 
-func (l *LocalStorage) Upload(fileName string, file io.Reader) error {
-	fullPath := filepath.Join(l.uploadDir, fileName)
+func (l *LocalStorage) Upload(fileName string, file io.Reader) (*StorageFileInfo, error) {
+	safeFileName := FileNameWithTs(fileName)
+	fullPath := filepath.Join(l.uploadDir, safeFileName)
 	outFile, err := os.Create(fullPath)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer outFile.Close()
 
 	_, err = io.Copy(outFile, file)
-	return err
+	if err != nil {
+		return nil, err
+	}
+
+	return &StorageFileInfo{
+		Name:    safeFileName,
+		IsDir:   false,
+		IsImage: IsImageFile(fileName),
+	}, nil
 }
 
 func (l *LocalStorage) List(directory string) ([]StorageFileInfo, error) {
