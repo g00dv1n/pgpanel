@@ -1,10 +1,12 @@
-import { getAuthToken } from "@/api/admin";
+import { fetchApiwithAuth, getAuthToken } from "@/api/admin";
 import { ApiError, defaultError } from "@/lib/fetchApi";
 
 export interface StorageFileInfo {
   name: string;
+  modTime: number;
   isDir: boolean;
   isImage: boolean;
+  internalUrl: string;
 }
 
 export async function uploadFile(file: File) {
@@ -32,4 +34,23 @@ export async function uploadFile(file: File) {
   } catch (err) {
     return { error: defaultError(err) };
   }
+}
+
+interface FilesListParams {
+  directory: string | null | undefined;
+  filter: string | null | undefined;
+}
+
+export async function getFilesList(params?: FilesListParams) {
+  const { directory, filter } = params || {};
+
+  const s = new URLSearchParams({
+    directory: directory || ".",
+    filter: filter || "",
+  });
+
+  const { data: list = [], error } = await fetchApiwithAuth<StorageFileInfo[]>(
+    `/api/files/list?${s}`
+  );
+  return { list, error };
 }

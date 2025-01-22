@@ -15,9 +15,11 @@ type Storage interface {
 }
 
 type StorageFileInfo struct {
-	Name    string `json:"name"`
-	IsDir   bool   `json:"isDir"`
-	IsImage bool   `json:"isImage"`
+	Name        string `json:"name"`
+	IsDir       bool   `json:"isDir"`
+	IsImage     bool   `json:"isImage"`
+	ModTime     int64  `json:"modTime"`
+	InternalUrl string `json:"internalUrl"`
 }
 
 func IsImageFile(fileName string) bool {

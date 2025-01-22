@@ -1,9 +1,11 @@
 package core
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 )
 
 type LocalStorage struct {
@@ -42,9 +44,10 @@ func (l *LocalStorage) Upload(fileName string, file io.Reader) (*StorageFileInfo
 	}
 
 	return &StorageFileInfo{
-		Name:    safeFileName,
-		IsDir:   false,
-		IsImage: IsImageFile(fileName),
+		Name:        safeFileName,
+		IsDir:       false,
+		IsImage:     IsImageFile(fileName),
+		InternalUrl: fmt.Sprintf("/api/files/%s", safeFileName),
 	}, nil
 }
 
@@ -55,20 +58,34 @@ func (l *LocalStorage) List(directory string) ([]StorageFileInfo, error) {
 		return nil, err
 	}
 
-	var fileNames []StorageFileInfo
+	var fileInfos []StorageFileInfo
 	for _, file := range files {
-		fi := StorageFileInfo{
-			Name:  filepath.Join(directory, file.Name()),
-			IsDir: file.IsDir(),
+		fi, err := file.Info()
+		if err != nil {
+			continue
 		}
 
-		if !fi.IsDir {
-			fi.IsImage = IsImageFile(fi.Name)
+		sfi := StorageFileInfo{
+			Name:    filepath.Join(directory, file.Name()),
+			ModTime: fi.ModTime().Unix(),
+			IsDir:   file.IsDir(),
 		}
 
-		fileNames = append(fileNames, fi)
+		sfi.InternalUrl = filepath.Join("/api/files", sfi.Name)
+
+		if !sfi.IsDir {
+			sfi.IsImage = IsImageFile(sfi.Name)
+		}
+
+		fileInfos = append(fileInfos, sfi)
 	}
-	return fileNames, nil
+
+	// sort by ModTime DESC
+	slices.SortFunc(fileInfos, func(a, b StorageFileInfo) int {
+		return int(b.ModTime - a.ModTime)
+	})
+
+	return fileInfos, nil
 }
 
 func (l *LocalStorage) Get(fileName string) (io.ReadCloser, error) {
