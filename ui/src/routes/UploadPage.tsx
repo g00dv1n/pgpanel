@@ -6,6 +6,7 @@ import {
 } from "@/api/files";
 import { Controls } from "@/components/files/Controls";
 import { FilesCatalog } from "@/components/files/FilesCatalog";
+import { Search } from "@/components/files/Search";
 import { Button } from "@/components/ui/button";
 import { alert } from "@/components/ui/global-alert";
 import { Input } from "@/components/ui/input";
@@ -27,6 +28,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export function UploadPage() {
   const { list } = useLoaderData<typeof loader>();
+  const [filterQ, setFilterQ] = useState("");
+  const filtredList = list.filter((fi) => fileNameLike(fi.name, filterQ));
+
   const [selectedFiles, setSelectedFiles] = useState<StorageFileInfo[]>([]);
 
   const revalidator = useRevalidator();
@@ -76,9 +80,12 @@ export function UploadPage() {
           <Button type="submit">Upload</Button>
         </form>
       </div>
+      <div className="w-1/2 my-5">
+        <Search q={filterQ} onSearch={setFilterQ} />
+      </div>
 
       <FilesCatalog
-        list={list}
+        list={filtredList}
         selected={selectedFiles}
         onSelect={(info, newSelected) => {
           if (newSelected) {
@@ -92,4 +99,10 @@ export function UploadPage() {
       />
     </>
   );
+}
+
+function fileNameLike(value: string, query: string): boolean {
+  if (typeof value !== "string" || typeof query !== "string") return false;
+  const regex = new RegExp(query, "i");
+  return regex.test(value);
 }

@@ -12,7 +12,7 @@ export function FilesCatalog({
   onSelect,
 }: FilesCatalogProps) {
   return (
-    <div className="flex gap-4 flex-wrap">
+    <div className="w-full flex gap-4 flex-wrap">
       {list.map((info) => {
         const isSelected = selected.some((sf) => sf.name === info.name);
 
