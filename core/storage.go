@@ -12,6 +12,7 @@ type Storage interface {
 	Upload(fileName string, file io.Reader) (*StorageFileInfo, error)
 	List(directory string) ([]StorageFileInfo, error)
 	Get(fileName string) (io.ReadCloser, error)
+	Delete(fileName string) error
 }
 
 type StorageFileInfo struct {

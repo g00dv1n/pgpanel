@@ -54,3 +54,11 @@ func getFile(app *core.App) ApiHandler {
 		return err
 	}
 }
+
+func deteteFile(app *core.App) ApiHandler {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		fileName := r.PathValue("fileName")
+
+		return app.Storage.Delete(fileName)
+	}
+}

@@ -1,8 +1,15 @@
-import { getFilesList, uploadFile } from "@/api/files";
+import {
+  deleteFile,
+  getFilesList,
+  StorageFileInfo,
+  uploadFile,
+} from "@/api/files";
+import { Controls } from "@/components/files/Controls";
+import { FilesCatalog } from "@/components/files/FilesCatalog";
 import { Button } from "@/components/ui/button";
 import { alert } from "@/components/ui/global-alert";
 import { Input } from "@/components/ui/input";
-import { Trash } from "lucide-react";
+import { useState } from "react";
 import {
   LoaderFunctionArgs,
   useLoaderData,
@@ -20,6 +27,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export function UploadPage() {
   const { list } = useLoaderData<typeof loader>();
+  const [selectedFiles, setSelectedFiles] = useState<StorageFileInfo[]>([]);
 
   const revalidator = useRevalidator();
 
@@ -38,12 +46,28 @@ export function UploadPage() {
     }
   };
 
+  const deleteSelected = async () => {
+    const deletePromises = selectedFiles.map((sf) => deleteFile(sf.name));
+
+    await Promise.all(deletePromises);
+    setSelectedFiles([]);
+    revalidator.revalidate();
+  };
+
   return (
     <>
       <title>upload | pgPanel</title>
-      <h1 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
-        Upload files
-      </h1>
+      <div className="flex gap-5 items-center">
+        <h1 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
+          Upload files
+        </h1>
+
+        <Controls
+          selectedCount={selectedFiles.length}
+          onReset={() => setSelectedFiles([])}
+          onDelete={() => deleteSelected()}
+        />
+      </div>
 
       <div className="max-w-80 my-5">
         <form className="flex gap-2" action={upload}>
@@ -53,21 +77,19 @@ export function UploadPage() {
         </form>
       </div>
 
-      <div className="flex gap-4 flex-wrap my-10">
-        {list.map((info) => {
-          return (
-            <div className="flex flex-col gap-1 items-center">
-              <img className="size-52 object-contain" src={info.internalUrl} />
-              <div className="w-full flex items-center gap-2">
-                <div>{info.name}</div>
-                <Button className="ml-auto" size="icon" variant="destructive">
-                  <Trash />
-                </Button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      <FilesCatalog
+        list={list}
+        selected={selectedFiles}
+        onSelect={(info, newSelected) => {
+          if (newSelected) {
+            setSelectedFiles([...selectedFiles, info]);
+          } else {
+            setSelectedFiles(
+              selectedFiles.filter((sf) => sf.name !== info.name)
+            );
+          }
+        }}
+      />
     </>
   );
 }

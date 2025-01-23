@@ -40,6 +40,7 @@ var routes = []routeConfig{
 	{"POST /files/upload", uploadFileHandler, authEnabled},
 	{"GET /files/list", getFilesListHandler, authEnabled},
 	{"GET /files/{fileName}", getFile, authDisabled},
+	{"DELETE /files/{fileName}", deteteFile, authEnabled},
 
 	// SQL API endpoints
 	{"POST /sql/execute", executeSQLHandler, authEnabled},

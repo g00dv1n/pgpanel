@@ -54,3 +54,10 @@ export async function getFilesList(params?: FilesListParams) {
   );
   return { list, error };
 }
+
+export async function deleteFile(fileName: string) {
+  const { error } = await fetchApiwithAuth(`/api/files/${fileName}`, {
+    method: "DELETE",
+  });
+  return { error };
+}

@@ -92,3 +92,8 @@ func (l *LocalStorage) Get(fileName string) (io.ReadCloser, error) {
 	fullPath := filepath.Join(l.uploadDir, fileName)
 	return os.Open(fullPath)
 }
+
+func (l *LocalStorage) Delete(fileName string) error {
+	fullPath := filepath.Join(l.uploadDir, fileName)
+	return os.Remove(fullPath)
+}
