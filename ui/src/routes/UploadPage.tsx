@@ -77,7 +77,9 @@ export function UploadPage() {
         <form className="flex gap-2" action={upload}>
           <Input type="file" name="file" />
 
-          <Button type="submit">Upload</Button>
+          <Button className=" bg-blue-500 hover:bg-blue-600" type="submit">
+            Upload
+          </Button>
         </form>
       </div>
       <div className="w-1/2 my-5">
