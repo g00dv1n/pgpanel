@@ -102,7 +102,6 @@ export function UploadPage() {
 }
 
 function fileNameLike(value: string, query: string): boolean {
-  if (typeof value !== "string" || typeof query !== "string") return false;
   const regex = new RegExp(query, "i");
   return regex.test(value);
 }
