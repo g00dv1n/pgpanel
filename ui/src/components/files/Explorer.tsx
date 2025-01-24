@@ -52,6 +52,7 @@ export function Explorer({ list, selected = [], onSelect }: ExplorerProps) {
               <Checkbox
                 checked={isSelected}
                 className="absolute left-2 top-1"
+                onClick={(e) => e.stopPropagation()}
                 onCheckedChange={(c) => onSelect && onSelect(info, c === true)}
               />
 
