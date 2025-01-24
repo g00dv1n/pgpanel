@@ -88,7 +88,7 @@ export function RowForm({
   };
 
   return (
-    <form className="grid gap-4" action={saveChanges}>
+    <form className="grid gap-4" action={saveChanges} autoComplete="off">
       {table.columns.map((column) => {
         const initialValue = row && row.get(column.name);
         const { type, isArray, payload } = resolveInputType(
