@@ -34,13 +34,13 @@ export function LoginForm({ error, onSubmit }: LoginFormProps) {
         <form className="grid gap-4" action={submit}>
           <div className="grid gap-2">
             <Label htmlFor="username">Username</Label>
-            <Input name="username" type="text" required />
+            <Input id="username" name="username" type="text" required />
           </div>
           <div className="grid gap-2">
             <div className="flex items-center">
               <Label htmlFor="password">Password</Label>
             </div>
-            <Input name="password" type="password" required />
+            <Input id="password" name="password" type="password" required />
           </div>
           {error && <span className="text-red-500">{error}</span>}
           <Button type="submit" className="w-full">
