@@ -29,7 +29,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export function UploadPage() {
   const { list } = useLoaderData<typeof loader>();
   const [filterQ, setFilterQ] = useState("");
-  const filtredList = list.filter((fi) => fileNameLike(fi.name, filterQ));
 
   const [selectedFiles, setSelectedFiles] = useState<StorageFileInfo[]>([]);
 
@@ -87,7 +86,8 @@ export function UploadPage() {
       </div>
 
       <Explorer
-        list={filtredList}
+        list={list}
+        filterQ={filterQ}
         selected={selectedFiles}
         onSelect={(info, newSelected) => {
           if (newSelected) {
@@ -101,9 +101,4 @@ export function UploadPage() {
       />
     </>
   );
-}
-
-function fileNameLike(value: string, query: string): boolean {
-  const regex = new RegExp(query, "i");
-  return regex.test(value);
 }

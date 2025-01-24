@@ -4,16 +4,26 @@ import { File } from "lucide-react";
 
 interface ExplorerProps {
   list: StorageFileInfo[];
+  filterQ?: string;
   selected?: StorageFileInfo[];
   onSelect?: (file: StorageFileInfo, newSelected: boolean) => void;
 }
 
-export function Explorer({ list, selected = [], onSelect }: ExplorerProps) {
+export function Explorer({
+  list,
+  filterQ = "",
+  selected = [],
+  onSelect,
+}: ExplorerProps) {
   const files = list.filter((fi) => !fi.isDir);
+  const filtredFiles =
+    filterQ.length > 0
+      ? files.filter((fi) => fileNameLike(fi.name, filterQ))
+      : files;
 
   return (
     <div className="w-full flex gap-3 flex-wrap">
-      {files.map((info) => {
+      {filtredFiles.map((info) => {
         const isSelected = selected.some((sf) => sf.name === info.name);
 
         return (
@@ -43,4 +53,9 @@ export function Explorer({ list, selected = [], onSelect }: ExplorerProps) {
       })}
     </div>
   );
+}
+
+function fileNameLike(value: string, query: string): boolean {
+  const regex = new RegExp(query, "i");
+  return regex.test(value);
 }
