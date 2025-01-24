@@ -5,7 +5,7 @@ import {
   uploadFile,
 } from "@/api/files";
 import { Controls } from "@/components/files/Controls";
-import { FilesCatalog } from "@/components/files/FilesCatalog";
+import { Explorer } from "@/components/files/Explorer";
 import { Search } from "@/components/files/Search";
 import { Button } from "@/components/ui/button";
 import { alert } from "@/components/ui/global-alert";
@@ -86,7 +86,7 @@ export function UploadPage() {
         <Search q={filterQ} onSearch={setFilterQ} />
       </div>
 
-      <FilesCatalog
+      <Explorer
         list={filtredList}
         selected={selectedFiles}
         onSelect={(info, newSelected) => {
