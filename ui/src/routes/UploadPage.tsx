@@ -82,8 +82,8 @@ export function UploadPage() {
       <Explorer
         list={list}
         selected={selectedFiles}
-        onSelect={(info, newSelected) => {
-          if (newSelected) {
+        onSelect={(info, selected) => {
+          if (selected) {
             setSelectedFiles([...selectedFiles, info]);
           } else {
             setSelectedFiles(
