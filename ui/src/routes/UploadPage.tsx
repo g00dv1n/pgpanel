@@ -6,7 +6,6 @@ import {
 } from "@/api/files";
 import { Controls } from "@/components/files/Controls";
 import { Explorer } from "@/components/files/Explorer";
-import { Search } from "@/components/files/Search";
 import { Button } from "@/components/ui/button";
 import { alert } from "@/components/ui/global-alert";
 import { Input } from "@/components/ui/input";
@@ -28,8 +27,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export function UploadPage() {
   const { list } = useLoaderData<typeof loader>();
-  const [filterQ, setFilterQ] = useState("");
-
   const [selectedFiles, setSelectedFiles] = useState<StorageFileInfo[]>([]);
 
   const revalidator = useRevalidator();
@@ -81,13 +78,9 @@ export function UploadPage() {
           </Button>
         </form>
       </div>
-      <div className="w-1/2 my-5">
-        <Search q={filterQ} onSearch={setFilterQ} />
-      </div>
 
       <Explorer
         list={list}
-        filterQ={filterQ}
         selected={selectedFiles}
         onSelect={(info, newSelected) => {
           if (newSelected) {
