@@ -1,4 +1,5 @@
 import { StorageFileInfo } from "@/api/files";
+import { FileViewDialog } from "@/components/files/FileViewDialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { File } from "lucide-react";
 import { useState } from "react";
@@ -19,8 +20,17 @@ export function Explorer({ list, selected = [], onSelect }: ExplorerProps) {
       ? files.filter((fi) => fileNameLike(fi.name, filterQ))
       : files;
 
+  const [viewingFile, setViewingFile] = useState<StorageFileInfo | undefined>();
+
   return (
     <div>
+      <FileViewDialog
+        file={viewingFile}
+        onClose={() => {
+          setViewingFile(undefined);
+        }}
+      />
+
       <div className="w-1/2 my-5">
         <Search q={filterQ} onSearch={setFilterQ} />
       </div>
@@ -37,6 +47,7 @@ export function Explorer({ list, selected = [], onSelect }: ExplorerProps) {
               ${isSelected ? "border-blue-500" : ""}
               cursor-pointer hover:opacity-90 transition-all
             `}
+              onClick={() => setViewingFile(info)}
             >
               <Checkbox
                 checked={isSelected}
