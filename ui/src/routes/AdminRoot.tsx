@@ -17,7 +17,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { TablesContext } from "@/hooks/use-tables";
-import { RotateCcw, SquareTerminal, Table2Icon } from "lucide-react";
+import { RotateCcw, SquareTerminal, Table2Icon, Upload } from "lucide-react";
 import { useState, useTransition } from "react";
 import { NavLink, Outlet, useLoaderData } from "react-router";
 
@@ -62,6 +62,14 @@ export function AdminRoot() {
                 <NavLink to="/sql">
                   <SquareTerminal />
                   SQL Editor
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <NavLink to="/upload">
+                  <Upload />
+                  Files Upload
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>

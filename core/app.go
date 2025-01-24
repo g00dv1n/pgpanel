@@ -54,7 +54,7 @@ func NewApp(config *Config) *App {
 
 	crud := NewCrudService(pool, schema, logger)
 
-	localStorage, err := NewLocalStorage(config.UploadDir)
+	localStorage, err := NewLocalStorage(config.UploadDir, config.UploadKeyPattern)
 	if err != nil {
 		logger.Error("can't create local storage", "error", err)
 		os.Exit(1)

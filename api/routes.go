@@ -37,6 +37,11 @@ var routes = []routeConfig{
 	{"GET /data/{mainTable}/relations/{mainTableRowId}", getRelatedRowsHandler, authEnabled},
 	{"PUT /data/{mainTable}/relations/{mainTableRowId}", updateRelatedRowsHandler, authEnabled},
 
+	{"POST /files/upload", uploadFileHandler, authEnabled},
+	{"GET /files/list", getFilesListHandler, authEnabled},
+	{"GET /files/{fileName}", getFile, authDisabled},
+	{"DELETE /files/{fileName}", deteteFile, authEnabled},
+
 	// SQL API endpoints
 	{"POST /sql/execute", executeSQLHandler, authEnabled},
 

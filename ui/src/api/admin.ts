@@ -2,9 +2,11 @@ import { ApiUrl, fetchApi } from "@/lib/fetchApi";
 
 const AuthTokenKey = "pgPanel_authToken";
 
-export const fetchApiwithAuth = createFetchWithAuth(
-  localStorage.getItem(AuthTokenKey)
-);
+export function getAuthToken() {
+  return localStorage.getItem(AuthTokenKey) || "";
+}
+
+export const fetchApiwithAuth = createFetchWithAuth(getAuthToken());
 
 export function createFetchWithAuth(token: string | undefined | null) {
   return async function <T>(url: ApiUrl, init?: RequestInit) {
@@ -12,6 +14,7 @@ export function createFetchWithAuth(token: string | undefined | null) {
       ...init,
       headers: {
         Authorization: `Bearer ${token || ""}`,
+        ...init?.headers,
       },
     });
 

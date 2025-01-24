@@ -1,16 +1,19 @@
 package core
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 )
 
 type LocalStorage struct {
-	uploadDir string
+	uploadDir        string
+	uploadKeyPattern string
 }
 
-func NewLocalStorage(uploadDir string) (*LocalStorage, error) {
+func NewLocalStorage(uploadDir, uploadKeyPattern string) (*LocalStorage, error) {
 	absPath, err := filepath.Abs(uploadDir)
 	if err != nil {
 		return nil, err
@@ -24,19 +27,32 @@ func NewLocalStorage(uploadDir string) (*LocalStorage, error) {
 		}
 	}
 
-	return &LocalStorage{uploadDir: absPath}, nil
+	return &LocalStorage{uploadDir: absPath, uploadKeyPattern: uploadKeyPattern}, nil
 }
 
-func (l *LocalStorage) Upload(fileName string, file io.Reader) error {
-	fullPath := filepath.Join(l.uploadDir, fileName)
+func (l *LocalStorage) Upload(fileName string, file io.Reader) (*StorageFileInfo, error) {
+	safeFileName := FileNameWithTs(fileName)
+	fullPath := filepath.Join(l.uploadDir, safeFileName)
 	outFile, err := os.Create(fullPath)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer outFile.Close()
 
 	_, err = io.Copy(outFile, file)
-	return err
+	if err != nil {
+		return nil, err
+	}
+
+	sfi := StorageFileInfo{
+		Name:        safeFileName,
+		IsDir:       false,
+		IsImage:     IsImageFile(fileName),
+		InternalUrl: fmt.Sprintf("/api/files/%s", safeFileName),
+	}
+	sfi.UploadKey = UploadKey(&sfi, l.uploadKeyPattern)
+
+	return &sfi, nil
 }
 
 func (l *LocalStorage) List(directory string) ([]StorageFileInfo, error) {
@@ -46,23 +62,43 @@ func (l *LocalStorage) List(directory string) ([]StorageFileInfo, error) {
 		return nil, err
 	}
 
-	var fileNames []StorageFileInfo
+	var fileInfos []StorageFileInfo
 	for _, file := range files {
-		fi := StorageFileInfo{
-			Name:  filepath.Join(directory, file.Name()),
-			IsDir: file.IsDir(),
+		fi, err := file.Info()
+		if err != nil {
+			continue
 		}
 
-		if !fi.IsDir {
-			fi.IsImage = IsImageFile(fi.Name)
+		sfi := StorageFileInfo{
+			Name:    filepath.Join(directory, file.Name()),
+			ModTime: fi.ModTime().Unix(),
+			IsDir:   file.IsDir(),
 		}
 
-		fileNames = append(fileNames, fi)
+		sfi.InternalUrl = filepath.Join("/api/files", sfi.Name)
+		sfi.UploadKey = UploadKey(&sfi, l.uploadKeyPattern)
+
+		if !sfi.IsDir {
+			sfi.IsImage = IsImageFile(sfi.Name)
+		}
+
+		fileInfos = append(fileInfos, sfi)
 	}
-	return fileNames, nil
+
+	// sort by ModTime DESC
+	slices.SortFunc(fileInfos, func(a, b StorageFileInfo) int {
+		return int(b.ModTime - a.ModTime)
+	})
+
+	return fileInfos, nil
 }
 
 func (l *LocalStorage) Get(fileName string) (io.ReadCloser, error) {
 	fullPath := filepath.Join(l.uploadDir, fileName)
 	return os.Open(fullPath)
+}
+
+func (l *LocalStorage) Delete(fileName string) error {
+	fullPath := filepath.Join(l.uploadDir, fileName)
+	return os.Remove(fullPath)
 }

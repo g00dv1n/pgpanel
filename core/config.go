@@ -21,10 +21,11 @@ type Config struct {
 	SecretKey   string
 
 	// optional fields
-	Logger         *slog.Logger
-	SchemaName     string
-	IncludedTables []string
-	UploadDir      string
+	Logger           *slog.Logger
+	SchemaName       string
+	IncludedTables   []string
+	UploadDir        string
+	UploadKeyPattern string
 }
 
 func ParseConfigFromEnv() (*Config, error) {
@@ -54,6 +55,8 @@ func ParseConfigFromEnv() (*Config, error) {
 	if config.UploadDir == "" {
 		config.UploadDir = "upload"
 	}
+
+	config.UploadKeyPattern = os.Getenv("UPLOAD_KEY_PATTERN")
 
 	return &config, nil
 }
