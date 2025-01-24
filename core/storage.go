@@ -5,6 +5,7 @@ import (
 	"io"
 	"path/filepath"
 	"strings"
+	"text/template"
 	"time"
 )
 
@@ -21,6 +22,9 @@ type StorageFileInfo struct {
 	IsImage     bool   `json:"isImage"`
 	ModTime     int64  `json:"modTime"`
 	InternalUrl string `json:"internalUrl"`
+
+	UploadKey string `json:"uploadKey,omitempty"`
+	PublicUrl string `json:"publicUrl,omitempty"`
 }
 
 func IsImageFile(fileName string) bool {
@@ -40,4 +44,18 @@ func FileNameWithTs(fileName string) string {
 	nameWithoutExt := strings.TrimSuffix(fileName, ext)
 
 	return fmt.Sprintf("%s_%d%s", nameWithoutExt, ts, ext)
+}
+
+// pattern like some_prefix/{.Name}
+func UploadKey(sfi *StorageFileInfo, pattern string) string {
+	t, err := template.New("uploadKey").Parse(pattern)
+
+	if err != nil {
+		return ""
+	}
+
+	var res strings.Builder
+	t.Execute(&res, sfi)
+
+	return res.String()
 }

@@ -9,10 +9,11 @@ import (
 )
 
 type LocalStorage struct {
-	uploadDir string
+	uploadDir        string
+	uploadKeyPattern string
 }
 
-func NewLocalStorage(uploadDir string) (*LocalStorage, error) {
+func NewLocalStorage(uploadDir, uploadKeyPattern string) (*LocalStorage, error) {
 	absPath, err := filepath.Abs(uploadDir)
 	if err != nil {
 		return nil, err
@@ -26,7 +27,7 @@ func NewLocalStorage(uploadDir string) (*LocalStorage, error) {
 		}
 	}
 
-	return &LocalStorage{uploadDir: absPath}, nil
+	return &LocalStorage{uploadDir: absPath, uploadKeyPattern: uploadKeyPattern}, nil
 }
 
 func (l *LocalStorage) Upload(fileName string, file io.Reader) (*StorageFileInfo, error) {
@@ -43,12 +44,15 @@ func (l *LocalStorage) Upload(fileName string, file io.Reader) (*StorageFileInfo
 		return nil, err
 	}
 
-	return &StorageFileInfo{
+	sfi := StorageFileInfo{
 		Name:        safeFileName,
 		IsDir:       false,
 		IsImage:     IsImageFile(fileName),
 		InternalUrl: fmt.Sprintf("/api/files/%s", safeFileName),
-	}, nil
+	}
+	sfi.UploadKey = UploadKey(&sfi, l.uploadKeyPattern)
+
+	return &sfi, nil
 }
 
 func (l *LocalStorage) List(directory string) ([]StorageFileInfo, error) {
@@ -72,6 +76,7 @@ func (l *LocalStorage) List(directory string) ([]StorageFileInfo, error) {
 		}
 
 		sfi.InternalUrl = filepath.Join("/api/files", sfi.Name)
+		sfi.UploadKey = UploadKey(&sfi, l.uploadKeyPattern)
 
 		if !sfi.IsDir {
 			sfi.IsImage = IsImageFile(sfi.Name)

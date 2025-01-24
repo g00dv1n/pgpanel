@@ -43,15 +43,18 @@ interface FileViewProps {
 export function FileView({ file }: FileViewProps) {
   const items = [{ label: "Name", value: file.name }];
 
+  file.uploadKey && items.push({ label: "Upload Key", value: file.uploadKey });
+  file.publicUrl && items.push({ label: "Public Url", value: file.publicUrl });
+
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col gap-3 items-center">
       {file.isImage && <img src={file.internalUrl} />}
 
       {items.map((item) => {
         return (
-          <div className="w-full flex gap-2 items-center my-3">
+          <div className="w-full flex gap-2 items-center">
             <div className="w-full flex gap-3 items-center">
-              <Label>{item.label}</Label>
+              <Label className="w-16">{item.label}</Label>
               <Input defaultValue={item.value} readOnly />
             </div>
             <CopyButton value={item.value} />

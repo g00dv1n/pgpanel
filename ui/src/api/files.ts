@@ -7,6 +7,8 @@ export interface StorageFileInfo {
   isDir: boolean;
   isImage: boolean;
   internalUrl: string;
+  uploadKey?: string;
+  publicUrl?: string;
 }
 
 export async function uploadFile(file: File) {
