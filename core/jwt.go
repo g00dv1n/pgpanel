@@ -1,6 +1,8 @@
 package core
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"net/http"
@@ -94,4 +96,20 @@ func ExtractBearerToken(r *http.Request) (string, error) {
 	}
 
 	return parts[1], nil
+}
+
+func GenerateSecureSecret(byteLength int) (string, error) {
+	// Enforce minimum length for security
+	if byteLength < 32 {
+		return "", fmt.Errorf("crypto/rand: insufficient length - minimum 32 bytes required")
+	}
+
+	// Generate random bytes
+	bytes := make([]byte, byteLength)
+	if _, err := rand.Read(bytes); err != nil {
+		return "", fmt.Errorf("failed to generate random bytes: %w", err)
+	}
+
+	// Convert to URL-safe base64 without padding
+	return base64.RawURLEncoding.EncodeToString(bytes), nil
 }

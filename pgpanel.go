@@ -24,6 +24,7 @@ const (
 	CmdDeleteAdmin = "delete-admin"
 	CmdAdminList   = "admin-list"
 	CmdGenJwt      = "gen-jwt"
+	CmdGenSecret   = "gen-secret"
 )
 
 type PgPanel struct {
@@ -197,6 +198,18 @@ func (panel *PgPanel) genJwtCommand(args []string) bool {
 	return true
 }
 
+func (panel *PgPanel) genSecretCommand(args []string) bool {
+	secret, err := core.GenerateSecureSecret(32)
+	if err != nil {
+		fmt.Println("Can't generate secret")
+		fmt.Println(err)
+		return false
+	}
+
+	fmt.Println(secret)
+	return true
+}
+
 func (panel *PgPanel) ProcessCommands() {
 	args := os.Args[1:] // skip bin name
 	// set Serve as default command
@@ -218,6 +231,7 @@ func (panel *PgPanel) ProcessCommands() {
 	commands[CmdAdminList] = panel.adminListCommand
 	commands[CmdServe] = panel.serveCommand
 	commands[CmdGenJwt] = panel.genJwtCommand
+	commands[CmdGenSecret] = panel.genSecretCommand
 
 	if cmd, ok := commands[command]; ok {
 		success := cmd(commandArgs)
