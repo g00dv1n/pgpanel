@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckIcon, ClipboardIcon } from "lucide-react";
+import { CheckIcon, CopyIcon } from "lucide-react";
 import * as React from "react";
 
 import { Button, ButtonProps } from "@/components/ui/button";
@@ -33,7 +33,7 @@ export function CopyButton({ value, ...props }: CopyButtonProps) {
       {...props}
     >
       <span className="sr-only">Copy</span>
-      {hasCopied ? <CheckIcon /> : <ClipboardIcon />}
+      {hasCopied ? <CheckIcon /> : <CopyIcon />}
     </Button>
   );
 }

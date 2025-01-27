@@ -26,7 +26,7 @@ export function FileViewDialog({ file, onClose }: FileViewDialogProps) {
         }
       }}
     >
-      <DialogContent>
+      <DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>File View</DialogTitle>
         </DialogHeader>
