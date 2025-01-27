@@ -21,7 +21,7 @@ export const AutoInputTypes = [
   "datetimepicker",
 ] as const;
 
-export const ManualInputTypes = ["select"] as const;
+export const ManualInputTypes = ["select", "hidden"] as const;
 
 export type InputType =
   | (typeof AutoInputTypes)[number]
@@ -167,6 +167,14 @@ export function resolveInputElementByType(
         />
       );
     }
+    case "hidden":
+      return (
+        <Input
+          type="hidden"
+          name={commonProps.name}
+          value={commonProps.value}
+        />
+      );
   }
 
   return <div>Unsupported type</div>;

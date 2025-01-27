@@ -95,6 +95,7 @@ export function RowForm({
           column,
           tableSettings.overriddenInputs
         );
+        const notHidden = type !== "hidden";
 
         const placeholder = column.default
           ? `DEFAULT: ${column.default}`
@@ -104,11 +105,13 @@ export function RowForm({
 
         return (
           <div className="grid gap-2" key={column.name}>
-            <Label>
-              {required && <span className="text-red-500">* </span>}
-              {column.name}{" "}
-              <code className="text-gray-700 px-2">({column.udtName})</code>
-            </Label>
+            {notHidden && (
+              <Label>
+                {required && <span className="text-red-500">* </span>}
+                {column.name}{" "}
+                <code className="text-gray-700 px-2">({column.udtName})</code>
+              </Label>
+            )}
             <DynamicInput
               type={type}
               isArray={isArray}
@@ -135,7 +138,7 @@ export function RowForm({
             );
 
             return (
-              <Button className="p-0" variant="link" asChild>
+              <Button key={link} className="p-0" variant="link" asChild>
                 <NavLink to={link}>
                   Edit {conf.joinTable} relations <Link2 />
                 </NavLink>
