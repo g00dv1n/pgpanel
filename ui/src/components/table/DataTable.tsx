@@ -18,6 +18,7 @@ interface DataTableProps {
   showSelectAll?: boolean;
   sortValue?: string[];
   selectedRows?: string[];
+  hiddenColumns?: string[];
 
   onSortChange?: (newSortVal: string) => void;
   onRowClick?: (row: DataRow) => void;
@@ -31,6 +32,7 @@ export function DataTable({
   sortValue,
   showSelectAll = true,
   selectedRows = [],
+  hiddenColumns = [],
   onSortChange,
   onRowClick,
   onRowSelect,
@@ -61,6 +63,8 @@ export function DataTable({
             <TableHead className="mx-5" />
           )}
           {table.columns.map((c) => {
+            if (hiddenColumns.includes(c.name)) return <></>;
+
             return (
               <TableHead key={c.name}>
                 <ColumnSortable
@@ -92,6 +96,8 @@ export function DataTable({
                 />
               </TableCell>
               {table.columns.map((c) => {
+                if (hiddenColumns.includes(c.name)) return <></>;
+
                 const cellKey = `${rowKey}-${c.name}`;
                 return (
                   <TableCell
