@@ -86,8 +86,10 @@ export function RowForm({
     return res;
   };
 
+  // Use a regular div instead of a form to prevent weird bugs.
+  // We don't need submit action and autocomplete features
   return (
-    <form className="grid gap-4" action={saveChanges} autoComplete="off">
+    <div className="grid gap-4">
       {table.columns.map((column) => {
         const initialValue = row && row.get(column.name);
         const { type, isArray, payload } = resolveInputType(
@@ -147,7 +149,12 @@ export function RowForm({
       </div>
 
       <div className="flex gap-3 mt-1">
-        <Button size="sm" type="submit" disabled={!canSave}>
+        <Button
+          size="sm"
+          type="button"
+          disabled={!canSave}
+          onClick={saveChanges}
+        >
           Save changes
         </Button>
 
@@ -155,6 +162,6 @@ export function RowForm({
           Cancel
         </Button>
       </div>
-    </form>
+    </div>
   );
 }
