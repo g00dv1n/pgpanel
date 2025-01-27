@@ -71,7 +71,7 @@ export function TableSettingsForm({
   };
 
   return (
-    <form className="grid gap-4" action={saveChanges}>
+    <div className="grid gap-4">
       {renderDynamicInput("viewLinkPattern")}
       <div className="grid gap-2">
         <Label>Relations</Label>
@@ -98,9 +98,9 @@ export function TableSettingsForm({
         }}
       />
       <Separator className="my-1" />
-      <Button className="ml-auto" size="sm" type="submit">
+      <Button className="ml-auto" size="sm" type="button" onClick={saveChanges}>
         Save changes
       </Button>
-    </form>
+    </div>
   );
 }
