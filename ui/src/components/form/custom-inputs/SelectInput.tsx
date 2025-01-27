@@ -52,6 +52,7 @@ export function SelectInput({
       }}
       defaultOptions={toMultiSelectOptions(options)}
       hidePlaceholderWhenSelected={true}
+      hideClearAllButton={true}
     />
   );
 }
