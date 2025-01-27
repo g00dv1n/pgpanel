@@ -3,7 +3,6 @@ import { DynamicInput } from "@/components/form/DynamicInput";
 import { Button } from "@/components/ui/button";
 import { alert } from "@/components/ui/global-alert";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { useTables } from "@/hooks/use-tables";
 import { DataRow } from "@/lib/dataRow";
 import { PgTable } from "@/lib/pgTypes";
@@ -147,8 +146,7 @@ export function RowForm({
           })}
       </div>
 
-      <Separator className="my-1" />
-      <div className="flex gap-3">
+      <div className="flex gap-3 mt-1">
         <Button size="sm" type="submit" disabled={!canSave}>
           Save changes
         </Button>
