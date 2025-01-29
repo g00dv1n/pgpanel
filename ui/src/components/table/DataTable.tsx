@@ -101,7 +101,7 @@ export function DataTable({
                 const cellKey = `${rowKey}-${c.name}`;
                 return (
                   <TableCell
-                    className="cursor-pointer smart-cell"
+                    className="smart-table-cell"
                     key={cellKey}
                     onClick={() => onRowClick && onRowClick(row)}
                   >

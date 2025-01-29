@@ -93,7 +93,8 @@ a.active {
   @apply bg-gray-100 text-gray-900 font-medium;
 }
 
-.smart-cell {
+.smart-table-cell {
+  cursor: pointer;
   max-width: 56px;
   overflow: hidden;
   text-overflow: ellipsis;
