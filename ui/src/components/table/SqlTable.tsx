@@ -35,7 +35,7 @@ export function SqlTable({ columns, rows }: SqlTableProps) {
                 return (
                   <TableCell
                     key={`${i}-${columnName}`}
-                    className="overflow-hidden whitespace-nowrap max-w-14"
+                    className="max-w-14 truncate"
                   >
                     {fieldToString(value)}
                   </TableCell>

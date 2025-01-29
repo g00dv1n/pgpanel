@@ -47,7 +47,7 @@ export function DataTable({
           {showSelectAll ? (
             <TableHead>
               <Checkbox
-                className="mr-5"
+                className="mr-2"
                 checked={isAllSelected}
                 onCheckedChange={(checked) => {
                   if (onAllRowsSelect) {
@@ -85,7 +85,7 @@ export function DataTable({
 
           return (
             <TableRow key={rowKey}>
-              <TableCell>
+              <TableCell className="py-0">
                 <Checkbox
                   checked={isRowSelected}
                   onCheckedChange={(checked) => {
@@ -101,11 +101,11 @@ export function DataTable({
                 const cellKey = `${rowKey}-${c.name}`;
                 return (
                   <TableCell
-                    className="cursor-pointer"
+                    className="cursor-pointer smart-cell"
                     key={cellKey}
                     onClick={() => onRowClick && onRowClick(row)}
                   >
-                    {cellValue(row.getAsString(c.name))}
+                    {row.getAsString(c.name, 27)}
                   </TableCell>
                 );
               })}
@@ -115,12 +115,4 @@ export function DataTable({
       </TableBody>
     </Table>
   );
-}
-
-function cellValue(s: string) {
-  if (s.length < 80) {
-    return s;
-  }
-
-  return s.slice(0, 40) + "...";
 }

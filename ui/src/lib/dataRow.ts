@@ -30,8 +30,14 @@ export class DataRow {
     this.#data[key] = value;
   }
 
-  getAsString(key: string) {
-    return fieldToString(this.#data[key]);
+  getAsString(key: string, maxLength?: number) {
+    const s = fieldToString(this.#data[key]);
+
+    if (!maxLength || s.length < maxLength) {
+      return s;
+    }
+
+    return s.slice(0, maxLength) + "...";
   }
 
   pKeys(): RowPkeysMap {
