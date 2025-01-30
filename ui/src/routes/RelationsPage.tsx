@@ -5,6 +5,7 @@ import {
   updateRelatedRows,
 } from "@/api/data";
 import { getTableSettings } from "@/api/schema";
+import { CellViewDialog } from "@/components/table/CellViewDialog";
 import { DataTable } from "@/components/table/DataTable";
 import { FiltersSearch } from "@/components/table/FiltersSearch";
 import { Pagination } from "@/components/table/Pagination";
@@ -13,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { alert } from "@/components/ui/global-alert";
 import { useTable } from "@/hooks/use-tables";
 import { DataRow } from "@/lib/dataRow";
+import { fieldToString } from "@/lib/pgTypes";
 import { RelationsConfig } from "@/lib/tableSettings";
 import { X } from "lucide-react";
 import { useState } from "react";
@@ -185,6 +187,9 @@ export function RelationsPage() {
     }
   };
 
+  // special value to show dialog on cell click
+  const [viewCellValue, setViewCellValue] = useState<undefined | string>();
+
   return (
     <>
       <ScrollRestoration />
@@ -280,6 +285,14 @@ export function RelationsPage() {
             sort: [newSortVal],
           });
         }}
+        onRowClick={(_row, rowField) => {
+          setViewCellValue(fieldToString(rowField));
+        }}
+      />
+
+      <CellViewDialog
+        value={viewCellValue}
+        onClose={() => setViewCellValue(undefined)}
       />
     </>
   );
