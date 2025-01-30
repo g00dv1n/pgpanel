@@ -38,7 +38,7 @@ export function DataTable({
   onRowSelect,
   onAllRowsSelect,
 }: DataTableProps) {
-  const isAllSelected = rows.length > 0 && selectedRows.length === rows.length;
+  const isAllSelected = CalcAllSelected(rows, selectedRows);
 
   return (
     <Table className="rounded-md border">
@@ -115,4 +115,14 @@ export function DataTable({
       </TableBody>
     </Table>
   );
+}
+
+function CalcAllSelected(rows: DataRow[], selectedKeys: string[]) {
+  for (const r of rows) {
+    if (!selectedKeys.includes(r.uniqueKey())) {
+      return false;
+    }
+  }
+
+  return true;
 }
