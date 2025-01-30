@@ -7,13 +7,14 @@ import { Button, ButtonProps } from "@/components/ui/button";
 
 interface CopyButtonProps extends ButtonProps {
   value: string;
+  label?: string;
 }
 
 export async function copyToClipboardWithMeta(value: string) {
   navigator.clipboard.writeText(value);
 }
 
-export function CopyButton({ value, ...props }: CopyButtonProps) {
+export function CopyButton({ value, label, ...props }: CopyButtonProps) {
   const [hasCopied, setHasCopied] = React.useState(false);
 
   React.useEffect(() => {
@@ -24,7 +25,7 @@ export function CopyButton({ value, ...props }: CopyButtonProps) {
 
   return (
     <Button
-      size="icon"
+      size={label ? "default" : "icon"}
       {...props}
       onClick={() => {
         copyToClipboardWithMeta(value);
@@ -34,6 +35,7 @@ export function CopyButton({ value, ...props }: CopyButtonProps) {
     >
       <span className="sr-only">Copy</span>
       {hasCopied ? <CheckIcon /> : <CopyIcon />}
+      {label && label}
     </Button>
   );
 }
