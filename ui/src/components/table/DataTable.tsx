@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PgTable } from "@/lib/pgTypes";
+import { PgTable, RowField } from "@/lib/pgTypes";
 
 import { DataRow } from "@/lib/dataRow";
 import { ColumnSortable } from "./ColumnSortable";
@@ -21,7 +21,7 @@ interface DataTableProps {
   hiddenColumns?: string[];
 
   onSortChange?: (newSortVal: string) => void;
-  onRowClick?: (row: DataRow) => void;
+  onRowClick?: (row: DataRow, rowField: RowField) => void;
   onRowSelect?: (rowKey: string, selected: boolean) => void;
   onAllRowsSelect?: (rowKeys: string[], selected: boolean) => void;
 }
@@ -39,6 +39,7 @@ export function DataTable({
   onAllRowsSelect,
 }: DataTableProps) {
   const isAllSelected = CalcAllSelected(rows, selectedRows);
+  const columns = table.columns.filter((c) => !hiddenColumns.includes(c.name));
 
   return (
     <Table className="rounded-md border">
@@ -62,9 +63,7 @@ export function DataTable({
           ) : (
             <TableHead className="mx-5" />
           )}
-          {table.columns.map((c) => {
-            if (hiddenColumns.includes(c.name)) return <></>;
-
+          {columns.map((c) => {
             return (
               <TableHead key={c.name}>
                 <ColumnSortable
@@ -95,15 +94,15 @@ export function DataTable({
                   }}
                 />
               </TableCell>
-              {table.columns.map((c) => {
-                if (hiddenColumns.includes(c.name)) return <></>;
-
+              {columns.map((c) => {
                 const cellKey = `${rowKey}-${c.name}`;
                 return (
                   <TableCell
                     className="smart-table-cell"
                     key={cellKey}
-                    onClick={() => onRowClick && onRowClick(row)}
+                    onClick={() =>
+                      onRowClick && onRowClick(row, row.get(c.name))
+                    }
                   >
                     {row.getAsString(c.name, 27)}
                   </TableCell>
