@@ -115,6 +115,7 @@ export function RelationsPage() {
     mainRowRaw,
     rowsRaw,
     relatedRowsRaw,
+    tableSettings,
   } = useLoaderData<typeof loader>();
   const relationsName = relationConfig.joinTable;
 
@@ -275,6 +276,7 @@ export function RelationsPage() {
       <DataTable
         table={relatedTable}
         rows={rows}
+        hiddenColumns={tableSettings.tableViewHiddenColumns}
         showSelectAll={false}
         selectedRows={selectedRowsKeys}
         onRowSelect={onRowSelect}
