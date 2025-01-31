@@ -5,6 +5,7 @@ import {
 } from "@/components/form/DynamicInput";
 import { FieldTypesSelect } from "@/components/form/table-settings/FieldTypesSelect";
 import { RelationsSelect } from "@/components/form/table-settings/RelationsSelect";
+import { TableViewColumnsSelect } from "@/components/form/table-settings/TableViewColumnsSelect";
 import { Button } from "@/components/ui/button";
 import { alert } from "@/components/ui/global-alert";
 import { Label } from "@/components/ui/label";
@@ -73,6 +74,21 @@ export function TableSettingsForm({
   return (
     <div className="grid gap-4">
       {renderDynamicInput("viewLinkPattern")}
+
+      <div className="grid gap-2">
+        <Label>Column to show at table view</Label>
+        <TableViewColumnsSelect
+          columns={table.columns}
+          hiddenColumns={setttings.tableViewHiddenColumns}
+          onChange={(tableViewHiddenColumns) => {
+            setSettings({
+              ...setttings,
+              tableViewHiddenColumns,
+            });
+          }}
+        />
+      </div>
+
       <div className="grid gap-2">
         <Label>Relations</Label>
         <RelationsSelect

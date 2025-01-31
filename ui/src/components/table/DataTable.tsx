@@ -10,6 +10,7 @@ import {
 import { PgTable, RowField } from "@/lib/pgTypes";
 
 import { DataRow } from "@/lib/dataRow";
+import { useRef } from "react";
 import { ColumnSortable } from "./ColumnSortable";
 
 interface DataTableProps {
@@ -38,11 +39,18 @@ export function DataTable({
   onRowSelect,
   onAllRowsSelect,
 }: DataTableProps) {
-  const isAllSelected = CalcAllSelected(rows, selectedRows);
+  const tableEl = useRef<HTMLTableElement>(null);
+
+  const isAllSelected = calcAllSelected(rows, selectedRows);
   const columns = table.columns.filter((c) => !hiddenColumns.includes(c.name));
 
+  const maxCellSymbols = calcMaxCellSymbols(
+    columns.length,
+    tableEl.current?.clientWidth
+  );
+
   return (
-    <Table className="rounded-md border">
+    <Table className="rounded-md border" ref={tableEl}>
       <TableHeader>
         <TableRow>
           {showSelectAll ? (
@@ -104,7 +112,7 @@ export function DataTable({
                       onRowClick && onRowClick(row, row.get(c.name))
                     }
                   >
-                    {row.getAsString(c.name, 27)}
+                    {row.getAsString(c.name, maxCellSymbols)}
                   </TableCell>
                 );
               })}
@@ -116,7 +124,7 @@ export function DataTable({
   );
 }
 
-function CalcAllSelected(rows: DataRow[], selectedKeys: string[]) {
+function calcAllSelected(rows: DataRow[], selectedKeys: string[]) {
   for (const r of rows) {
     if (!selectedKeys.includes(r.uniqueKey())) {
       return false;
@@ -124,4 +132,32 @@ function CalcAllSelected(rows: DataRow[], selectedKeys: string[]) {
   }
 
   return true;
+}
+
+function calcMaxCellSymbols(
+  columnsCount: number,
+  baseViewportWidth = 1440
+): number {
+  // Minimum width we want to reserve for UI elements (checkboxes, padding, etc)
+  const uiElementsWidth = 20;
+
+  const maxLines = 3;
+
+  // Minimum characters we want to show regardless of column count
+  const minCharsPerCell = 30;
+
+  // Average character width in pixels (approximate)
+  const averageCharWidth = 8;
+
+  // Calculate available width for content
+  const availableWidth = baseViewportWidth - uiElementsWidth;
+
+  // Calculate approximate width per column
+  const widthPerColumn = (availableWidth / columnsCount) * maxLines;
+
+  // Calculate max chars that can fit in the column width
+  const maxCharsPerColumn = Math.floor(widthPerColumn / averageCharWidth);
+
+  // Return the larger of our minimum chars or calculated value
+  return Math.max(minCharsPerCell, maxCharsPerColumn);
 }

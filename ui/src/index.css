@@ -95,7 +95,7 @@ a.active {
 
 .smart-table-cell {
   cursor: pointer;
-  max-width: 56px;
+  max-width: 64px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: normal;

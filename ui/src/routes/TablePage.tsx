@@ -14,7 +14,6 @@ import { Pagination } from "@/components/table/Pagination";
 import { alert } from "@/components/ui/global-alert";
 import { useTable } from "@/hooks/use-tables";
 import { DataRow } from "@/lib/dataRow";
-import { getHiddenColumns } from "@/lib/tableSettings";
 import { useEffect, useState } from "react";
 
 import {
@@ -51,7 +50,7 @@ export function TablePage() {
 
   const table = useTable(tableName);
   const rows = DataRow.fromArray(table, rawRows);
-  const hiddenColumns = getHiddenColumns(tableSettings.overriddenInputs);
+  const hiddenColumns = tableSettings.tableViewHiddenColumns;
 
   const navigate = useNavigate();
 

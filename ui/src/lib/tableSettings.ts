@@ -4,6 +4,7 @@ import { PgTable, Row } from "@/lib/pgTypes";
 
 export interface TableSettings {
   viewLinkPattern?: string;
+  tableViewHiddenColumns?: string[];
   overriddenInputs?: OverriddenInputsMap;
   relations?: RelationsConfig[];
 }
@@ -76,18 +77,4 @@ function getForeignKeyColumnByTable(
   if (!(fkCol && fkCol.foreignKey)) return undefined;
 
   return fkCol.foreignKey.columnName;
-}
-
-export function getHiddenColumns(
-  inputsMap: OverriddenInputsMap | null | undefined
-) {
-  const hiddenNames: string[] = [];
-
-  for (const [colName, lookup] of Object.entries(inputsMap || {})) {
-    if (lookup.type === "hidden") {
-      hiddenNames.push(colName);
-    }
-  }
-
-  return hiddenNames;
 }
