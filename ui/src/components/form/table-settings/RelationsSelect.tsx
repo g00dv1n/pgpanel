@@ -38,7 +38,7 @@ export function RelationsSelect({
       <div className="grid gap-2 my-2">
         {relations.map((r, index) => {
           return (
-            <div>
+            <div key={JSON.stringify(r)}>
               {r.mainTable} TO {r.relationTable} VIA {r.joinTable}{" "}
               {r.bidirectional ? "(bidirectional)" : ""}{" "}
               <Button
@@ -69,7 +69,11 @@ export function RelationsSelect({
             <SelectGroup>
               <SelectLabel>Tables</SelectLabel>
               {tables.map((t) => {
-                return <SelectItem value={t.name}>{t.name}</SelectItem>;
+                return (
+                  <SelectItem key={t.name} value={t.name}>
+                    {t.name}
+                  </SelectItem>
+                );
               })}
             </SelectGroup>
           </SelectContent>
@@ -83,7 +87,11 @@ export function RelationsSelect({
             <SelectGroup>
               <SelectLabel>Tables</SelectLabel>
               {tables.map((t) => {
-                return <SelectItem value={t.name}>{t.name}</SelectItem>;
+                return (
+                  <SelectItem key={t.name} value={t.name}>
+                    {t.name}
+                  </SelectItem>
+                );
               })}
             </SelectGroup>
           </SelectContent>

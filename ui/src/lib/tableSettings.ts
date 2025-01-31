@@ -3,8 +3,8 @@ import { DataRow } from "@/lib/dataRow";
 import { PgTable, Row } from "@/lib/pgTypes";
 
 export interface TableSettings {
-  viewLinkPattern: string | null;
-  overriddenInputs: OverriddenInputsMap | null;
+  viewLinkPattern?: string;
+  overriddenInputs?: OverriddenInputsMap;
   relations?: RelationsConfig[];
 }
 

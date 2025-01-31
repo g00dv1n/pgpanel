@@ -234,8 +234,8 @@ func GetTablesFromDB(db *pgxpool.Pool, schemaName string, includedTables []strin
 // Table Settings related structs
 
 type TableSettings struct {
-	ViewLinkPattern  *string             `json:"viewLinkPattern"`
-	OverriddenInputs OverriddenInputsMap `json:"overriddenInputs"`
+	ViewLinkPattern  *string             `json:"viewLinkPattern,omitempty"`
+	OverriddenInputs OverriddenInputsMap `json:"overriddenInputs,omitempty"`
 	Relations        []RelationsConfig   `json:"relations,omitempty"`
 }
 
