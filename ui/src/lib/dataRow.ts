@@ -1,10 +1,4 @@
-import {
-  fieldToString,
-  PgTable,
-  PgTypeOID,
-  Row,
-  RowPkeysMap,
-} from "@/lib/pgTypes";
+import { fieldToString, PgTable, Row, RowPkeysMap } from "@/lib/pgTypes";
 import { generateViewLink } from "@/lib/tableSettings";
 
 // Wrapped Row that provides different helpers
@@ -101,9 +95,7 @@ export class DataRow {
   }
 
   textLabel() {
-    const firstTextColumn = this.#table.columns.find((col) => {
-      return col.OID === PgTypeOID.TextOID || col.OID === PgTypeOID.VarcharOID;
-    });
+    const firstTextColumn = this.#table.columns.find((col) => col.isText);
 
     if (firstTextColumn) {
       const textValue = this.get(firstTextColumn.name);

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -12,6 +13,7 @@ type Column struct {
 	OID          int             `json:"OID"`
 	RegType      string          `json:"regType"`
 	UdtName      string          `json:"udtName"`
+	IsText       bool            `json:"isText"`
 	IsNullable   bool            `json:"isNullable"`
 	Default      *string         `json:"default"`
 	IsPrimaryKey bool            `json:"isPrimaryKey"`
@@ -220,7 +222,10 @@ func GetTablesFromDB(db *pgxpool.Pool, schemaName string, includedTables []strin
 			return nil, err
 		}
 
+		col.IsText = col.OID == pgtype.VarcharOID || col.OID == pgtype.TextOID
+
 		tablesMap[tableName].Columns = append(tablesMap[tableName].Columns, col)
+
 	}
 
 	return tablesMap, nil

@@ -119,6 +119,7 @@ export interface PgColumn {
   isPrimaryKey: boolean;
   regType: string;
   udtName: string;
+  isText: boolean;
   isNullable: boolean;
   default?: string | null;
   foreignKey: PgForeignKeyInfo | null;
