@@ -1,4 +1,4 @@
-import { fetchApiwithAuth, getAuthToken } from "@/api/admin";
+import { AuthToken, fetchApiwithAuth } from "@/api/admin";
 import { ApiError, defaultError } from "@/lib/fetchApi";
 
 export interface StorageFileInfo {
@@ -21,7 +21,7 @@ export async function uploadFile(file: File) {
     const res = await fetch("/api/files/upload", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${getAuthToken()}`,
+        Authorization: `Bearer ${AuthToken.value}`,
       },
       body,
     });

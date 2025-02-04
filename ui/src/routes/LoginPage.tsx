@@ -2,7 +2,7 @@ import { adminLogin } from "@/api/admin";
 import { LoginForm } from "@/components/LoginForm";
 import { alert, GlobalAlert } from "@/components/ui/global-alert";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 
 export function LoginPage() {
   const [loginError, setLoginError] = useState<string | undefined>(undefined);
@@ -17,14 +17,19 @@ export function LoginPage() {
     }
   });
 
+  const navigate = useNavigate();
+
   return (
     <div className="flex h-screen w-full items-center justify-center px-4">
       <LoginForm
         error={loginError}
         onSubmit={async (data) => {
           const newLoginError = await adminLogin(data);
-
           setLoginError(newLoginError?.message);
+
+          if (!newLoginError) {
+            navigate("/");
+          }
         }}
       />
 
