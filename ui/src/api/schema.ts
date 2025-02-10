@@ -1,4 +1,4 @@
-import { fetchApiwithAuth } from "@/api/admin";
+import { fetchApiwithAuth } from "@/lib/auth";
 import { PgTable } from "@/lib/pgTypes";
 import { TableSettings } from "@/lib/tableSettings";
 

@@ -1,35 +1,5 @@
-import { ApiUrl, fetchApi } from "@/lib/fetchApi";
-
-const AuthTokenKey = "pgPanel_authToken";
-
-export const AuthToken = {
-  value: localStorage.getItem(AuthTokenKey) || "",
-};
-
-export function updateAuthToken(token: string) {
-  AuthToken.value = token;
-  localStorage.setItem(AuthTokenKey, token);
-}
-
-export const fetchApiwithAuth = createFetchWithAuth();
-
-export function createFetchWithAuth() {
-  return async function <T>(url: ApiUrl, init?: RequestInit) {
-    const res = await fetchApi<T>(url, {
-      ...init,
-      headers: {
-        Authorization: `Bearer ${AuthToken.value}`,
-        ...init?.headers,
-      },
-    });
-
-    if (res.error && res.error.code === 403) {
-      window.location.replace(`/login?authError=${res.error.message}`);
-    }
-
-    return res;
-  };
-}
+import { AuthToken } from "@/lib/auth";
+import { fetchApi } from "@/lib/fetchApi";
 
 export interface LoginCreds {
   username: string;
@@ -47,7 +17,7 @@ export async function adminLogin(creds: LoginCreds) {
   });
 
   if (!error && data) {
-    updateAuthToken(data.token);
+    AuthToken.value = data.token;
   }
 
   return error;

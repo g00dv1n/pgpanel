@@ -1,4 +1,4 @@
-import { AuthToken, fetchApiwithAuth } from "@/api/admin";
+import { AuthToken, fetchApiwithAuth } from "@/lib/auth";
 import { ApiError, defaultError } from "@/lib/fetchApi";
 
 export interface StorageFileInfo {

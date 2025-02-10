@@ -1,4 +1,4 @@
-import { fetchApiwithAuth } from "@/api/admin";
+import { fetchApiwithAuth } from "@/lib/auth";
 import { ApiError } from "@/lib/fetchApi";
 import { Row } from "@/lib/pgTypes";
 

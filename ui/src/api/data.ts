@@ -1,4 +1,4 @@
-import { fetchApiwithAuth } from "@/api/admin";
+import { fetchApiwithAuth } from "@/lib/auth";
 import { Row, RowPkeysMap } from "@/lib/pgTypes";
 import { RelationsConfig } from "@/lib/tableSettings";
 
