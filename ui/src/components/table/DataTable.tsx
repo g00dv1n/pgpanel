@@ -125,6 +125,8 @@ export function DataTable({
 }
 
 function calcAllSelected(rows: DataRow[], selectedKeys: string[]) {
+  if (rows.length === 0) return false;
+
   for (const r of rows) {
     if (!selectedKeys.includes(r.uniqueKey())) {
       return false;
