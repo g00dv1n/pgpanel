@@ -5,7 +5,6 @@ import (
 	"io"
 	"path/filepath"
 	"strings"
-	"text/template"
 	"time"
 )
 
@@ -46,16 +45,7 @@ func FileNameWithTs(fileName string) string {
 	return fmt.Sprintf("%s_%d%s", nameWithoutExt, ts, ext)
 }
 
-// pattern like some_prefix/{.Name}
-func UploadKey(sfi *StorageFileInfo, pattern string) string {
-	t, err := template.New("uploadKey").Parse(pattern)
-
-	if err != nil {
-		return ""
-	}
-
-	var res strings.Builder
-	t.Execute(&res, sfi)
-
-	return res.String()
+// pattern like some_prefix/{name}
+func UploadKey(name string, pattern string) string {
+	return strings.ReplaceAll(pattern, "{name}", name)
 }

@@ -50,7 +50,7 @@ func (l *LocalStorage) Upload(fileName string, file io.Reader) (*StorageFileInfo
 		IsImage:     IsImageFile(fileName),
 		InternalUrl: fmt.Sprintf("/api/files/%s", safeFileName),
 	}
-	sfi.UploadKey = UploadKey(&sfi, l.uploadKeyPattern)
+	sfi.UploadKey = UploadKey(sfi.Name, l.uploadKeyPattern)
 
 	return &sfi, nil
 }
@@ -76,7 +76,7 @@ func (l *LocalStorage) List(directory string) ([]StorageFileInfo, error) {
 		}
 
 		sfi.InternalUrl = filepath.Join("/api/files", sfi.Name)
-		sfi.UploadKey = UploadKey(&sfi, l.uploadKeyPattern)
+		sfi.UploadKey = UploadKey(sfi.Name, l.uploadKeyPattern)
 
 		if !sfi.IsDir {
 			sfi.IsImage = IsImageFile(sfi.Name)
