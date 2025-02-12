@@ -121,11 +121,12 @@ func (panel *PgPanel) Serve() {
 
 // ---------------------- COMMANDS -------------------------------
 
-func (panel *PgPanel) addAdminCommand(args []string) bool {
+func addAdminCommand(args []string) bool {
 	if len(args) < 2 {
 		fmt.Printf("Usage: %s <username> <password> \n", CmdAddAdmin)
 		return false
 	}
+	panel := NewWithEnv()
 
 	username := args[0]
 	password := args[1]
@@ -142,11 +143,12 @@ func (panel *PgPanel) addAdminCommand(args []string) bool {
 	return true
 }
 
-func (panel *PgPanel) deleteAdminCommand(args []string) bool {
+func deleteAdminCommand(args []string) bool {
 	if len(args) == 0 {
 		fmt.Printf("Usage: %s <username> \n", CmdAddAdmin)
 		return false
 	}
+	panel := NewWithEnv()
 
 	username := args[0]
 	err := panel.AdminRepository.DeleteAdmin(username)
@@ -161,7 +163,8 @@ func (panel *PgPanel) deleteAdminCommand(args []string) bool {
 	return true
 }
 
-func (panel *PgPanel) adminListCommand(args []string) bool {
+func adminListCommand(args []string) bool {
+	panel := NewWithEnv()
 	list, err := panel.AdminRepository.GetAdminList()
 
 	if err != nil {
@@ -181,12 +184,14 @@ func (panel *PgPanel) adminListCommand(args []string) bool {
 	return true
 }
 
-func (panel *PgPanel) serveCommand(args []string) bool {
-	panel.Serve()
+func serveCommand(args []string) bool {
+	NewWithEnv().Serve()
 	return true
 }
 
-func (panel *PgPanel) genJwtCommand(args []string) bool {
+func genJwtCommand(args []string) bool {
+	panel := NewWithEnv()
+
 	token, err := core.GenerateJwtToken("dev", panel.SecretKey, 24*time.Hour)
 	if err != nil {
 		fmt.Println("Can't generate jwt")
@@ -198,7 +203,7 @@ func (panel *PgPanel) genJwtCommand(args []string) bool {
 	return true
 }
 
-func (panel *PgPanel) genSecretCommand(args []string) bool {
+func genSecretCommand(args []string) bool {
 	secret, err := core.GenerateSecureSecret(32)
 	if err != nil {
 		fmt.Println("Can't generate secret")
@@ -210,7 +215,7 @@ func (panel *PgPanel) genSecretCommand(args []string) bool {
 	return true
 }
 
-func (panel *PgPanel) ProcessCommands() {
+func ProcessCommands() {
 	args := os.Args[1:] // skip bin name
 	// set Serve as default command
 	command := CmdServe
@@ -226,12 +231,12 @@ func (panel *PgPanel) ProcessCommands() {
 
 	commands := make(map[string]func([]string) bool)
 
-	commands[CmdAddAdmin] = panel.addAdminCommand
-	commands[CmdDeleteAdmin] = panel.deleteAdminCommand
-	commands[CmdAdminList] = panel.adminListCommand
-	commands[CmdServe] = panel.serveCommand
-	commands[CmdGenJwt] = panel.genJwtCommand
-	commands[CmdGenSecret] = panel.genSecretCommand
+	commands[CmdAddAdmin] = addAdminCommand
+	commands[CmdDeleteAdmin] = deleteAdminCommand
+	commands[CmdAdminList] = adminListCommand
+	commands[CmdServe] = serveCommand
+	commands[CmdGenJwt] = genJwtCommand
+	commands[CmdGenSecret] = genSecretCommand
 
 	if cmd, ok := commands[command]; ok {
 		success := cmd(commandArgs)
