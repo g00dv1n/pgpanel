@@ -176,9 +176,8 @@ func adminListCommand(args []string) bool {
 	fmt.Printf("Admin List: \n\n")
 
 	fmt.Println("---------------")
-	for _, username := range list {
-		fmt.Println(username)
-		fmt.Println("---------------")
+	for i, username := range list {
+		fmt.Printf("%d. %s \n", i+1, username)
 	}
 	fmt.Println()
 	return true
