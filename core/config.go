@@ -1,6 +1,7 @@
 package core
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"log/slog"
@@ -22,7 +23,7 @@ type Config struct {
 	Pool        *pgxpool.Pool
 
 	// optional but need to be set for prod
-	SecretKey string
+	SecretKey []byte
 
 	// optional fields
 	Logger           *slog.Logger
@@ -41,11 +42,7 @@ func ParseConfigFromEnv() (*Config, error) {
 		return nil, errors.New("empty DATABASE_URL env")
 	}
 
-	config.SecretKey = os.Getenv("SECRET_KEY")
-
-	if config.SecretKey == "" {
-		config.SecretKey = DefaultSecret
-	}
+	config.SecretKey = SecretFromEnv()
 
 	config.SchemaName = os.Getenv("SCHEMA_NAME")
 
@@ -97,7 +94,17 @@ func (c *Config) GetLogger() *slog.Logger {
 }
 
 func (c *Config) isDefaultSecretInUse() bool {
-	return c.SecretKey == DefaultSecret
+	return bytes.Equal(c.SecretKey, []byte(DefaultSecret))
+}
+
+func SecretFromEnv() []byte {
+	secret := os.Getenv("SECRET_KEY")
+
+	if secret == "" {
+		secret = DefaultSecret
+	}
+
+	return []byte(secret)
 }
 
 func DefaultLogger() *slog.Logger {

@@ -58,7 +58,7 @@ func NewApp(config *Config) *App {
 		os.Exit(1)
 	}
 
-	secretKey := []byte(config.SecretKey)
+	secretKey := config.SecretKey
 	if config.isDefaultSecretInUse() {
 		logger.Warn("Defalut SECRET is used. Please set a secure one for prod app")
 	}

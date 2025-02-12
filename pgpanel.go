@@ -189,9 +189,7 @@ func serveCommand(args []string) bool {
 }
 
 func genJwtCommand(args []string) bool {
-	panel := NewWithEnv()
-
-	token, err := core.GenerateJwtToken("dev", panel.SecretKey, 24*time.Hour)
+	token, err := core.GenerateJwtToken("dev", core.SecretFromEnv(), 24*time.Hour)
 	if err != nil {
 		fmt.Println("Can't generate jwt")
 		fmt.Println(err)
