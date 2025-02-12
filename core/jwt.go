@@ -12,11 +12,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// Define context keys
-const (
-	AdminContextKey = "admin"
-)
-
 // CustomClaims extends standard JWT claims
 type AdminClaims struct {
 	Username string `json:"username"`

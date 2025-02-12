@@ -127,7 +127,7 @@ func (s CrudService) UpdateRows(tableName string, filters Filters, row RawRow) (
 	updates, updatesArgs := row.ToUpdateSQL(table, len(whereArgs))
 
 	if len(updates) == 0 {
-		return nil, errors.New("can't update rows with zero valid columns.")
+		return nil, errors.New("can't update rows with zero valid columns")
 	}
 
 	args := append(whereArgs, updatesArgs...)
@@ -185,7 +185,7 @@ func (s CrudService) InsertRow(tableName string, row RawRow) (json.RawMessage, e
 	insertColumns, insertValues, args := row.ToInsertSQL(table, 0)
 
 	if len(insertColumns) == 0 {
-		return nil, errors.New("can't insert row with zero valid columns.")
+		return nil, errors.New("can't insert row with zero valid columns")
 	}
 
 	sql := insertRowSQL.Exec(map[string]any{
@@ -214,7 +214,7 @@ func (s CrudService) DeleteRows(tableName string, filters Filters) (json.RawMess
 	where, args := filters.ToSQL(table)
 
 	if len(where) == 0 {
-		return nil, errors.New("can't delete rows with empty filters.")
+		return nil, errors.New("can't delete rows with empty filters")
 	}
 
 	sql := deleteRowsSQL.Exec(map[string]any{

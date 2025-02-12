@@ -27,8 +27,6 @@ func NewApp(config *Config) *App {
 		os.Exit(1)
 	}
 
-	secretKey := []byte(config.SecretKey)
-
 	logger := config.GetLogger()
 
 	schema, err := NewSchemaRepository(
@@ -58,6 +56,11 @@ func NewApp(config *Config) *App {
 	if err != nil {
 		logger.Error("can't create local storage", "error", err)
 		os.Exit(1)
+	}
+
+	secretKey := []byte(config.SecretKey)
+	if config.isDefaultSecretInUse() {
+		logger.Warn("Defalut SECRET is used. Please set a secure one for prod app")
 	}
 
 	return &App{

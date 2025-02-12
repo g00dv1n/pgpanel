@@ -49,7 +49,7 @@ func ParseSQLFilters(statement string, rawArgs string) SQLFilters {
 	}
 
 	parsedArgs := strings.Split(rawArgs, QueryArgsDelimiter)
-	args := make([]any, len(parsedArgs), len(parsedArgs))
+	args := make([]any, len(parsedArgs))
 
 	for i, v := range parsedArgs {
 		args[i] = v

@@ -12,13 +12,17 @@ import (
 
 const (
 	DefaultSchemaName = "public"
+
+	DefaultSecret = "DO-NOT-USE-IN-PROD"
 )
 
 type Config struct {
 	// required DatabaseUrl or Pool, SecretKey
 	DatabaseUrl string
 	Pool        *pgxpool.Pool
-	SecretKey   string
+
+	// optional but need to be set for prod
+	SecretKey string
 
 	// optional fields
 	Logger           *slog.Logger
@@ -40,7 +44,7 @@ func ParseConfigFromEnv() (*Config, error) {
 	config.SecretKey = os.Getenv("SECRET_KEY")
 
 	if config.SecretKey == "" {
-		return nil, errors.New("empty SECRET_KEY env")
+		config.SecretKey = DefaultSecret
 	}
 
 	config.SchemaName = os.Getenv("SCHEMA_NAME")
@@ -90,6 +94,10 @@ func (c *Config) GetLogger() *slog.Logger {
 	}
 
 	return DefaultLogger()
+}
+
+func (c *Config) isDefaultSecretInUse() bool {
+	return c.SecretKey == DefaultSecret
 }
 
 func DefaultLogger() *slog.Logger {

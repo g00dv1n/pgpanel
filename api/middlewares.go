@@ -7,6 +7,8 @@ import (
 	"github.com/g00dv1n/pgpanel/core"
 )
 
+type adminContextKey string
+
 func AuthMiddleware(app *core.App) ApiMiddleware {
 	return func(next ApiHandler) ApiHandler {
 		return func(w http.ResponseWriter, r *http.Request) error {
@@ -22,7 +24,7 @@ func AuthMiddleware(app *core.App) ApiMiddleware {
 				return NewApiError(http.StatusForbidden, err)
 			}
 
-			return next(w, r.WithContext(context.WithValue(r.Context(), core.AdminContextKey, claims.Username)))
+			return next(w, r.WithContext(context.WithValue(r.Context(), adminContextKey("admin"), claims.Username)))
 		}
 	}
 }

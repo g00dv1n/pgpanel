@@ -62,7 +62,7 @@ func MountRoutes(app *core.App, mux *http.ServeMux, ui http.Handler) {
 	for _, route := range routes {
 		var middlewares []ApiMiddleware
 
-		if route.auth == authEnabled {
+		if route.auth {
 			middlewares = append(middlewares, AuthMiddleware(app))
 		}
 
