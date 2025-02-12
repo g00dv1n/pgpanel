@@ -227,7 +227,7 @@ export function RelationsPage() {
           return (
             <Badge variant="outline" className="text-lg" key={rowKey}>
               <div
-                className="mx-2 inline-flex items-center rounded-full p-0.5 hover:bg-black hover:bg-opacity-10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-blue-100 cursor-pointer"
+                className="mx-2 inline-flex items-center rounded-full p-0.5 hover:bg-gray-200 cursor-pointer"
                 aria-label="Remove item"
                 onClick={() => onRowRemove(rowKey)}
               >
