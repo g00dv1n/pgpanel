@@ -121,8 +121,8 @@ export interface PgColumn {
   udtName: string;
   isText: boolean;
   isNullable: boolean;
-  default?: string | null;
-  foreignKey: PgForeignKeyInfo | null;
+  default?: string;
+  foreignKey?: PgForeignKeyInfo;
 }
 
 interface PgForeignKeyInfo {
