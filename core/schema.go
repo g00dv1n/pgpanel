@@ -15,9 +15,9 @@ type Column struct {
 	UdtName      string          `json:"udtName"`
 	IsText       bool            `json:"isText"`
 	IsNullable   bool            `json:"isNullable"`
-	Default      *string         `json:"default"`
+	Default      *string         `json:"default,omitempty"`
 	IsPrimaryKey bool            `json:"isPrimaryKey"`
-	ForeignKey   *ForeignKeyInfo `json:"foreignKey"`
+	ForeignKey   *ForeignKeyInfo `json:"foreignKey,omitempty"`
 }
 
 // Safe name to use in SQL
@@ -234,7 +234,7 @@ func GetTablesFromDB(db *pgxpool.Pool, schemaName string, includedTables []strin
 // Table Settings related structs
 
 type TableSettings struct {
-	ViewLinkPattern        *string             `json:"viewLinkPattern,omitempty"`
+	ViewLinkPattern        string              `json:"viewLinkPattern,omitzero"`
 	TableViewHiddenColumns []string            `json:"tableViewHiddenColumns,omitempty"`
 	OverriddenInputs       OverriddenInputsMap `json:"overriddenInputs,omitempty"`
 	Relations              []RelationsConfig   `json:"relations,omitempty"`

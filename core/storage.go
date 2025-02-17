@@ -22,8 +22,8 @@ type StorageFileInfo struct {
 	ModTime     int64  `json:"modTime"`
 	InternalUrl string `json:"internalUrl"`
 
-	UploadKey string `json:"uploadKey,omitempty"`
-	PublicUrl string `json:"publicUrl,omitempty"`
+	UploadKey string `json:"uploadKey,omitzero"`
+	PublicUrl string `json:"publicUrl,omitzero"`
 }
 
 func IsImageFile(fileName string) bool {
