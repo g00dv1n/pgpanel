@@ -35,8 +35,9 @@ func cmdEnvFromConfig(config *pgx.ConnConfig) cmdEnv {
 }
 
 type ExportDatabaseOptions struct {
-	Tables   []Table
-	DataOnly bool
+	Tables   []Table `json:"tables"`
+	Clean    bool    `json:"clean"`
+	DataOnly bool    `json:"dataOnly"`
 }
 
 func ExportDatabase(db *pgxpool.Pool, w io.Writer, options ExportDatabaseOptions) error {
@@ -50,11 +51,14 @@ func ExportDatabase(db *pgxpool.Pool, w io.Writer, options ExportDatabaseOptions
 
 	// Construct pg_dump command arguments
 	args := []string{}
+	if options.Clean {
+		args = append(args, "--clean")
+	}
 	if options.DataOnly {
 		args = append(args, "--data-only")
 	}
+
 	for _, table := range options.Tables {
-		// fullTableName := fmt.Sprintf("%s.%s", table.Schema, table.Name)
 		args = append(args, "-t", table.SafeName())
 	}
 	args = append(args, config.Database)

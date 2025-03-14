@@ -1,4 +1,5 @@
 import { AdminRoot, loader as adminRootLoader } from "@/routes/AdminRoot";
+import { BackupPage } from "@/routes/BackupPage";
 import { ErrorPage } from "@/routes/ErrorPage";
 import { LoginPage } from "@/routes/LoginPage";
 import {
@@ -45,6 +46,10 @@ const routes: RouteObject[] = [
         path: "upload",
         element: <UploadPage />,
         loader: filesLoader,
+      },
+      {
+        path: "backup",
+        element: <BackupPage />,
       },
     ],
   },
