@@ -2,8 +2,8 @@ package core
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -39,7 +39,7 @@ type Table struct {
 
 // Safe name to use in SQL
 func (t *Table) SafeName() string {
-	return pgx.Identifier{"public", "products"}.Sanitize()
+	return fmt.Sprintf(`"%s"."%s"`, t.Schema, t.Name)
 }
 
 func (t *Table) SafeColumnNames() []string {
