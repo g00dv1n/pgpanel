@@ -5,7 +5,7 @@ import { alert } from "@/components/ui/global-alert";
 import { downloadBlob } from "@/lib/utils";
 import { useState } from "react";
 
-export function ExportForm() {
+export function ExportDB() {
   const [clean, setClean] = useState(true);
   const [dataOnly, setDataOnly] = useState(false);
 

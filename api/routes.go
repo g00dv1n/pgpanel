@@ -43,8 +43,9 @@ var routes = []routeConfig{
 	{"DELETE /files/{fileName}", deteteFile, authEnabled},
 
 	// Import/Export
-	{"POST /backup/export", exportDatabase, authEnabled},
-	{"POST /backup/import", importDatabase, authEnabled},
+	{"POST /backup/export-db", exportDatabase, authEnabled},
+	{"POST /backup/import-db", importDatabase, authEnabled},
+	{"POST /backup/export-storage", exportStorage, authEnabled},
 
 	// SQL API endpoints
 	{"POST /sql/execute", executeSQLHandler, authEnabled},

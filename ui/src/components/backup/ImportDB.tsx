@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { alert } from "@/components/ui/global-alert";
 import { Input } from "@/components/ui/input";
 
-export function ImportForm() {
+export function ImportDB() {
   const importFile = async (formData: FormData) => {
     const file = formData.get("file");
 

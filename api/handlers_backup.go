@@ -34,3 +34,9 @@ func importDatabase(app *core.App) ApiHandler {
 		return core.ImportDatabase(app.DB, file)
 	}
 }
+
+func exportStorage(app *core.App) ApiHandler {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		return app.Storage.Export(w)
+	}
+}

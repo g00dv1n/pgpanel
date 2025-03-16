@@ -1,22 +1,29 @@
-import { ExportForm } from "@/components/backup/ExportForm";
-import { ImportForm } from "@/components/backup/ImportForm";
+import { ExportDB } from "@/components/backup/ExportDB";
+import { ExportStorage } from "@/components/backup/ExportStorage";
+import { ImportDB } from "@/components/backup/ImportDB";
 import { Separator } from "@/components/ui/separator";
 
 export function BackupPage() {
   return (
     <>
       <title>Backup | pgPanel</title>
-      <h1 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
+      <h2 className="scroll-m-20 pb-2 text-2xl font-semibold tracking-tight first:mt-0">
         Import/Export Database
-      </h1>
+      </h2>
 
       <div className="my-4">
-        <ExportForm />
+        <ExportDB />
       </div>
       <Separator />
 
       <div className="my-4">
-        <ImportForm />
+        <ImportDB />
+      </div>
+      <h2 className="scroll-m-20 pb-2 text-2xl font-semibold tracking-tight first:mt-0 mt-5">
+        Export Storage
+      </h2>
+      <div className="my-2">
+        <ExportStorage />
       </div>
     </>
   );

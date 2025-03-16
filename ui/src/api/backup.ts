@@ -10,7 +10,7 @@ interface ExportDatabaseOptions {
 
 export async function exportDatabase(options: ExportDatabaseOptions) {
   try {
-    const res = await fetch("/api/backup/export", {
+    const res = await fetch("/api/backup/export-db", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${AuthToken.value}`,
@@ -35,7 +35,7 @@ export async function importDatabase(file: File) {
   body.append("file", file);
 
   try {
-    const res = await fetch("/api/backup/import", {
+    const res = await fetch("/api/backup/import-db", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${AuthToken.value}`,
@@ -48,6 +48,27 @@ export async function importDatabase(file: File) {
     } else {
       const error: ApiError = await res.json();
       return { error };
+    }
+  } catch (err) {
+    return { error: defaultError(err) };
+  }
+}
+
+export async function exportStorage() {
+  try {
+    const res = await fetch("/api/backup/export-storage", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${AuthToken.value}`,
+      },
+    });
+
+    if (res.ok) {
+      const fileBlob = await res.blob();
+      return { fileBlob };
+    } else {
+      const jsonRes = await res.json();
+      return { error: jsonRes as ApiError };
     }
   } catch (err) {
     return { error: defaultError(err) };
