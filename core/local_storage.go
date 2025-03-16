@@ -1,6 +1,7 @@
 package core
 
 import (
+	"archive/zip"
 	"fmt"
 	"io"
 	"os"
@@ -101,4 +102,54 @@ func (l *LocalStorage) Get(fileName string) (io.ReadCloser, error) {
 func (l *LocalStorage) Delete(fileName string) error {
 	fullPath := filepath.Join(l.uploadDir, fileName)
 	return os.Remove(fullPath)
+}
+
+func (l *LocalStorage) Export(w io.Writer) error {
+	// Create a new zip writer using the provided io.Writer
+	zipWriter := zip.NewWriter(w)
+	defer zipWriter.Close()
+
+	// Walk through the directory
+	err := filepath.Walk(l.uploadDir, func(filePath string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		// Skip directories (we only want to add files)
+		if info.IsDir() {
+			return nil
+		}
+
+		// Create a zip header based on the file info
+		header, err := zip.FileInfoHeader(info)
+		if err != nil {
+			return err
+		}
+
+		// Set the name relative to the source directory
+		relPath, err := filepath.Rel(l.uploadDir, filePath)
+		if err != nil {
+			return err
+		}
+		header.Name = relPath
+
+		// Create the file in the zip archive
+		fileWriter, err := zipWriter.CreateHeader(header)
+		if err != nil {
+			return err
+		}
+
+		// Open the source file
+		sourceFile, err := os.Open(filePath)
+		if err != nil {
+			return err
+		}
+		defer sourceFile.Close()
+
+		// Copy the file contents to the zip archive
+		_, err = io.Copy(fileWriter, sourceFile)
+		return err
+	})
+
+	return err
 }

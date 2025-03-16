@@ -13,6 +13,7 @@ type Storage interface {
 	List(directory string) ([]StorageFileInfo, error)
 	Get(fileName string) (io.ReadCloser, error)
 	Delete(fileName string) error
+	Export(w io.Writer) error
 }
 
 type StorageFileInfo struct {
