@@ -43,7 +43,7 @@ const routes: RouteObject[] = [
         element: <SqlPage />,
       },
       {
-        path: "upload",
+        path: "files",
         element: <UploadPage />,
         loader: filesLoader,
       },

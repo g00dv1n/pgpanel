@@ -27,7 +27,7 @@ export function parseQueryRowsParams(url: URL): GetTableRowsParams {
   return { offset, limit, sort, textFilters, filters, filtersArgs };
 }
 
-export function rowsParamsToSearchParams(params: GetTableRowsParams) {
+export function paramsToURLSearchParams(params: Record<string, any>) {
   const searchParams = new URLSearchParams();
 
   for (const [key, val] of Object.entries(params)) {
@@ -44,7 +44,7 @@ export async function getTableRow(
 ) {
   const { textFilters, filters, filtersArgs } = rowParams;
 
-  const s = rowsParamsToSearchParams({
+  const s = paramsToURLSearchParams({
     textFilters,
     filters,
     filtersArgs,
@@ -62,7 +62,7 @@ export async function getTableRows(
   tableName: string,
   rowParams: GetTableRowsParams
 ) {
-  const s = rowsParamsToSearchParams(rowParams);
+  const s = paramsToURLSearchParams(rowParams);
   const { data: rows = [], error } = await fetchApiwithAuth<Row[]>(
     `/api/data/${tableName}?${s}`
   );

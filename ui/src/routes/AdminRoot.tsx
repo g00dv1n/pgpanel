@@ -73,7 +73,7 @@ export function AdminRoot() {
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
-                <NavLink to="/upload">
+                <NavLink to="/files">
                   <Upload />
                   Files Upload
                 </NavLink>
