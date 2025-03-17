@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 )
 
 type LocalStorage struct {
@@ -56,7 +57,7 @@ func (l *LocalStorage) Upload(fileName string, file io.Reader) (*StorageFileInfo
 	return &sfi, nil
 }
 
-func (l *LocalStorage) List(directory string) ([]StorageFileInfo, error) {
+func (l *LocalStorage) List(directory string, pagination Pagination, searchTerm string) ([]StorageFileInfo, error) {
 	fullPath := filepath.Join(l.uploadDir, directory)
 	files, err := os.ReadDir(fullPath)
 	if err != nil {
@@ -64,7 +65,14 @@ func (l *LocalStorage) List(directory string) ([]StorageFileInfo, error) {
 	}
 
 	var fileInfos []StorageFileInfo
+
+	// Filter by search term first (case insensitive)
+	searchTermLower := strings.ToLower(searchTerm)
 	for _, file := range files {
+		if searchTerm != "" && !strings.Contains(strings.ToLower(file.Name()), searchTermLower) {
+			continue
+		}
+
 		fi, err := file.Info()
 		if err != nil {
 			continue
@@ -86,12 +94,22 @@ func (l *LocalStorage) List(directory string) ([]StorageFileInfo, error) {
 		fileInfos = append(fileInfos, sfi)
 	}
 
-	// sort by ModTime DESC
+	if pagination.Offset >= len(fileInfos) {
+		return []StorageFileInfo{}, nil
+	}
+
+	// Sort by ModTime DESC
 	slices.SortFunc(fileInfos, func(a, b StorageFileInfo) int {
 		return int(b.ModTime - a.ModTime)
 	})
 
-	return fileInfos, nil
+	// Apply pagination
+	end := pagination.Offset + pagination.Limit
+	if end > len(fileInfos) {
+		end = len(fileInfos)
+	}
+
+	return fileInfos[pagination.Offset:end], nil
 }
 
 func (l *LocalStorage) Get(fileName string) (io.ReadCloser, error) {

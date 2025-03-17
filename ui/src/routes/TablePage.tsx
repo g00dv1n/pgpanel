@@ -2,8 +2,8 @@ import {
   deleteTableRowsByPkeys,
   getTableRows,
   GetTableRowsParams,
+  paramsToURLSearchParams,
   parseQueryRowsParams,
-  rowsParamsToSearchParams,
 } from "@/api/data";
 import { getTableSettings } from "@/api/schema";
 import { useTableSheet } from "@/components/form/table-settings/TableSheet";
@@ -55,7 +55,7 @@ export function TablePage() {
   const navigate = useNavigate();
 
   const onRowsParamsChange = (newParams: GetTableRowsParams) => {
-    const s = rowsParamsToSearchParams(newParams);
+    const s = paramsToURLSearchParams(newParams);
     navigate(`?${s}`);
   };
 

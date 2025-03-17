@@ -3,7 +3,6 @@ import { FileViewDialog } from "@/components/files/FileViewDialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { File } from "lucide-react";
 import { useState } from "react";
-import { Search } from "./Search";
 
 interface ExplorerProps {
   list: StorageFileInfo[];
@@ -12,13 +11,7 @@ interface ExplorerProps {
 }
 
 export function Explorer({ list, selected = [], onSelect }: ExplorerProps) {
-  const [filterQ, setFilterQ] = useState("");
-
   const files = list.filter((fi) => !fi.isDir);
-  const filtredFiles =
-    filterQ.length > 0
-      ? files.filter((fi) => fileNameLike(fi.name, filterQ))
-      : files;
 
   const [viewingFile, setViewingFile] = useState<StorageFileInfo | undefined>();
 
@@ -31,12 +24,8 @@ export function Explorer({ list, selected = [], onSelect }: ExplorerProps) {
         }}
       />
 
-      <div className="w-1/2 my-5">
-        <Search q={filterQ} onSearch={setFilterQ} />
-      </div>
-
       <div className="w-full flex gap-3 flex-wrap">
-        {filtredFiles.map((info) => {
+        {files.map((info) => {
           const isSelected = selected.some((sf) => sf.name === info.name);
 
           return (
@@ -69,9 +58,4 @@ export function Explorer({ list, selected = [], onSelect }: ExplorerProps) {
       </div>
     </div>
   );
-}
-
-function fileNameLike(value: string, query: string): boolean {
-  const regex = new RegExp(query, "i");
-  return regex.test(value);
 }

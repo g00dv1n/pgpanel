@@ -10,7 +10,7 @@ import (
 
 type Storage interface {
 	Upload(fileName string, file io.Reader) (*StorageFileInfo, error)
-	List(directory string) ([]StorageFileInfo, error)
+	List(directory string, pagination Pagination, searchTerm string) ([]StorageFileInfo, error)
 	Get(fileName string) (io.ReadCloser, error)
 	Delete(fileName string) error
 	Export(w io.Writer) error

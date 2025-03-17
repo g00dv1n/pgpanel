@@ -30,7 +30,11 @@ func uploadFileHandler(app *core.App) ApiHandler {
 
 func getFilesListHandler(app *core.App) ApiHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
-		list, err := app.Storage.List(".")
+
+		pagination := core.ParsePaginationFromQuery(r.URL.Query())
+		search := r.URL.Query().Get("search")
+
+		list, err := app.Storage.List(".", pagination, search)
 		if err != nil {
 			return NewApiError(http.StatusBadRequest, err)
 		}

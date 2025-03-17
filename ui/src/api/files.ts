@@ -1,3 +1,4 @@
+import { paramsToURLSearchParams } from "@/api/data";
 import { AuthToken, fetchApiwithAuth } from "@/lib/auth";
 import { ApiError, defaultError } from "@/lib/fetchApi";
 
@@ -38,18 +39,22 @@ export async function uploadFile(file: File) {
   }
 }
 
-interface FilesListParams {
-  directory: string | null | undefined;
-  filter: string | null | undefined;
+export interface FilesListParams {
+  offset: number;
+  limit: number;
+  search?: string;
 }
 
-export async function getFilesList(params?: FilesListParams) {
-  const { directory, filter } = params || {};
+export function parseQueryFileListParams(url: URL): FilesListParams {
+  const offset = Number(url.searchParams.get("offset") || 0);
+  const limit = Number(url.searchParams.get("limit") || 50);
+  const search = url.searchParams.get("search") || undefined;
 
-  const s = new URLSearchParams({
-    directory: directory || ".",
-    filter: filter || "",
-  });
+  return { offset, limit, search };
+}
+
+export async function getFilesList(params: FilesListParams) {
+  const s = paramsToURLSearchParams(params);
 
   const { data: list = [], error } = await fetchApiwithAuth<StorageFileInfo[]>(
     `/api/files/list?${s}`

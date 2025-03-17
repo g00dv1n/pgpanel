@@ -1,11 +1,16 @@
+import { paramsToURLSearchParams } from "@/api/data";
 import {
   deleteFile,
+  FilesListParams,
   getFilesList,
+  parseQueryFileListParams,
   StorageFileInfo,
   uploadFile,
 } from "@/api/files";
 import { Controls } from "@/components/files/Controls";
 import { Explorer } from "@/components/files/Explorer";
+import { Search } from "@/components/files/Search";
+import { Pagination } from "@/components/table/Pagination";
 import { Button } from "@/components/ui/button";
 import { alert } from "@/components/ui/global-alert";
 import { Input } from "@/components/ui/input";
@@ -13,20 +18,21 @@ import { useState } from "react";
 import {
   LoaderFunctionArgs,
   useLoaderData,
+  useNavigate,
   useRevalidator,
 } from "react-router";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
 
-  return getFilesList({
-    directory: url.searchParams.get("directory"),
-    filter: url.searchParams.get("filter"),
-  });
+  const listParams = parseQueryFileListParams(url);
+  const { list, error } = await getFilesList(listParams);
+
+  return { list, error, listParams };
 }
 
 export function UploadPage() {
-  const { list } = useLoaderData<typeof loader>();
+  const { list, listParams } = useLoaderData<typeof loader>();
   const [selectedFiles, setSelectedFiles] = useState<StorageFileInfo[]>([]);
 
   const revalidator = useRevalidator();
@@ -54,6 +60,13 @@ export function UploadPage() {
     revalidator.revalidate();
   };
 
+  const navigate = useNavigate();
+
+  const onListParamsChange = (newParams: FilesListParams) => {
+    const s = paramsToURLSearchParams(newParams);
+    navigate(`?${s}`);
+  };
+
   return (
     <>
       <title>upload | pgPanel</title>
@@ -77,6 +90,30 @@ export function UploadPage() {
             Upload
           </Button>
         </form>
+      </div>
+
+      <div className="flex my-5">
+        <div className="w-1/2">
+          <Search
+            q={listParams.search}
+            onSearch={(q) => {
+              onListParamsChange({ ...listParams, offset: 0, search: q });
+            }}
+          />
+        </div>
+
+        <Pagination
+          tableName=""
+          offset={listParams.offset}
+          limit={listParams.limit}
+          onChange={(offset, limit) => {
+            onListParamsChange({
+              ...listParams,
+              offset,
+              limit,
+            });
+          }}
+        />
       </div>
 
       <Explorer
