@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "update-shadcn-components": "bun run scripts/update-shadcn-components.ts"
+    "update-shadcn-components": "node scripts/update-shadcn-components.ts"
   },
   "dependencies": {
     "@codemirror/lang-sql": "^6.10.0",

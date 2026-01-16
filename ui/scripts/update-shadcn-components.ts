@@ -16,7 +16,7 @@ for (const file of files) {
   }
 
   try {
-    execSync(`npx shadcn@latest add -y -o ${name}`);
+    execSync(`pnpm dlx shadcn@latest add ${name} --yes --overwrite`);
   } catch {
     console.log(`name ${name} skipped`);
   }
