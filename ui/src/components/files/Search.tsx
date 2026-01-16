@@ -23,7 +23,7 @@ export function Search({ q: initQ = "", onSearch }: SearchProps) {
   };
 
   return (
-    <div className="flex flex-shrink-0 items-center gap-1">
+    <div className="flex shrink-0 items-center gap-1">
       <Input
         type="search"
         placeholder="Search by file name"

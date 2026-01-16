@@ -51,7 +51,7 @@ export function Explorer({ list, selected = [], onSelect }: ExplorerProps) {
                 <File className="size-32" />
               )}
 
-              <div className="w-full text-center break-words">{info.name}</div>
+              <div className="w-full text-center wrap-break-word">{info.name}</div>
             </div>
           );
         })}
