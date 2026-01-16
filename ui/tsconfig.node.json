@@ -20,7 +20,7 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
 
-    "types": ["bun"]
+    "types": ["node"]
   },
   "include": ["vite.config.ts"]
 }
