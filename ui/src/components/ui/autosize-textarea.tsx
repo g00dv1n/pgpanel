@@ -1,7 +1,5 @@
-"use client";
 import { cn } from "@/lib/utils";
 import * as React from "react";
-import { useImperativeHandle } from "react";
 
 interface UseAutosizeTextAreaProps {
   textAreaRef: React.RefObject<HTMLTextAreaElement | null>;
@@ -10,12 +8,12 @@ interface UseAutosizeTextAreaProps {
   triggerAutoSize: string;
 }
 
-export const useAutosizeTextArea = ({
+export function useAutosizeTextArea({
   textAreaRef,
   triggerAutoSize,
   maxHeight = Number.MAX_SAFE_INTEGER,
   minHeight = 0,
-}: UseAutosizeTextAreaProps) => {
+}: UseAutosizeTextAreaProps) {
   const [init, setInit] = React.useState(true);
   React.useEffect(() => {
     // We need to reset the height momentarily to get the correct scrollHeight for the textarea
@@ -41,7 +39,7 @@ export const useAutosizeTextArea = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [textAreaRef.current, triggerAutoSize]);
-};
+}
 
 export type AutosizeTextAreaRef = {
   textArea: HTMLTextAreaElement;
@@ -49,62 +47,58 @@ export type AutosizeTextAreaRef = {
   minHeight: number;
 };
 
-type AutosizeTextAreaProps = {
+interface AutosizeTextAreaProps extends Omit<
+  React.ComponentProps<"textarea">,
+  "ref"
+> {
   maxHeight?: number;
   minHeight?: number;
-} & React.TextareaHTMLAttributes<HTMLTextAreaElement>;
+  ref?: React.Ref<AutosizeTextAreaRef>;
+}
 
-export const AutosizeTextarea = React.forwardRef<
-  AutosizeTextAreaRef,
-  AutosizeTextAreaProps
->(
-  (
-    {
-      maxHeight = Number.MAX_SAFE_INTEGER,
-      minHeight = 52,
-      className,
-      onChange,
-      value,
-      ...props
-    }: AutosizeTextAreaProps,
-    ref: React.Ref<AutosizeTextAreaRef>
-  ) => {
-    const textAreaRef = React.useRef<HTMLTextAreaElement | null>(null);
-    const [triggerAutoSize, setTriggerAutoSize] = React.useState("");
+export function AutosizeTextarea({
+  maxHeight = Number.MAX_SAFE_INTEGER,
+  minHeight = 52,
+  className,
+  onChange,
+  value,
+  ref,
+  ...props
+}: AutosizeTextAreaProps) {
+  const textAreaRef = React.useRef<HTMLTextAreaElement | null>(null);
+  const [triggerAutoSize, setTriggerAutoSize] = React.useState("");
 
-    useAutosizeTextArea({
-      textAreaRef,
-      triggerAutoSize: triggerAutoSize,
-      maxHeight,
-      minHeight,
-    });
+  useAutosizeTextArea({
+    textAreaRef,
+    triggerAutoSize: triggerAutoSize,
+    maxHeight,
+    minHeight,
+  });
 
-    useImperativeHandle(ref, () => ({
-      textArea: textAreaRef.current as HTMLTextAreaElement,
-      focus: () => textAreaRef?.current?.focus(),
-      maxHeight,
-      minHeight,
-    }));
+  React.useImperativeHandle(ref, () => ({
+    textArea: textAreaRef.current as HTMLTextAreaElement,
+    focus: () => textAreaRef?.current?.focus(),
+    maxHeight,
+    minHeight,
+  }));
 
-    React.useEffect(() => {
-      setTriggerAutoSize(value as string);
-    }, [props?.defaultValue, value]);
+  React.useEffect(() => {
+    setTriggerAutoSize(value as string);
+  }, [props?.defaultValue, value]);
 
-    return (
-      <textarea
-        {...props}
-        value={value}
-        ref={textAreaRef}
-        className={cn(
-          "flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-          className
-        )}
-        onChange={(e) => {
-          setTriggerAutoSize(e.target.value);
-          onChange?.(e);
-        }}
-      />
-    );
-  }
-);
-AutosizeTextarea.displayName = "AutosizeTextarea";
+  return (
+    <textarea
+      {...props}
+      value={value}
+      ref={textAreaRef}
+      className={cn(
+        "flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+        className,
+      )}
+      onChange={(e) => {
+        setTriggerAutoSize(e.target.value);
+        onChange?.(e);
+      }}
+    />
+  );
+}

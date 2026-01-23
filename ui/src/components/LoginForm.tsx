@@ -4,7 +4,7 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
+  CardTitle
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,12 +18,12 @@ export function LoginForm({ error, onSubmit }: LoginFormProps) {
   const submit = (formData: FormData) => {
     onSubmit({
       username: stringFormField(formData, "username"),
-      password: stringFormField(formData, "password"),
+      password: stringFormField(formData, "password")
     });
   };
 
   return (
-    <Card className="mx-auto max-w-sm">
+    <Card className="mx-auto w-full max-w-sm">
       <CardHeader>
         <CardTitle className="text-2xl text-center">Login</CardTitle>
         <CardDescription>
