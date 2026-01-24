@@ -254,7 +254,6 @@ function Calendar({
   yearRange = 50,
   ...props
 }: DayPickerProps & { yearRange?: number }) {
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const MONTHS = React.useMemo(() => {
     let locale: Pick<Locale, "options" | "localize" | "formatLong"> = enUS;
     const { options, localize, formatLong } = props.locale || {};
@@ -266,9 +265,10 @@ function Calendar({
       };
     }
     return genMonths(locale);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const YEARS = React.useMemo(() => genYears(yearRange), []);
   const disableLeftNavigation = () => {
     const today = new Date();
