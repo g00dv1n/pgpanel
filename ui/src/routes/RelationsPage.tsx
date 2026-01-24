@@ -134,10 +134,10 @@ export function RelationsPage() {
 
   /// calculated arrays for update
   const updatedIds = selectedRows.map((sr) =>
-    mainTableIdKey ? sr.get(mainTableIdKey) : sr.pKey()
+    mainTableIdKey ? sr.get(mainTableIdKey) : sr.pKey(),
   );
   const initIds = initRelatedRows.map((rr) =>
-    mainTableIdKey ? rr.get(mainTableIdKey) : rr.pKey()
+    mainTableIdKey ? rr.get(mainTableIdKey) : rr.pKey(),
   );
 
   const actions = {
@@ -177,7 +177,7 @@ export function RelationsPage() {
     const { error } = await updateRelatedRows(
       relationConfig,
       mainTableRowId,
-      actions
+      actions,
     );
 
     if (error) {
@@ -260,7 +260,6 @@ export function RelationsPage() {
         </div>
 
         <Pagination
-          tableName={relatedTable.name}
           offset={rowsParams.offset}
           limit={rowsParams.limit}
           onChange={(offset, limit) => {

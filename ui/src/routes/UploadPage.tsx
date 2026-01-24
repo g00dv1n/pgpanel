@@ -103,7 +103,6 @@ export function UploadPage() {
         </div>
 
         <Pagination
-          tableName=""
           offset={listParams.offset}
           limit={listParams.limit}
           onChange={(offset, limit) => {
@@ -124,7 +123,7 @@ export function UploadPage() {
             setSelectedFiles([...selectedFiles, info]);
           } else {
             setSelectedFiles(
-              selectedFiles.filter((sf) => sf.name !== info.name)
+              selectedFiles.filter((sf) => sf.name !== info.name),
             );
           }
         }}
