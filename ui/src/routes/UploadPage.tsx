@@ -15,12 +15,7 @@ import { Button } from "@/components/ui/button";
 import { alert } from "@/components/ui/global-alert";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import {
-  LoaderFunctionArgs,
-  useLoaderData,
-  useNavigate,
-  useRevalidator,
-} from "react-router";
+import { LoaderFunctionArgs, useLoaderData, useNavigate, useRevalidator } from "react-router";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
@@ -122,9 +117,7 @@ export function UploadPage() {
           if (selected) {
             setSelectedFiles([...selectedFiles, info]);
           } else {
-            setSelectedFiles(
-              selectedFiles.filter((sf) => sf.name !== info.name),
-            );
+            setSelectedFiles(selectedFiles.filter((sf) => sf.name !== info.name));
           }
         }}
       />

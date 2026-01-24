@@ -47,10 +47,7 @@ export type AutosizeTextAreaRef = {
   minHeight: number;
 };
 
-interface AutosizeTextAreaProps extends Omit<
-  React.ComponentProps<"textarea">,
-  "ref"
-> {
+interface AutosizeTextAreaProps extends Omit<React.ComponentProps<"textarea">, "ref"> {
   maxHeight?: number;
   minHeight?: number;
   ref?: React.Ref<AutosizeTextAreaRef>;

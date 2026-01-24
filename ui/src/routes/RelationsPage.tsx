@@ -1,9 +1,4 @@
-import {
-  getRelatedRows,
-  getTableRows,
-  GetTableRowsParams,
-  updateRelatedRows,
-} from "@/api/data";
+import { getRelatedRows, getTableRows, GetTableRowsParams, updateRelatedRows } from "@/api/data";
 import { getTableSettings } from "@/api/schema";
 import { CellViewDialog } from "@/components/table/CellViewDialog";
 import { DataTable } from "@/components/table/DataTable";
@@ -174,11 +169,7 @@ export function RelationsPage() {
 
   const revalidator = useRevalidator();
   const onUpdate = async () => {
-    const { error } = await updateRelatedRows(
-      relationConfig,
-      mainTableRowId,
-      actions,
-    );
+    const { error } = await updateRelatedRows(relationConfig, mainTableRowId, actions);
 
     if (error) {
       alert.error(error.message);
@@ -198,19 +189,13 @@ export function RelationsPage() {
       <div className="flex items-center">
         <h1 className="scroll-m-20 pb-2 text-2xl font-semibold tracking-tight first:mt-0">
           Relations {relationsName} for{" "}
-          <NavLink
-            className="text-2xl text-blue-600 underline"
-            to={mainRow.updateLink()}
-          >
+          <NavLink className="text-2xl text-blue-600 underline" to={mainRow.updateLink()}>
             {mainRow.textLabel()}
           </NavLink>
         </h1>
 
         {showUpdateBtn && (
-          <Button
-            className="ml-5 bg-green-500 hover:bg-green-600"
-            onClick={onUpdate}
-          >
+          <Button className="ml-5 bg-green-500 hover:bg-green-600" onClick={onUpdate}>
             Update
           </Button>
         )}
@@ -291,10 +276,7 @@ export function RelationsPage() {
         }}
       />
 
-      <CellViewDialog
-        value={viewCellValue}
-        onClose={() => setViewCellValue(undefined)}
-      />
+      <CellViewDialog value={viewCellValue} onClose={() => setViewCellValue(undefined)} />
     </>
   );
 }

@@ -5,21 +5,13 @@ import { Button } from "@/components/ui/button";
 import { useTable } from "@/hooks/use-tables";
 import { DataRow } from "@/lib/dataRow";
 import { ChevronLeft, ExternalLink } from "lucide-react";
-import {
-  data,
-  LoaderFunctionArgs,
-  useLoaderData,
-  useNavigate,
-  useRevalidator,
-} from "react-router";
+import { data, LoaderFunctionArgs, useLoaderData, useNavigate, useRevalidator } from "react-router";
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const tableName = params.tableName || "";
   const mode: RowMode = params.mode === "update" ? "update" : "insert";
 
-  const { tableSettings, error: settingsError } = await getTableSettings(
-    tableName
-  );
+  const { tableSettings, error: settingsError } = await getTableSettings(tableName);
 
   if (settingsError) {
     throw data(settingsError.message, { status: settingsError.code });
@@ -30,10 +22,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   }
 
   const rowsParams = parseQueryRowsParams(new URL(request.url));
-  const { row: rawRow, error: rowError } = await getTableRow(
-    tableName,
-    rowsParams
-  );
+  const { row: rawRow, error: rowError } = await getTableRow(tableName, rowsParams);
 
   return { tableName, mode, tableSettings, rowsParams, rawRow, rowError };
 }

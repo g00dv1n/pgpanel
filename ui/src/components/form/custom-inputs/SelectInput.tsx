@@ -14,11 +14,7 @@ export interface SelectPayload {
   multi?: boolean;
 }
 
-export function SelectInput({
-  commonProps,
-  payload,
-  onChange,
-}: CustomInputProps<SelectPayload>) {
+export function SelectInput({ commonProps, payload, onChange }: CustomInputProps<SelectPayload>) {
   const { options = [], multi = false } = payload || {};
 
   // Single select

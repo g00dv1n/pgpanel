@@ -47,9 +47,7 @@ export function DynamicInputArray({
   type,
   onChange = () => {},
 }: DynamicInputProps) {
-  const [arrayValues, setArrayValues] = useState<any[]>(
-    initialValue ? initialValue : []
-  );
+  const [arrayValues, setArrayValues] = useState<any[]>(initialValue ? initialValue : []);
 
   return (
     <div className="grid gap-3">

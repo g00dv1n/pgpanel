@@ -20,10 +20,7 @@ export function SqlTable({ columns, rows }: SqlTableProps) {
 
   return (
     <>
-      <CellViewDialog
-        value={viewValue}
-        onClose={() => setViewValue(undefined)}
-      />
+      <CellViewDialog value={viewValue} onClose={() => setViewValue(undefined)} />
       <Table className="border">
         <TableHeader>
           <TableRow>

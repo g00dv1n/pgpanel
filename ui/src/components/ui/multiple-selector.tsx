@@ -6,12 +6,7 @@ import * as React from "react";
 import { useEffect } from "react";
 
 import { Badge } from "@/components/ui/badge";
-import {
-  Command,
-  CommandGroup,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+import { Command, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 
 export interface Option {
@@ -132,18 +127,14 @@ function removePickedOption(groupOption: GroupOption, picked: Option[]) {
   const cloneOption = JSON.parse(JSON.stringify(groupOption)) as GroupOption;
 
   for (const [key, value] of Object.entries(cloneOption)) {
-    cloneOption[key] = value.filter(
-      (val) => !picked.find((p) => p.value === val.value),
-    );
+    cloneOption[key] = value.filter((val) => !picked.find((p) => p.value === val.value));
   }
   return cloneOption;
 }
 
 function isOptionsExist(groupOption: GroupOption, targetOption: Option[]) {
   for (const [, value] of Object.entries(groupOption)) {
-    if (
-      value.some((option) => targetOption.find((p) => p.value === option.value))
-    ) {
+    if (value.some((option) => targetOption.find((p) => p.value === option.value))) {
       return true;
     }
   }
@@ -438,14 +429,9 @@ function MultipleSelector({
         handleKeyDown(e);
         commandProps?.onKeyDown?.(e);
       }}
-      className={cn(
-        "h-auto overflow-visible bg-transparent",
-        commandProps?.className,
-      )}
+      className={cn("h-auto overflow-visible bg-transparent", commandProps?.className)}
       shouldFilter={
-        commandProps?.shouldFilter !== undefined
-          ? commandProps.shouldFilter
-          : !onSearch
+        commandProps?.shouldFilter !== undefined ? commandProps.shouldFilter : !onSearch
       } // When onSearch is provided, we don't want to filter the options. You can still override it.
       filter={commandFilter()}
     >
@@ -519,11 +505,7 @@ function MultipleSelector({
               triggerSearchOnFocus && onSearch?.(debouncedSearchTerm);
               inputProps?.onFocus?.(event);
             }}
-            placeholder={
-              hidePlaceholderWhenSelected && selected.length !== 0
-                ? ""
-                : placeholder
-            }
+            placeholder={hidePlaceholderWhenSelected && selected.length !== 0 ? "" : placeholder}
             className={cn(
               "flex-1 bg-transparent outline-hidden placeholder:text-muted-foreground",
               {
@@ -573,15 +555,9 @@ function MultipleSelector({
               <>
                 {EmptyItem()}
                 {CreatableItem()}
-                {!selectFirstItem && (
-                  <CommandItem value="-" className="hidden" />
-                )}
+                {!selectFirstItem && <CommandItem value="-" className="hidden" />}
                 {Object.entries(selectables).map(([key, dropdowns]) => (
-                  <CommandGroup
-                    key={key}
-                    heading={key}
-                    className="h-full overflow-auto"
-                  >
+                  <CommandGroup key={key} heading={key} className="h-full overflow-auto">
                     <>
                       {dropdowns.map((option) => {
                         return (
@@ -605,8 +581,7 @@ function MultipleSelector({
                             }}
                             className={cn(
                               "cursor-pointer",
-                              option.disable &&
-                                "cursor-default text-muted-foreground",
+                              option.disable && "cursor-default text-muted-foreground",
                             )}
                           >
                             {option.label}

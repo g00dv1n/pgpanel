@@ -37,22 +37,17 @@ export function generateViewLink(pattern: string, _row: Row | DataRow) {
 export function generateEditRelationsLink(
   row: Row | DataRow,
   conf: RelationsConfig,
-  joinTable: PgTable
+  joinTable: PgTable,
 ) {
   const mainTableIdKey = getForeignKeyColumnByTable(joinTable, conf.mainTable);
   if (!mainTableIdKey) {
-    throw Error(
-      "Can't get mainTableIdKey. Incorrect RelationsConfig or joinTable"
-    );
+    throw Error("Can't get mainTableIdKey. Incorrect RelationsConfig or joinTable");
   }
 
-  const mainTableRowId =
-    row instanceof DataRow ? row.get(mainTableIdKey) : row[mainTableIdKey];
+  const mainTableRowId = row instanceof DataRow ? row.get(mainTableIdKey) : row[mainTableIdKey];
 
   if (!mainTableRowId) {
-    throw Error(
-      "Can't get mainTableRowId. Incorrect RelationsConfig or joinTable"
-    );
+    throw Error("Can't get mainTableRowId. Incorrect RelationsConfig or joinTable");
   }
 
   const s = new URLSearchParams({
@@ -66,12 +61,9 @@ export function generateEditRelationsLink(
   return `/${conf.mainTable}/relations?${s}`;
 }
 
-function getForeignKeyColumnByTable(
-  joinTable: PgTable,
-  foreignTableName: string
-) {
+function getForeignKeyColumnByTable(joinTable: PgTable, foreignTableName: string) {
   const fkCol = joinTable.columns.find(
-    (col) => col.foreignKey && col.foreignKey.tableName === foreignTableName
+    (col) => col.foreignKey && col.foreignKey.tableName === foreignTableName,
   );
 
   if (!(fkCol && fkCol.foreignKey)) return undefined;

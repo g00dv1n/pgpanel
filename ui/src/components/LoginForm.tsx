@@ -1,11 +1,5 @@
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -18,7 +12,7 @@ export function LoginForm({ error, onSubmit }: LoginFormProps) {
   const submit = (formData: FormData) => {
     onSubmit({
       username: stringFormField(formData, "username"),
-      password: stringFormField(formData, "password")
+      password: stringFormField(formData, "password"),
     });
   };
 
@@ -26,9 +20,7 @@ export function LoginForm({ error, onSubmit }: LoginFormProps) {
     <Card className="mx-auto w-full max-w-sm">
       <CardHeader>
         <CardTitle className="text-2xl text-center">Login</CardTitle>
-        <CardDescription>
-          Enter your username and password below
-        </CardDescription>
+        <CardDescription>Enter your username and password below</CardDescription>
       </CardHeader>
       <CardContent>
         <form className="grid gap-4" action={submit}>

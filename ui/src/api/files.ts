@@ -57,7 +57,7 @@ export async function getFilesList(params: FilesListParams) {
   const s = paramsToURLSearchParams(params);
 
   const { data: list = [], error } = await fetchApiwithAuth<StorageFileInfo[]>(
-    `/api/files/list?${s}`
+    `/api/files/list?${s}`,
   );
   return { list, error };
 }

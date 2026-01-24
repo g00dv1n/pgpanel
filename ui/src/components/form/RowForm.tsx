@@ -36,11 +36,7 @@ export function RowForm({
   const update = async () => {
     if (!row) return;
 
-    const { error, rows } = await updateTableRowByPKeys(
-      table.name,
-      row.pKeys(),
-      updatedRow
-    );
+    const { error, rows } = await updateTableRowByPKeys(table.name, row.pKeys(), updatedRow);
 
     if (error) {
       alert.error(error.message);
@@ -92,15 +88,10 @@ export function RowForm({
     <div className="grid gap-4">
       {table.columns.map((column) => {
         const initialValue = row && row.get(column.name);
-        const { type, isArray, payload } = resolveInputType(
-          column,
-          tableSettings.overriddenInputs
-        );
+        const { type, isArray, payload } = resolveInputType(column, tableSettings.overriddenInputs);
         const notHidden = type !== "hidden";
 
-        const placeholder = column.default
-          ? `DEFAULT: ${column.default}`
-          : "NULL";
+        const placeholder = column.default ? `DEFAULT: ${column.default}` : "NULL";
 
         const required = !(column.isNullable || column.default);
 
@@ -109,8 +100,7 @@ export function RowForm({
             {notHidden && (
               <Label>
                 {required && <span className="text-red-500">* </span>}
-                {column.name}{" "}
-                <code className="text-gray-700 px-2">({column.udtName})</code>
+                {column.name} <code className="text-gray-700 px-2">({column.udtName})</code>
               </Label>
             )}
             <DynamicInput
@@ -132,11 +122,7 @@ export function RowForm({
       <div className="flex flex-col items-start">
         {row &&
           relations.map((conf) => {
-            const link = generateEditRelationsLink(
-              row,
-              conf,
-              getTable(conf.joinTable)
-            );
+            const link = generateEditRelationsLink(row, conf, getTable(conf.joinTable));
 
             return (
               <Button key={link} className="p-0" variant="link" asChild>
@@ -149,12 +135,7 @@ export function RowForm({
       </div>
 
       <div className="flex gap-3 mt-1">
-        <Button
-          size="sm"
-          type="button"
-          disabled={!canSave}
-          onClick={saveChanges}
-        >
+        <Button size="sm" type="button" disabled={!canSave} onClick={saveChanges}>
           Save changes
         </Button>
 

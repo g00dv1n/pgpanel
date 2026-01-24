@@ -11,11 +11,7 @@ interface PaginationProps {
   onChange: (offset: number, limit: number) => void;
 }
 
-export function Pagination({
-  offset: initOffset,
-  limit: initLimit,
-  onChange,
-}: PaginationProps) {
+export function Pagination({ offset: initOffset, limit: initLimit, onChange }: PaginationProps) {
   const isLoaderLoading = useLoaderLoading();
 
   const [offset, setOffset] = useState(initOffset);

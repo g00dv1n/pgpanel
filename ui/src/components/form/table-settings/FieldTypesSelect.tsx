@@ -36,10 +36,7 @@ export function FieldTypesSelect({
     <div className="grid gap-3 items-center my-3">
       {table.columns.map((col) => {
         const { type: autoType } = resolveInputType(col);
-        const { type: selectedType, payload } = resolveInputType(
-          col,
-          overriddenInputs
-        );
+        const { type: selectedType, payload } = resolveInputType(col, overriddenInputs);
 
         const isOverriden = autoType !== selectedType;
 

@@ -16,11 +16,13 @@ export interface SQLExecutionApiResponse {
 export async function executeSQL(query: string, args?: any[]) {
   const body = { query, args };
 
-  const { data: sqlResponse, error } =
-    await fetchApiwithAuth<SQLExecutionResponse>("/api/sql/execute", {
+  const { data: sqlResponse, error } = await fetchApiwithAuth<SQLExecutionResponse>(
+    "/api/sql/execute",
+    {
       method: "POST",
       body: JSON.stringify(body),
-    });
+    },
+  );
 
   if (error) {
     return { error };

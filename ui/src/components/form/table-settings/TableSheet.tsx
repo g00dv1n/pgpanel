@@ -1,9 +1,4 @@
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { PgTable } from "@/lib/pgTypes";
 
 import { TableSettingsForm } from "@/components/form/table-settings/TableSettingsForm";
@@ -34,21 +29,14 @@ export function TableSheet({
         </SheetHeader>
         <div className="pl-6 pr-10 pb-5 max-h-[80vh] min-h-[50vh] overflow-scroll scroll-auto">
           <Separator className="mb-5" />
-          <TableSettingsForm
-            table={table}
-            setttings={tableSettings}
-            onSettingsUpdate={onSuccess}
-          />
+          <TableSettingsForm table={table} setttings={tableSettings} onSettingsUpdate={onSuccess} />
         </div>
       </SheetContent>
     </Sheet>
   );
 }
 
-export type OpenTableSheetProps = Pick<
-  TableSheetProps,
-  "table" | "tableSettings" | "onSuccess"
->;
+export type OpenTableSheetProps = Pick<TableSheetProps, "table" | "tableSettings" | "onSuccess">;
 
 // Define the context type
 interface TableSheetContextType {
@@ -57,16 +45,12 @@ interface TableSheetContextType {
 }
 
 // Create the context
-const TableSheetContext = createContext<TableSheetContextType | undefined>(
-  undefined,
-);
+const TableSheetContext = createContext<TableSheetContextType | undefined>(undefined);
 
 // Provider component
 export function TableSheetProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [sheetProps, setSheetProps] = useState<OpenTableSheetProps | undefined>(
-    undefined,
-  );
+  const [sheetProps, setSheetProps] = useState<OpenTableSheetProps | undefined>(undefined);
 
   const openTableSheet = (props: OpenTableSheetProps) => {
     setSheetProps(props);

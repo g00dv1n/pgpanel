@@ -1,8 +1,4 @@
-import {
-  deleteTableRowsByPkeys,
-  GetTableRowsParams,
-  paramsToURLSearchParams,
-} from "@/api/data";
+import { deleteTableRowsByPkeys, GetTableRowsParams, paramsToURLSearchParams } from "@/api/data";
 import { useTableSheet } from "@/components/form/table-settings/TableSheet";
 import { Controls } from "@/components/table/Controls";
 import { DataTable } from "@/components/table/DataTable";
@@ -78,10 +74,7 @@ export function TableViewManager({
       .filter((r) => selectedRowsKeys.includes(r.uniqueKey()))
       .map((r) => r.pKeys());
 
-    const { error } = await deleteTableRowsByPkeys(
-      tableName,
-      selectedRowsPkeys,
-    );
+    const { error } = await deleteTableRowsByPkeys(tableName, selectedRowsPkeys);
 
     if (error) {
       alert.error(`Can't delete rows: ${error.message}`);
@@ -168,9 +161,7 @@ export function TableViewManager({
       />
 
       {rowsErrorMessage && (
-        <div className="my-5 text-red-600 max-w-[750px]">
-          {rowsErrorMessage}
-        </div>
+        <div className="my-5 text-red-600 max-w-[750px]">{rowsErrorMessage}</div>
       )}
     </>
   );

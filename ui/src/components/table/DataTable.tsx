@@ -101,9 +101,7 @@ export function DataTable({
                   <TableCell
                     className="smart-table-cell"
                     key={cellKey}
-                    onClick={() =>
-                      onRowClick && onRowClick(row, row.get(c.name))
-                    }
+                    onClick={() => onRowClick && onRowClick(row, row.get(c.name))}
                   >
                     {row.getAsString(c.name, maxCellSymbols)}
                   </TableCell>
@@ -129,10 +127,7 @@ function calcAllSelected(rows: DataRow[], selectedKeys: string[]) {
   return true;
 }
 
-function calcMaxCellSymbols(
-  columnsCount: number,
-  baseViewportWidth = 1440,
-): number {
+function calcMaxCellSymbols(columnsCount: number, baseViewportWidth = 1440): number {
   // Minimum width we want to reserve for UI elements (checkboxes, padding, etc)
   const uiElementsWidth = 20;
 

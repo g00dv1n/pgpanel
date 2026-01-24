@@ -10,11 +10,7 @@ export interface PayloadProps {
   onChange: (value: any) => void;
 }
 
-export function Payload({
-  type,
-  value = {},
-  onChange: updatePayload,
-}: PayloadProps) {
+export function Payload({ type, value = {}, onChange: updatePayload }: PayloadProps) {
   switch (type) {
     case "select": {
       const { options = [], multi = false } = value as SelectPayload;

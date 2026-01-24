@@ -5,12 +5,7 @@ interface CellViewDialogProps {
 
 import { AutosizeTextarea } from "@/components/ui/autosize-textarea";
 import { CopyButton } from "@/components/ui/copy-button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export function CellViewDialog({ value = "", onClose }: CellViewDialogProps) {
   const isOpen = value.length > 0;
@@ -28,12 +23,7 @@ export function CellViewDialog({ value = "", onClose }: CellViewDialogProps) {
         <DialogHeader>
           <DialogTitle>Cell View</DialogTitle>
         </DialogHeader>
-        <AutosizeTextarea
-          minHeight={28}
-          maxHeight={800}
-          value={value}
-          readOnly={true}
-        />
+        <AutosizeTextarea minHeight={28} maxHeight={800} value={value} readOnly={true} />
         <CopyButton value={value} label="Copy to clipboard" />
       </DialogContent>
     </Dialog>

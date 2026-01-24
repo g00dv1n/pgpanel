@@ -28,8 +28,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 
 export function TablePage() {
   const loaderData = useLoaderData<typeof loader>();
-  const { tableName, tableSettings, rowsParams, rowsError, rawRows } =
-    loaderData;
+  const { tableName, tableSettings, rowsParams, rowsError, rawRows } = loaderData;
 
   const table = useTable(tableName);
   const rows = DataRow.fromArray(table, rawRows);

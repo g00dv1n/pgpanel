@@ -1,8 +1,5 @@
 import { CustomInputProps } from "@/components/form/custom-inputs/common";
-import {
-  DateTimePicker,
-  DateTimePickerProps,
-} from "@/components/ui/datetime-picker";
+import { DateTimePicker, DateTimePickerProps } from "@/components/ui/datetime-picker";
 
 interface DateTimeInputProps extends CustomInputProps {
   onlyDate?: boolean;

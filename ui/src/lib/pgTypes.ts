@@ -157,11 +157,7 @@ export function fieldToString(value: RowField): string {
     return "NULL"; // Represent null values
   }
 
-  if (
-    typeof value === "string" ||
-    typeof value === "number" ||
-    typeof value === "boolean"
-  ) {
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
     return value.toString(); // Convert primitive types to strings
   }
 

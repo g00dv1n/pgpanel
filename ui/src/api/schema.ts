@@ -9,9 +9,9 @@ interface GetTablesProps {
 export async function getTables(props?: GetTablesProps) {
   const { reload = false } = props || {};
 
-  const { data: tablesMap, error } = await fetchApiwithAuth<
-    Record<string, PgTable>
-  >(`/api/schema/tables?reload=${reload}`);
+  const { data: tablesMap, error } = await fetchApiwithAuth<Record<string, PgTable>>(
+    `/api/schema/tables?reload=${reload}`,
+  );
 
   const tables = tablesMap ? Object.values(tablesMap) : [];
 
@@ -20,7 +20,7 @@ export async function getTables(props?: GetTablesProps) {
 
 export async function getTableSettings(tableName: string) {
   const { data: tableSettings, error } = await fetchApiwithAuth<TableSettings>(
-    `/api/schema/table-settings/${tableName}`
+    `/api/schema/table-settings/${tableName}`,
   );
 
   if (error) {
@@ -30,16 +30,13 @@ export async function getTableSettings(tableName: string) {
   return { tableSettings };
 }
 
-export async function updateTableSettings(
-  tableName: string,
-  updateSettings: any
-) {
+export async function updateTableSettings(tableName: string, updateSettings: any) {
   const { data: tableSettings, error } = await fetchApiwithAuth<TableSettings>(
     `/api/schema/table-settings/${tableName}`,
     {
       method: "PUT",
       body: JSON.stringify(updateSettings),
-    }
+    },
   );
 
   return { tableSettings, error };

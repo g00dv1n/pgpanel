@@ -22,11 +22,7 @@ interface RelationsSelectProps {
   onChange: (relations: RelationsConfig[]) => void;
 }
 
-export function RelationsSelect({
-  mainTable,
-  relations = [],
-  onChange,
-}: RelationsSelectProps) {
+export function RelationsSelect({ mainTable, relations = [], onChange }: RelationsSelectProps) {
   const [relationTable, setRelationTable] = useState("");
   const [joinTable, setJoinTable] = useState("");
   const [bidirectional, setBidirectional] = useState(false);
@@ -98,10 +94,7 @@ export function RelationsSelect({
         </Select>
 
         <Label>bidirectional</Label>
-        <Checkbox
-          onCheckedChange={(v) => setBidirectional(v === true)}
-          checked={bidirectional}
-        />
+        <Checkbox onCheckedChange={(v) => setBidirectional(v === true)} checked={bidirectional} />
 
         <Button
           type="button"
