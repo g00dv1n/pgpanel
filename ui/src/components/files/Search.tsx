@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface SearchProps {
   q?: string;
@@ -9,10 +9,6 @@ interface SearchProps {
 
 export function Search({ q: initQ = "", onSearch }: SearchProps) {
   const [q, setQ] = useState(initQ);
-
-  useEffect(() => {
-    setQ(initQ);
-  }, [initQ]);
 
   const onChange = (newQ: string) => {
     setQ(newQ);

@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { PgTable } from "@/lib/pgTypes";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { SqlFiltersInput } from "./SqlFiltersInput";
 
 interface FiltersSearchProps {
@@ -21,10 +21,6 @@ export function FiltersSearch({
 }: FiltersSearchProps) {
   const [q, setQ] = useState(initQ);
   const [sqlMode, setSqlMode] = useState(initsqlMode);
-
-  useEffect(() => {
-    setQ(initQ);
-  }, [initQ]);
 
   const toggleMode = () => {
     setSqlMode(!sqlMode);
