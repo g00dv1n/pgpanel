@@ -23,9 +23,7 @@ export const AutoInputTypes = [
 
 export const ManualInputTypes = ["select", "hidden"] as const;
 
-export type InputType =
-  | (typeof AutoInputTypes)[number]
-  | (typeof ManualInputTypes)[number];
+export type InputType = (typeof AutoInputTypes)[number] | (typeof ManualInputTypes)[number];
 
 export type InputTypeLookup = {
   type: InputType;
@@ -84,10 +82,9 @@ export type OverriddenInputsMap = Record<string, InputTypeLookup>;
 
 export function resolveInputType(
   column: PgColumn,
-  overriddenMap?: OverriddenInputsMap | null
+  overriddenMap?: OverriddenInputsMap | null,
 ): InputTypeLookup {
-  const autodetectedType: InputTypeLookup | undefined =
-    MainPgTypesOidMap[column.OID];
+  const autodetectedType: InputTypeLookup | undefined = MainPgTypesOidMap[column.OID];
   const overriddenType: InputTypeLookup | undefined = overriddenMap
     ? overriddenMap[column.name]
     : undefined;
@@ -100,7 +97,7 @@ export function resolveInputElementByType(
   type: InputType,
   payload: any,
   commonProps: CommonInputProps,
-  onChange: (newVal: any) => void
+  onChange: (newVal: any) => void,
 ) {
   switch (type) {
     case "checkbox": {
@@ -143,13 +140,7 @@ export function resolveInputElementByType(
     }
 
     case "datepicker": {
-      return (
-        <DateTimeInput
-          onlyDate={true}
-          commonProps={commonProps}
-          onChange={onChange}
-        />
-      );
+      return <DateTimeInput onlyDate={true} commonProps={commonProps} onChange={onChange} />;
     }
     case "datetimepicker": {
       return <DateTimeInput commonProps={commonProps} onChange={onChange} />;
@@ -159,22 +150,10 @@ export function resolveInputElementByType(
       return <TimeInput commonProps={commonProps} onChange={onChange} />;
     }
     case "select": {
-      return (
-        <SelectInput
-          commonProps={commonProps}
-          onChange={onChange}
-          payload={payload}
-        />
-      );
+      return <SelectInput commonProps={commonProps} onChange={onChange} payload={payload} />;
     }
     case "hidden":
-      return (
-        <Input
-          type="hidden"
-          name={commonProps.name}
-          value={commonProps.value}
-        />
-      );
+      return <Input type="hidden" name={commonProps.name} value={commonProps.value} />;
   }
 
   return <div>Unsupported type</div>;

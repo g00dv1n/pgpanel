@@ -5,10 +5,7 @@ export interface LoadingButtonProps extends ButtonProps {
   loading?: boolean;
 }
 
-export function LoadingButton({
-  loading = false,
-  ...props
-}: LoadingButtonProps) {
+export function LoadingButton({ loading = false, ...props }: LoadingButtonProps) {
   const disabled = loading ? true : props.disabled;
 
   const hideChildren = loading && props.size === "icon";

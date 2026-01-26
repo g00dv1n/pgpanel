@@ -10,7 +10,6 @@ import {
 import { PgTable, RowField } from "@/lib/pgTypes";
 
 import { DataRow } from "@/lib/dataRow";
-import { useRef } from "react";
 import { ColumnSortable } from "./ColumnSortable";
 
 interface DataTableProps {
@@ -39,37 +38,31 @@ export function DataTable({
   onRowSelect,
   onAllRowsSelect,
 }: DataTableProps) {
-  const tableEl = useRef<HTMLTableElement>(null);
-
   const isAllSelected = calcAllSelected(rows, selectedRows);
   const columns = table.columns.filter((c) => !hiddenColumns.includes(c.name));
 
-  const maxCellSymbols = calcMaxCellSymbols(
-    columns.length,
-    tableEl.current?.clientWidth
-  );
+  const maxCellSymbols = calcMaxCellSymbols(columns.length);
 
   return (
-    <Table className="rounded-md border" ref={tableEl}>
+    <Table className="rounded-md border">
       <TableHeader>
         <TableRow>
           {showSelectAll ? (
             <TableHead>
               <Checkbox
-                className="mr-2"
                 checked={isAllSelected}
                 onCheckedChange={(checked) => {
                   if (onAllRowsSelect) {
                     onAllRowsSelect(
                       rows.map((r) => r.uniqueKey()),
-                      Boolean(checked)
+                      Boolean(checked),
                     );
                   }
                 }}
               />
             </TableHead>
           ) : (
-            <TableHead className="mx-5" />
+            <TableHead />
           )}
           {columns.map((c) => {
             return (
@@ -108,9 +101,7 @@ export function DataTable({
                   <TableCell
                     className="smart-table-cell"
                     key={cellKey}
-                    onClick={() =>
-                      onRowClick && onRowClick(row, row.get(c.name))
-                    }
+                    onClick={() => onRowClick && onRowClick(row, row.get(c.name))}
                   >
                     {row.getAsString(c.name, maxCellSymbols)}
                   </TableCell>
@@ -136,10 +127,7 @@ function calcAllSelected(rows: DataRow[], selectedKeys: string[]) {
   return true;
 }
 
-function calcMaxCellSymbols(
-  columnsCount: number,
-  baseViewportWidth = 1440
-): number {
+function calcMaxCellSymbols(columnsCount: number, baseViewportWidth = 1440): number {
   // Minimum width we want to reserve for UI elements (checkboxes, padding, etc)
   const uiElementsWidth = 20;
 

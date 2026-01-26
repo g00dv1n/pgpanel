@@ -1,11 +1,9 @@
-import { AdminRoot, loader as adminRootLoader } from "@/routes/AdminRoot";
+import { AdminRoot, loader as adminRootLoader } from "@/components/layout/AdminRoot";
+import { LoadingFallback } from "@/components/layout/LoadingFallback";
 import { BackupPage } from "@/routes/BackupPage";
 import { ErrorPage } from "@/routes/ErrorPage";
 import { LoginPage } from "@/routes/LoginPage";
-import {
-  loader as relationsLoader,
-  RelationsPage,
-} from "@/routes/RelationsPage";
+import { loader as relationsLoader, RelationsPage } from "@/routes/RelationsPage";
 import { loader as rowLoader, RowPage } from "@/routes/RowPage";
 import { SqlPage } from "@/routes/SqlPage";
 import { loader as tableLoader, TablePage } from "@/routes/TablePage";
@@ -18,7 +16,7 @@ const routes: RouteObject[] = [
     path: "/",
     element: <AdminRoot />,
     loader: adminRootLoader,
-    hydrateFallbackElement: <></>, // @TODO render some [Loading...] element here
+    hydrateFallbackElement: <LoadingFallback />,
     children: [
       {
         path: ":tableName",

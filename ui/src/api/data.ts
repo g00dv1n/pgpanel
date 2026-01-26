@@ -40,7 +40,7 @@ export function paramsToURLSearchParams(params: Record<string, any>) {
 
 export async function getTableRow(
   tableName: string,
-  rowParams: Pick<GetTableRowsParams, "textFilters" | "filters" | "filtersArgs">
+  rowParams: Pick<GetTableRowsParams, "textFilters" | "filters" | "filtersArgs">,
 ) {
   const { textFilters, filters, filtersArgs } = rowParams;
 
@@ -51,21 +51,14 @@ export async function getTableRow(
     offset: 0,
     limit: 1,
   });
-  const { data: rows = [], error } = await fetchApiwithAuth<Row[]>(
-    `/api/data/${tableName}?${s}`
-  );
+  const { data: rows = [], error } = await fetchApiwithAuth<Row[]>(`/api/data/${tableName}?${s}`);
 
   return { row: rows.at(0), error };
 }
 
-export async function getTableRows(
-  tableName: string,
-  rowParams: GetTableRowsParams
-) {
+export async function getTableRows(tableName: string, rowParams: GetTableRowsParams) {
   const s = paramsToURLSearchParams(rowParams);
-  const { data: rows = [], error } = await fetchApiwithAuth<Row[]>(
-    `/api/data/${tableName}?${s}`
-  );
+  const { data: rows = [], error } = await fetchApiwithAuth<Row[]>(`/api/data/${tableName}?${s}`);
 
   return { rows, error };
 }
@@ -73,56 +66,47 @@ export async function getTableRows(
 export async function updateTableRowByPKeys(
   tableName: string,
   pkeysMap: RowPkeysMap,
-  updateFileds: any
+  updateFileds: any,
 ) {
   const { data: rows = [], error } = await fetchApiwithAuth<Row[]>(
     `/api/data/${tableName}?filters=${pkeysMapToFilters(pkeysMap)}`,
     {
       method: "PUT",
       body: JSON.stringify(updateFileds),
-    }
+    },
   );
 
   return { rows, error };
 }
 
-export async function deleteTableRowsByPkeys(
-  tableName: string,
-  pkeys: RowPkeysMap[]
-) {
+export async function deleteTableRowsByPkeys(tableName: string, pkeys: RowPkeysMap[]) {
   const filters = pkeys.map(pkeysMapToFilters).join(" OR ");
 
   const { data: rows = [], error } = await fetchApiwithAuth<Row[]>(
     `/api/data/${tableName}?filters=${filters}`,
     {
       method: "DELETE",
-    }
+    },
   );
 
   return { rows, error };
 }
 
 export async function insertTableRow(tableName: string, row: any) {
-  const { data: rows = [], error } = await fetchApiwithAuth<Row[]>(
-    `/api/data/${tableName}`,
-    {
-      method: "POST",
-      body: JSON.stringify(row),
-    }
-  );
+  const { data: rows = [], error } = await fetchApiwithAuth<Row[]>(`/api/data/${tableName}`, {
+    method: "POST",
+    body: JSON.stringify(row),
+  });
 
   return { rows, error };
 }
 
-export async function getRelatedRows(
-  relation: RelationsConfig,
-  mainTableRowId: any
-) {
+export async function getRelatedRows(relation: RelationsConfig, mainTableRowId: any) {
   const { relationTable, joinTable } = relation;
   const s = new URLSearchParams({ relationTable, joinTable });
 
   const { data: rows = [], error } = await fetchApiwithAuth<Row[]>(
-    `/api/data/${relation.mainTable}/relations/${mainTableRowId}?${s}`
+    `/api/data/${relation.mainTable}/relations/${mainTableRowId}?${s}`,
   );
 
   return { rows, error };
@@ -131,7 +115,7 @@ export async function getRelatedRows(
 export async function updateRelatedRows(
   relation: RelationsConfig,
   mainTableRowId: any,
-  actions: { addIds: any[]; deleteIds: any[] }
+  actions: { addIds: any[]; deleteIds: any[] },
 ) {
   const { relationTable, joinTable, bidirectional } = relation;
   const s = new URLSearchParams({
@@ -145,7 +129,7 @@ export async function updateRelatedRows(
     {
       method: "PUT",
       body: JSON.stringify(actions),
-    }
+    },
   );
 
   return { status, error };

@@ -1,7 +1,7 @@
 import { adminLogin } from "@/api/admin";
 import { LoginForm } from "@/components/LoginForm";
 import { alert, GlobalAlert } from "@/components/ui/global-alert";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 
 export function LoginPage() {
@@ -10,12 +10,14 @@ export function LoginPage() {
 
   const authError = searchParams.get("authError");
   const expiredError = authError === "token is expired";
+  const hasAlerted = useRef(false);
 
   useEffect(() => {
-    if (expiredError) {
+    if (expiredError && !hasAlerted.current) {
       alert.error(" Your session has expired. Please log in again.");
+      hasAlerted.current = true;
     }
-  });
+  }, [expiredError]);
 
   const navigate = useNavigate();
 

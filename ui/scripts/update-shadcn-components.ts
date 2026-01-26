@@ -1,10 +1,13 @@
-import { $, Glob } from "bun";
-
-const glob = new Glob("*.tsx");
+import { execSync } from "child_process";
+import { readdir } from "fs/promises";
 
 const ignoreList = ["calendar"];
 
-for await (const file of glob.scan("./src/components/ui/")) {
+const files = await readdir("./src/components/ui/");
+
+for (const file of files) {
+  if (!file.endsWith(".tsx")) continue;
+
   const [name] = file.split(".");
 
   if (ignoreList.includes(name)) {
@@ -13,7 +16,7 @@ for await (const file of glob.scan("./src/components/ui/")) {
   }
 
   try {
-    await $`bunx --bun shadcn@latest add -y -o ${name}`;
+    execSync(`pnpm dlx shadcn@latest add ${name} --yes --overwrite`);
   } catch {
     console.log(`name ${name} skipped`);
   }

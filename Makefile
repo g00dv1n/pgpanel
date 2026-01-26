@@ -1,5 +1,5 @@
 frontend_dir = ui
-frontend_runner = bun
+frontend_runner = pnpm
 bin_name = pgpanel
 
 dev-ui:

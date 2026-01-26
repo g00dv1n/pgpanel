@@ -7,11 +7,7 @@ interface ColumnSortableProps {
   onChange: (newVal: string) => void;
 }
 
-export function ColumnSortable({
-  name,
-  sortValue = [],
-  onChange,
-}: ColumnSortableProps) {
+export function ColumnSortable({ name, sortValue = [], onChange }: ColumnSortableProps) {
   const askValue = name;
   const descValue = `-${name}`;
 

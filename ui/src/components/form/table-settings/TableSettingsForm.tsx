@@ -1,8 +1,5 @@
 import { updateTableSettings } from "@/api/schema";
-import {
-  DynamicInput,
-  DynamicInputProps,
-} from "@/components/form/DynamicInput";
+import { DynamicInput, DynamicInputProps } from "@/components/form/DynamicInput";
 import { FieldTypesSelect } from "@/components/form/table-settings/FieldTypesSelect";
 import { RelationsSelect } from "@/components/form/table-settings/RelationsSelect";
 import { TableViewColumnsSelect } from "@/components/form/table-settings/TableViewColumnsSelect";

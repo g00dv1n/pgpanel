@@ -14,17 +14,14 @@ const LastQueryKey = "pgpanel_lastSqlQuery";
 export function SqlPage() {
   const tables = useTables();
 
-  const [sqlQuery, setSqlQuery] = useState(
-    localStorage.getItem(LastQueryKey) || ""
-  );
+  const [sqlQuery, setSqlQuery] = useState(localStorage.getItem(LastQueryKey) || "");
 
   const [response, setResponse] = useState<SQLExecutionApiResponse>({});
   const { sqlResponse, error: sqlError } = response;
 
   const [isExecuting, startTransition] = useTransition();
 
-  const showTable =
-    sqlResponse && sqlResponse.columns.length > 0 && !isExecuting;
+  const showTable = sqlResponse && sqlResponse.columns.length > 0 && !isExecuting;
 
   const showRowsAffected = sqlResponse && !isExecuting;
 
@@ -45,19 +42,13 @@ export function SqlPage() {
         <h1 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
           SQL Editor
         </h1>
-        <LoadingButton
-          loading={isExecuting}
-          size="icon"
-          variant="outline"
-          onClick={() => run()}
-        >
+        <LoadingButton loading={isExecuting} size="icon" variant="outline" onClick={() => run()}>
           <Play />
         </LoadingButton>
 
         {showRowsAffected && (
           <div>
-            Rows affected:{" "}
-            <span className="text-green-600">{sqlResponse.rowsAffected}</span>
+            Rows affected: <span className="text-green-600">{sqlResponse.rowsAffected}</span>
           </div>
         )}
       </div>
@@ -83,15 +74,9 @@ export function SqlPage() {
         />
       </div>
 
-      {showTable && (
-        <SqlTable columns={sqlResponse.columns} rows={sqlResponse.rows} />
-      )}
+      {showTable && <SqlTable columns={sqlResponse.columns} rows={sqlResponse.rows} />}
 
-      {sqlError && (
-        <div className="my-5 text-red-600 max-w-[750px]">
-          {sqlError.message}
-        </div>
-      )}
+      {sqlError && <div className="my-5 text-red-600 max-w-[750px]">{sqlError.message}</div>}
     </>
   );
 }

@@ -1,13 +1,8 @@
 import { TimePicker } from "@/components/ui/datetime-picker";
 import { CustomInputProps } from "./common";
 
-export function TimeInput({
-  commonProps,
-  onChange: changeValue,
-}: CustomInputProps) {
-  const value = commonProps.value
-    ? parsePostgreSQLTime(commonProps.value)
-    : undefined;
+export function TimeInput({ commonProps, onChange: changeValue }: CustomInputProps) {
+  const value = commonProps.value ? parsePostgreSQLTime(commonProps.value) : undefined;
 
   const onChange = (newTime?: Date) => {
     if (newTime) {
@@ -71,10 +66,7 @@ export function parsePostgreSQLTime(timeString: string): Date {
  * @param includeMilliseconds - Whether to include milliseconds (default: true)
  * @returns PostgreSQL TIME formatted string
  */
-export function formatToPostgreSQLTime(
-  date: Date,
-  includeMilliseconds: boolean = true
-): string {
+export function formatToPostgreSQLTime(date: Date, includeMilliseconds: boolean = true): string {
   // Pad single-digit numbers with leading zero
   const pad = (num: number) => num.toString().padStart(2, "0");
 

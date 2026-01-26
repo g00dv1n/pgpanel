@@ -1,18 +1,13 @@
 export type ApiError = { code: number; message: string };
 export type ApiUrl = string | URL;
 
-export type ApiResult<T> =
-  | { data: T; error?: never }
-  | { data?: never; error: ApiError };
+export type ApiResult<T> = { data: T; error?: never } | { data?: never; error: ApiError };
 
 export function defaultError(err: unknown) {
   return { code: 500, message: `Fetch error: ${err}` };
 }
 
-export async function fetchApi<T>(
-  url: ApiUrl,
-  init?: RequestInit
-): Promise<ApiResult<T>> {
+export async function fetchApi<T>(url: ApiUrl, init?: RequestInit): Promise<ApiResult<T>> {
   const defaultInit: RequestInit = {
     ...init,
     headers: {
