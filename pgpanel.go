@@ -25,6 +25,7 @@ const (
 	CmdAdminList   = "admin-list"
 	CmdGenJwt      = "gen-jwt"
 	CmdGenSecret   = "gen-secret"
+	CmdHelp        = "help"
 )
 
 type PgPanel struct {
@@ -120,6 +121,7 @@ func (panel *PgPanel) Serve() {
 }
 
 // ---------------------- COMMANDS -------------------------------
+type commandFunc func([]string) bool
 
 func addAdminCommand(args []string) bool {
 	if len(args) < 2 {
@@ -139,7 +141,7 @@ func addAdminCommand(args []string) bool {
 		return false
 	}
 
-	fmt.Printf("Admin <%s> has been added.\n", username)
+	fmt.Printf("Admin %s has been added.\n", username)
 	return true
 }
 
@@ -159,7 +161,7 @@ func deleteAdminCommand(args []string) bool {
 		return false
 	}
 
-	fmt.Printf("Admin <%s> has been deleted.\n", username)
+	fmt.Printf("Admin %s has been deleted.\n", username)
 	return true
 }
 
@@ -212,21 +214,49 @@ func genSecretCommand(args []string) bool {
 	return true
 }
 
+func helpCommand(args []string) bool {
+	fmt.Println("PgPanel - Universal Postgres Admin Panel")
+	fmt.Println("\nUsage:")
+	fmt.Printf("  pgpanel <command> [arguments]\n")
+	fmt.Println("\nThe commands are:")
+
+	commands := []struct {
+		Name        string
+		Description string
+	}{
+		{CmdServe, "Start ui web server"},
+		{CmdAddAdmin, "<username> <password> - Create a new admin user"},
+		{CmdDeleteAdmin, "<username> - Remove an existing admin user"},
+		{CmdAdminList, "List all registered admin users"},
+		{CmdGenJwt, "Generate a development JWT token"},
+		{CmdGenSecret, "Generate a secure 32-byte secret key"},
+		{CmdHelp, "Show this help message"},
+	}
+
+	for _, cmd := range commands {
+		fmt.Printf("  %-15s %s\n", cmd.Name, cmd.Description)
+	}
+
+	return true
+}
+
 func ProcessCommands() {
 	args := os.Args[1:] // skip bin name
-	// set Serve as default command
-	command := CmdServe
+
+	var command string
 	commandArgs := make([]string, 0)
 
 	if len(args) > 0 {
 		command = args[0]
+	} else {
+		command = CmdHelp // set help command as defaut when called empty
 	}
 
 	if len(args) > 1 {
 		commandArgs = args[1:]
 	}
 
-	commands := make(map[string]func([]string) bool)
+	commands := make(map[string]commandFunc)
 
 	commands[CmdAddAdmin] = addAdminCommand
 	commands[CmdDeleteAdmin] = deleteAdminCommand
@@ -234,6 +264,7 @@ func ProcessCommands() {
 	commands[CmdServe] = serveCommand
 	commands[CmdGenJwt] = genJwtCommand
 	commands[CmdGenSecret] = genSecretCommand
+	commands[CmdHelp] = helpCommand
 
 	if cmd, ok := commands[command]; ok {
 		success := cmd(commandArgs)
