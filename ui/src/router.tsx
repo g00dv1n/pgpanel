@@ -7,6 +7,7 @@ import { loader as relationsLoader, RelationsPage } from "@/routes/RelationsPage
 import { loader as rowLoader, RowPage } from "@/routes/RowPage";
 import { SqlPage } from "@/routes/SqlPage";
 import { loader as tableLoader, TablePage } from "@/routes/TablePage";
+import { loader as tableSettingsLoader, TableSettingsPage } from "@/routes/TableSettingsPage";
 import { loader as filesLoader, UploadPage } from "@/routes/UploadPage";
 
 import { createBrowserRouter, RouteObject } from "react-router";
@@ -23,6 +24,12 @@ const routes: RouteObject[] = [
         element: <TablePage />,
         errorElement: <ErrorPage />,
         loader: tableLoader,
+      },
+      {
+        path: ":tableName/settings",
+        element: <TableSettingsPage />,
+        errorElement: <ErrorPage />,
+        loader: tableSettingsLoader,
       },
       {
         path: ":tableName/row/:mode",

@@ -1,5 +1,4 @@
 import { deleteTableRowsByPkeys, GetTableRowsParams, paramsToURLSearchParams } from "@/api/data";
-import { useTableSheet } from "@/components/form/table-settings/TableSheet";
 import { Controls } from "@/components/table/Controls";
 import { DataTable } from "@/components/table/DataTable";
 import { FiltersSearch } from "@/components/table/FiltersSearch";
@@ -87,13 +86,8 @@ export function TableViewManager({
   //
 
   // Table settings
-  const { openTableSheet } = useTableSheet();
   const openTableSettings = () => {
-    openTableSheet({
-      table,
-      tableSettings,
-      onSuccess: refresh,
-    });
+    return navigate(`/${tableName}/settings`);
   };
 
   return (

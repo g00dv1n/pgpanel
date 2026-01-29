@@ -13,7 +13,7 @@ build-server:
 	@echo "server built ✓"
 
 run-server:
-	@go run cmd/main.go
+	@go run cmd/main.go serve
 
 build: build-ui build-server
 	

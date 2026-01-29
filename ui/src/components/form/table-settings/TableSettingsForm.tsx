@@ -15,6 +15,7 @@ export interface TableSettingsFormProps {
   table: PgTable;
   setttings: TableSettings;
   onSettingsUpdate?: () => void;
+  onCancel?: () => void;
 }
 
 type SettingsField = keyof TableSettings;
@@ -36,6 +37,7 @@ export function TableSettingsForm({
   table,
   setttings: initSettngs,
   onSettingsUpdate = () => {},
+  onCancel = () => {},
 }: TableSettingsFormProps) {
   const [setttings, setSettings] = useState(initSettngs);
 
@@ -111,9 +113,15 @@ export function TableSettingsForm({
         }}
       />
       <Separator className="my-1" />
-      <Button className="ml-auto" size="sm" type="button" onClick={saveChanges}>
-        Save changes
-      </Button>
+
+      <div className="flex gap-3 mt-1">
+        <Button size="sm" type="button" onClick={saveChanges}>
+          Save changes
+        </Button>
+        <Button size="sm" variant="outline" type="button" onClick={onCancel}>
+          Cancel
+        </Button>
+      </div>
     </div>
   );
 }

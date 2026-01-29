@@ -1,5 +1,4 @@
 import { getTables } from "@/api/schema";
-import { TableSheetProvider } from "@/components/form/table-settings/TableSheet";
 import { alert, GlobalAlert } from "@/components/ui/global-alert";
 import { LoadingButton } from "@/components/ui/loading-button";
 import {
@@ -120,9 +119,7 @@ export function AdminRoot() {
       <main className="container overflow-hidden mx-auto flex flex-col min-h-screen py-10 px-4">
         <GlobalAlert />
         <TablesContext.Provider value={tables}>
-          <TableSheetProvider>
-            <Outlet />
-          </TableSheetProvider>
+          <Outlet />
         </TablesContext.Provider>
       </main>
     </SidebarProvider>
