@@ -13,6 +13,7 @@ const LastQueryKey = "pgpanel_lastSqlQuery";
 
 export function SqlPage() {
   const tables = useTables();
+  const autocompleteSqlSchema = buildAutocompleteSqlSchema(tables);
 
   const [sqlQuery, setSqlQuery] = useState(localStorage.getItem(LastQueryKey) || "");
 
@@ -67,7 +68,7 @@ export function SqlPage() {
           extensions={[
             sql({
               dialect: PostgreSQL,
-              schema: buildAutocompleteSqlSchema(tables),
+              schema: autocompleteSqlSchema,
               upperCaseKeywords: true,
             }),
           ]}
