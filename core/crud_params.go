@@ -8,12 +8,13 @@ import (
 )
 
 const (
-	TextFiltersQK = "textFilters"
-	FiltersQK     = "filters"
-	FiltersArgsQK = "filtersArgs"
-	OffsetQK      = "offset"
-	LimitQK       = "limit"
-	SortQK        = "sort"
+	TextFiltersQK     = "textFilters"
+	TextFiltersColsQK = "textFiltersCols"
+	FiltersQK         = "filters"
+	FiltersArgsQK     = "filtersArgs"
+	OffsetQK          = "offset"
+	LimitQK           = "limit"
+	SortQK            = "sort"
 
 	QueryArgsDelimiter = "|"
 
@@ -34,7 +35,12 @@ func ParseFiltersFromQuery(q url.Values) Filters {
 	textFilters := q.Get(TextFiltersQK)
 
 	if len(textFilters) > 0 {
-		return TextSearchFilters{Text: textFilters}
+		var cols []string
+		if colsRaw := q.Get(TextFiltersColsQK); colsRaw != "" {
+			cols = strings.Split(colsRaw, QueryArgsDelimiter)
+		}
+
+		return TextSearchFilters{Text: textFilters, Cols: cols}
 	}
 
 	filters := q.Get(FiltersQK)
@@ -77,15 +83,31 @@ func (f SQLFilters) ToSQL(t *Table) (string, []any) {
 
 type TextSearchFilters struct {
 	Text string
+	Cols []string
 }
 
 func (f TextSearchFilters) ToSQL(t *Table) (string, []any) {
+	var filterCols []Column
 	var textColsExps []string
 
-	for _, col := range t.Columns {
-		if col.IsText {
-			textColsExps = append(textColsExps, fmt.Sprintf(`"%s" ILIKE $1`, col.Name))
+	// use specifed cols or by default use all text cols
+	if len(f.Cols) > 0 {
+		for _, colName := range f.Cols {
+			col, exists := t.GetColumn(colName)
+			if exists {
+				filterCols = append(filterCols, *col)
+			}
 		}
+	} else {
+		for _, col := range t.Columns {
+			if col.IsText {
+				filterCols = append(filterCols, col)
+			}
+		}
+	}
+
+	for _, col := range filterCols {
+		textColsExps = append(textColsExps, fmt.Sprintf(`"%s"::text ILIKE $1`, col.Name))
 	}
 
 	if len(textColsExps) == 0 {

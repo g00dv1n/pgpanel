@@ -7,6 +7,7 @@ export interface GetTableRowsParams {
   limit: number;
   sort?: string[];
   textFilters?: string;
+  textFiltersCols?: string[];
   filters?: string;
   filtersArgs?: string;
 }
@@ -21,10 +22,15 @@ export function parseQueryRowsParams(url: URL): GetTableRowsParams {
   const sort = sortRaw ? sortRaw.split(fieldsDelimiter) : undefined;
 
   const textFilters = url.searchParams.get("textFilters") || undefined;
+  const textFiltersColsRaw = url.searchParams.get("textFiltersCols") || undefined;
+  const textFiltersCols = textFiltersColsRaw
+    ? textFiltersColsRaw.split(fieldsDelimiter)
+    : undefined;
+
   const filters = url.searchParams.get("filters") || undefined;
   const filtersArgs = url.searchParams.get("filtersArgs") || undefined;
 
-  return { offset, limit, sort, textFilters, filters, filtersArgs };
+  return { offset, limit, sort, textFilters, textFiltersCols, filters, filtersArgs };
 }
 
 export function paramsToURLSearchParams(params: Record<string, any>) {
@@ -32,7 +38,8 @@ export function paramsToURLSearchParams(params: Record<string, any>) {
 
   for (const [key, val] of Object.entries(params)) {
     if (val) {
-      searchParams.set(key, val);
+      const valEncoded = Array.isArray(val) ? val.join(fieldsDelimiter) : val;
+      searchParams.set(key, valEncoded);
     }
   }
   return searchParams;
