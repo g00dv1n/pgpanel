@@ -69,7 +69,15 @@ func ValidateJwtToken(tokenString string, secretKey []byte) (*AdminClaims, error
 	return &claims, nil
 }
 
+const CookieName = "session"
+
 func ExtractBearerToken(r *http.Request) (string, error) {
+	// try to extract token from cookies first
+	cookie, err := r.Cookie(CookieName)
+	if err == nil && cookie.Value != "" {
+		return cookie.Value, nil
+	}
+
 	// Get the Authorization header
 	authHeader := r.Header.Get("Authorization")
 
