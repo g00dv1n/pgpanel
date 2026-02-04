@@ -71,6 +71,7 @@ func ValidateJwtToken(tokenString string, secretKey []byte) (*AdminClaims, error
 
 const CookieName = "session"
 
+// Can extract JWT token from Cookies or Headers
 func ExtractBearerToken(r *http.Request) (string, error) {
 	// try to extract token from cookies first
 	cookie, err := r.Cookie(CookieName)
