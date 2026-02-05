@@ -15,6 +15,9 @@ build-server:
 run-server:
 	@go run cmd/main.go serve
 
+dev-server:
+	@air
+
 build: build-ui build-server
 	
 
