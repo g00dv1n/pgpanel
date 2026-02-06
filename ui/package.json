@@ -6,6 +6,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
     "format:check": "prettier --check ./src",
     "format": "prettier --write ./src",
     "preview": "vite preview",

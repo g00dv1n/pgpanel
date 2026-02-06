@@ -62,6 +62,20 @@ func (t *Table) GetColumn(name string) (*Column, bool) {
 	return nil, false
 }
 
+func (t *Table) GetColumns(names []string) []Column {
+	var cols []Column
+
+	for _, colName := range names {
+		col, exists := t.GetColumn(colName)
+
+		if exists {
+			cols = append(cols, *col)
+		}
+	}
+
+	return cols
+}
+
 func (t *Table) GetForeignKeyColumnByTable(foreignTableName string) (*Column, bool) {
 	for _, col := range t.Columns {
 		fk := col.ForeignKey

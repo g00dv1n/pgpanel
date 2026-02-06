@@ -6,15 +6,18 @@ export interface GetTableRowsParams {
   offset: number;
   limit: number;
   sort?: string[];
+  selectCols?: string[];
   textFilters?: string;
   textFiltersCols?: string[];
   filters?: string;
   filtersArgs?: string;
 }
 
+export type GetTableRowsParamsFrontend = Omit<GetTableRowsParams, "selectCols" | "textFiltersCols">;
+
 const fieldsDelimiter = "|";
 
-export function parseQueryRowsParams(url: URL): GetTableRowsParams {
+export function parseQueryRowsParams(url: URL): GetTableRowsParamsFrontend {
   const offset = Number(url.searchParams.get("offset") || 0);
   const limit = Number(url.searchParams.get("limit") || 50);
 
@@ -22,15 +25,11 @@ export function parseQueryRowsParams(url: URL): GetTableRowsParams {
   const sort = sortRaw ? sortRaw.split(fieldsDelimiter) : undefined;
 
   const textFilters = url.searchParams.get("textFilters") || undefined;
-  const textFiltersColsRaw = url.searchParams.get("textFiltersCols") || undefined;
-  const textFiltersCols = textFiltersColsRaw
-    ? textFiltersColsRaw.split(fieldsDelimiter)
-    : undefined;
 
   const filters = url.searchParams.get("filters") || undefined;
   const filtersArgs = url.searchParams.get("filtersArgs") || undefined;
 
-  return { offset, limit, sort, textFilters, textFiltersCols, filters, filtersArgs };
+  return { offset, limit, sort, textFilters, filters, filtersArgs };
 }
 
 export function paramsToURLSearchParams(params: Record<string, any>) {
