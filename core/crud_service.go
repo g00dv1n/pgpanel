@@ -54,12 +54,6 @@ func (s CrudService) GetRows(tableName string, params *GetRowsParams) (json.RawM
 		return nil, err
 	}
 
-	tableSettings, err := s.schema.GetTableSettings(tableName)
-
-	if err != nil {
-		return nil, err
-	}
-
 	if params == nil {
 		params = DefaultGetRowsParams()
 	}
@@ -72,10 +66,6 @@ func (s CrudService) GetRows(tableName string, params *GetRowsParams) (json.RawM
 	// apply default sorting for consistency
 	if params.Sorting.IsEmpty() {
 		params.Sorting = DefaultTableSorting(table)
-	}
-
-	if params.SelectColumns.IsEmpty() {
-		params.SelectColumns = NewSelectColumnsFromTableSettings(table, tableSettings)
 	}
 
 	selectColumns := params.SelectColumns.ToSQL(table)

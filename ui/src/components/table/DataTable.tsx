@@ -7,18 +7,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PgTable, RowField } from "@/lib/pgTypes";
+import { PgColumn, RowField } from "@/lib/pgTypes";
 
 import { DataRow } from "@/lib/dataRow";
 import { ColumnSortable } from "./ColumnSortable";
 
 interface DataTableProps {
-  table: PgTable;
+  columns: PgColumn[];
   rows: DataRow[];
   showSelectAll?: boolean;
   sortValue?: string[];
   selectedRows?: string[];
-  hiddenColumns?: string[];
 
   onSortChange?: (newSortVal: string) => void;
   onRowClick?: (row: DataRow, rowField: RowField) => void;
@@ -27,19 +26,17 @@ interface DataTableProps {
 }
 
 export function DataTable({
-  table,
+  columns,
   rows,
   sortValue,
   showSelectAll = true,
   selectedRows = [],
-  hiddenColumns = [],
   onSortChange,
   onRowClick,
   onRowSelect,
   onAllRowsSelect,
 }: DataTableProps) {
   const isAllSelected = calcAllSelected(rows, selectedRows);
-  const columns = table.columns.filter((c) => !hiddenColumns.includes(c.name));
 
   const maxCellSymbols = calcMaxCellSymbols(columns.length);
 

@@ -3,7 +3,6 @@ package core
 import (
 	"fmt"
 	"net/url"
-	"slices"
 	"strconv"
 	"strings"
 )
@@ -137,20 +136,6 @@ func ParseSelectColumnsFromQuery(q url.Values) SelectColumns {
 	}
 
 	return SelectColumns(colsParsed)
-}
-
-func NewSelectColumnsFromTableSettings(t *Table, s *TableSettings) SelectColumns {
-	var colNames []string
-
-	for _, col := range t.Columns {
-		if slices.Contains(s.TableViewHiddenColumns, col.Name) {
-			continue
-		}
-
-		colNames = append(colNames, col.Name)
-	}
-
-	return SelectColumns(colNames)
 }
 
 func (c SelectColumns) IsEmpty() bool {

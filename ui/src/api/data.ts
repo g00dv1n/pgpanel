@@ -1,6 +1,6 @@
 import { fetchApiwithAuth } from "@/lib/auth";
 import { Row, RowPkeysMap } from "@/lib/pgTypes";
-import { RelationsConfig } from "@/lib/tableSettings";
+import { RelationsConfig, TableSettings } from "@/lib/tableSettings";
 
 export interface GetTableRowsParams {
   offset: number;
@@ -42,6 +42,17 @@ export function paramsToURLSearchParams(params: Record<string, any>) {
     }
   }
   return searchParams;
+}
+
+export function buildGetTableRowsParamsWithSettings(
+  rowsParams: GetTableRowsParamsFrontend,
+  settings: TableSettings,
+): GetTableRowsParams {
+  return {
+    ...rowsParams,
+    selectCols: settings.tableViewSelectColumns,
+    textFiltersCols: rowsParams.textFilters ? settings.tableViewTextFiltersCols : undefined,
+  };
 }
 
 export async function getTableRow(
