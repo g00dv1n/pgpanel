@@ -4,8 +4,8 @@ import { PgTable, Row } from "@/lib/pgTypes";
 
 export interface TableSettings {
   viewLinkPattern?: string;
-  tableViewSelectColumns?: string[];
-  tableViewTextFiltersCols?: string[];
+  tableViewSelectColumns: string[];
+  tableViewTextFiltersCols: string[];
   overriddenInputs?: OverriddenInputsMap;
   relations?: RelationsConfig[];
 }

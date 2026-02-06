@@ -27,12 +27,10 @@ export function TableViewManager({
   rowsErrorMessage,
 }: TableViewManagerProps) {
   const tableName = table.name;
-  const tableViewSelectColumns = tableSettings.tableViewSelectColumns || [];
 
-  const selectColumns =
-    tableViewSelectColumns.length > 0
-      ? table.columns.filter((c) => tableViewSelectColumns.includes(c.name))
-      : table.columns;
+  const selectColumns = table.columns.filter((c) =>
+    tableSettings.tableViewSelectColumns.includes(c.name),
+  );
 
   const navigate = useNavigate();
 

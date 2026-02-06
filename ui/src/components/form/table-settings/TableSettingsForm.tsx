@@ -74,34 +74,34 @@ export function TableSettingsForm({
     <div className="grid gap-4">
       {renderDynamicInput("viewLinkPattern")}
 
-      <div className="grid gap-2">
-        <Label>Columns to show at table view</Label>
-        <ColumnsSelect
-          columns={table.columns}
-          selected={setttings.tableViewSelectColumns}
-          onChange={(tableViewSelectColumns) => {
-            setSettings({
-              ...setttings,
-              tableViewSelectColumns,
-            });
-          }}
-        />
-      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="grid gap-2">
+          <Label>Columns to show at table view</Label>
+          <ColumnsSelect
+            columns={table.columns}
+            selected={setttings.tableViewSelectColumns}
+            onChange={(tableViewSelectColumns) => {
+              setSettings({
+                ...setttings,
+                tableViewSelectColumns,
+              });
+            }}
+          />
+        </div>
 
-      <div className="grid gap-2">
-        <Label>
-          Columns to use for text search (if zero selected, all text columns will be used)
-        </Label>
-        <ColumnsSelect
-          columns={table.columns}
-          selected={setttings.tableViewTextFiltersCols}
-          onChange={(tableViewTextFiltersCols) => {
-            setSettings({
-              ...setttings,
-              tableViewTextFiltersCols,
-            });
-          }}
-        />
+        <div className="grid gap-2">
+          <Label>Columns to use for text search (default: all text columns)</Label>
+          <ColumnsSelect
+            columns={table.columns}
+            selected={setttings.tableViewTextFiltersCols}
+            onChange={(tableViewTextFiltersCols) => {
+              setSettings({
+                ...setttings,
+                tableViewTextFiltersCols,
+              });
+            }}
+          />
+        </div>
       </div>
 
       <div className="grid gap-2">

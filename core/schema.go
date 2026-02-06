@@ -52,6 +52,16 @@ func (t *Table) SafeColumnNames() []string {
 	return safeNames
 }
 
+func (t *Table) ColumnsNames() []string {
+	names := make([]string, len(t.Columns))
+
+	for i, c := range t.Columns {
+		names[i] = c.Name
+	}
+
+	return names
+}
+
 func (t *Table) GetColumn(name string) (*Column, bool) {
 	for _, col := range t.Columns {
 		if col.Name == name {
@@ -70,6 +80,32 @@ func (t *Table) GetColumns(names []string) []Column {
 
 		if exists {
 			cols = append(cols, *col)
+		}
+	}
+
+	return cols
+}
+
+func (t *Table) GetTextColumns() []Column {
+	var cols []Column
+
+	for _, col := range t.Columns {
+
+		if col.IsText {
+			cols = append(cols, col)
+		}
+	}
+
+	return cols
+}
+
+func (t *Table) GetTextColumnsNames() []string {
+	var cols []string
+
+	for _, col := range t.Columns {
+
+		if col.IsText {
+			cols = append(cols, col.Name)
 		}
 	}
 
