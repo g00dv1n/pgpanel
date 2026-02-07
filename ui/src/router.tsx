@@ -21,7 +21,7 @@ const routes: RouteObject[] = [
     hydrateFallbackElement: <LoadingFallback />,
     children: [
       {
-        path: "",
+        index: true,
         element: <HomePage />,
         loader: homeLoader,
         errorElement: <ErrorPage />,
