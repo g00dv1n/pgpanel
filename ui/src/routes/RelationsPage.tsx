@@ -117,6 +117,10 @@ export function RelationsPage() {
   const mainTable = useTable(relationConfig.mainTable);
   const relatedTable = useTable(relationConfig.relationTable);
 
+  const relatedTableSelectColumns = relatedTable.columns.filter((c) =>
+    tableSettings.tableViewSelectColumns.includes(c.name),
+  );
+
   const mainRow = new DataRow(mainTable, mainRowRaw);
 
   const [rows, setRows] = useState(DataRow.fromArray(relatedTable, rowsRaw));
@@ -258,9 +262,8 @@ export function RelationsPage() {
       </div>
 
       <DataTable
-        table={relatedTable}
+        columns={relatedTableSelectColumns}
         rows={rows}
-        hiddenColumns={tableSettings.tableViewHiddenColumns}
         showSelectAll={false}
         selectedRows={selectedRowsKeys}
         onRowSelect={onRowSelect}
