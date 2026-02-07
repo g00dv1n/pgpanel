@@ -4,19 +4,22 @@ import { PgColumn } from "@/lib/pgTypes";
 
 interface TableViewColumnsSelectProps {
   columns: PgColumn[];
-  hiddenColumns?: string[];
-  onChange?: (hiddenColumns: string[]) => void;
+  selected?: string[];
+  onChange?: (selectColumns: string[]) => void;
 }
 
-export function TableViewColumnsSelect({
+export function ColumnsSelect({
   columns,
-  hiddenColumns = [],
+  selected: selectedInit,
   onChange = () => {},
 }: TableViewColumnsSelectProps) {
+  // if selectedInit is undefined set all cols as selected
+  const selected = selectedInit ?? columns.map((c) => c.name);
+
   return (
     <div className="grid gap-2">
       {columns.map((c) => {
-        const checked = !hiddenColumns.includes(c.name);
+        const checked = selected.includes(c.name);
 
         return (
           <div key={c.name} className="flex items-center space-x-2">
@@ -24,9 +27,9 @@ export function TableViewColumnsSelect({
               checked={checked}
               onCheckedChange={(newChecked) => {
                 if (newChecked) {
-                  onChange(hiddenColumns.filter((cn) => c.name != cn));
+                  onChange([...selected, c.name]);
                 } else {
-                  onChange([...hiddenColumns, c.name]);
+                  onChange(selected.filter((cn) => c.name !== cn));
                 }
               }}
             />

@@ -8,6 +8,7 @@ import (
 )
 
 const (
+	SelectColumnsQK   = "selectCols"
 	TextFiltersQK     = "textFilters"
 	TextFiltersColsQK = "textFiltersCols"
 	FiltersQK         = "filters"
@@ -92,12 +93,7 @@ func (f TextSearchFilters) ToSQL(t *Table) (string, []any) {
 
 	// use specifed cols or by default use all text cols
 	if len(f.Cols) > 0 {
-		for _, colName := range f.Cols {
-			col, exists := t.GetColumn(colName)
-			if exists {
-				filterCols = append(filterCols, *col)
-			}
-		}
+		filterCols = t.GetColumns(f.Cols)
 	} else {
 		for _, col := range t.Columns {
 			if col.IsText {
@@ -118,6 +114,50 @@ func (f TextSearchFilters) ToSQL(t *Table) (string, []any) {
 	sql := "WHERE " + strings.Join(textColsExps, " OR ")
 
 	return sql, []any{pattern}
+}
+
+// ---------------------- Select Columns -------------------------------
+
+// we need to specify which columns we want to get
+// if empty we will use all
+type SelectColumns []string
+
+// ParseColumnsFromQuery extracts requested columns: ?cols=id|name|email
+func ParseSelectColumnsFromQuery(q url.Values) SelectColumns {
+	raw := q.Get(SelectColumnsQK)
+	if raw == "" {
+		return nil
+	}
+
+	colsParsed := strings.Split(raw, QueryArgsDelimiter)
+
+	if len(colsParsed) == 0 {
+		return nil
+	}
+
+	return SelectColumns(colsParsed)
+}
+
+func (c SelectColumns) IsEmpty() bool {
+	return len(c) == 0
+}
+
+// ToSQL validates against the schema and returns the SELECT clause
+func (c SelectColumns) ToSQL(t *Table) string {
+	cols := t.GetColumns(c)
+
+	// use all if empty
+	if len(cols) == 0 {
+		cols = t.Columns
+	}
+
+	var safeNames []string
+
+	for _, col := range cols {
+		safeNames = append(safeNames, col.SafeName())
+	}
+
+	return strings.Join(safeNames, ", ")
 }
 
 // ---------------------- Pagination -------------------------------
@@ -226,24 +266,27 @@ func (s Sorting) ToSQL() string {
 // ---------------------- Composite types -------------------------------
 
 type GetRowsParams struct {
-	Filters    Filters
-	Pagination Pagination
-	Sorting    Sorting
+	SelectColumns SelectColumns
+	Filters       Filters
+	Pagination    Pagination
+	Sorting       Sorting
 }
 
 func DefaultGetRowsParams() *GetRowsParams {
 	return &GetRowsParams{
-		Pagination: Pagination{Limit: DefaultPaginationLimit, Offset: 0},
-		Filters:    SQLFilters{},
-		Sorting:    Sorting{},
+		Pagination:    Pagination{Limit: DefaultPaginationLimit, Offset: 0},
+		Filters:       SQLFilters{},
+		SelectColumns: SelectColumns{},
+		Sorting:       Sorting{},
 	}
 }
 
 // Parse GetRowsParams with combined ParseFiltersFromQuery, ParsePaginationFromQuery, ParseSortingFromQuery
 func ParseGetRowsParamsFromQuery(q url.Values) GetRowsParams {
 	return GetRowsParams{
-		Filters:    ParseFiltersFromQuery(q),
-		Pagination: ParsePaginationFromQuery(q),
-		Sorting:    ParseSortingFromQuery(q),
+		Filters:       ParseFiltersFromQuery(q),
+		SelectColumns: ParseSelectColumnsFromQuery(q),
+		Pagination:    ParsePaginationFromQuery(q),
+		Sorting:       ParseSortingFromQuery(q),
 	}
 }

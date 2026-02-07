@@ -68,7 +68,7 @@ func (s CrudService) GetRows(tableName string, params *GetRowsParams) (json.RawM
 		params.Sorting = DefaultTableSorting(table)
 	}
 
-	selectColumns := strings.Join(table.SafeColumnNames(), ",")
+	selectColumns := params.SelectColumns.ToSQL(table)
 	where, args := params.Filters.ToSQL(table)
 	orderBy := params.Sorting.ToSQL()
 

@@ -1,4 +1,8 @@
-import { getTableRows, parseQueryRowsParams } from "@/api/data";
+import {
+  buildGetTableRowsParamsWithSettings,
+  getTableRows,
+  parseQueryRowsParams,
+} from "@/api/data";
 import { getTableSettings } from "@/api/schema";
 import { TableViewManager } from "@/components/table/TableViewManager";
 import { useTable } from "@/hooks/use-tables";
@@ -11,17 +15,15 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const rowsParams = parseQueryRowsParams(url);
 
-  const [settingsRes, rowsRes] = await Promise.all([
-    getTableSettings(tableName),
-    getTableRows(tableName, rowsParams),
-  ]);
-
-  const { rows: rawRows, error: rowsError } = rowsRes;
-  const { tableSettings, error: settingsError } = settingsRes;
-
+  const { tableSettings, error: settingsError } = await getTableSettings(tableName);
   if (settingsError) {
     throw data(settingsError.message, { status: settingsError.code });
   }
+
+  const { rows: rawRows, error: rowsError } = await getTableRows(
+    tableName,
+    buildGetTableRowsParamsWithSettings(rowsParams, tableSettings),
+  );
 
   return { tableName, tableSettings, rowsParams, rawRows, rowsError };
 }

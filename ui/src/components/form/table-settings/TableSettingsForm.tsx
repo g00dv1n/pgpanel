@@ -1,8 +1,8 @@
 import { updateTableSettings } from "@/api/schema";
 import { DynamicInput, DynamicInputProps } from "@/components/form/DynamicInput";
+import { ColumnsSelect } from "@/components/form/table-settings/ColumnsSelect";
 import { FieldTypesSelect } from "@/components/form/table-settings/FieldTypesSelect";
 import { RelationsSelect } from "@/components/form/table-settings/RelationsSelect";
-import { TableViewColumnsSelect } from "@/components/form/table-settings/TableViewColumnsSelect";
 import { Button } from "@/components/ui/button";
 import { alert } from "@/components/ui/global-alert";
 import { Label } from "@/components/ui/label";
@@ -74,18 +74,34 @@ export function TableSettingsForm({
     <div className="grid gap-4">
       {renderDynamicInput("viewLinkPattern")}
 
-      <div className="grid gap-2">
-        <Label>Column to show at table view</Label>
-        <TableViewColumnsSelect
-          columns={table.columns}
-          hiddenColumns={setttings.tableViewHiddenColumns}
-          onChange={(tableViewHiddenColumns) => {
-            setSettings({
-              ...setttings,
-              tableViewHiddenColumns,
-            });
-          }}
-        />
+      <div className="grid grid-cols-2 gap-2">
+        <div className="grid gap-2">
+          <Label>Columns to show at table view</Label>
+          <ColumnsSelect
+            columns={table.columns}
+            selected={setttings.tableViewSelectColumns}
+            onChange={(tableViewSelectColumns) => {
+              setSettings({
+                ...setttings,
+                tableViewSelectColumns,
+              });
+            }}
+          />
+        </div>
+
+        <div className="grid gap-2">
+          <Label>Columns to use for text search (default: all text columns)</Label>
+          <ColumnsSelect
+            columns={table.columns}
+            selected={setttings.tableViewTextFiltersCols}
+            onChange={(tableViewTextFiltersCols) => {
+              setSettings({
+                ...setttings,
+                tableViewTextFiltersCols,
+              });
+            }}
+          />
+        </div>
       </div>
 
       <div className="grid gap-2">

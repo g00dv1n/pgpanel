@@ -142,7 +142,7 @@ func (r *SchemaRepository) GetSchemaNames() ([]string, error) {
 }
 
 func (r *SchemaRepository) GetTableSettings(tableName string) (*TableSettings, error) {
-	_, err := r.GetTable(tableName)
+	table, err := r.GetTable(tableName)
 
 	if err != nil {
 		return nil, err
@@ -163,6 +163,18 @@ func (r *SchemaRepository) GetTableSettings(tableName string) (*TableSettings, e
 		// skip
 	} else if err != nil {
 		return nil, err
+	}
+
+	// Apply some defaults for the frontend
+
+	// Add all cols if empty
+	if len(result.TableViewSelectColumns) == 0 {
+		result.TableViewSelectColumns = table.ColumnsNames()
+	}
+
+	// Add all text cols if empty
+	if len(result.TableViewTextFiltersCols) == 0 {
+		result.TableViewTextFiltersCols = table.GetTextColumnsNames()
 	}
 
 	return &result, nil

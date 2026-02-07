@@ -52,6 +52,16 @@ func (t *Table) SafeColumnNames() []string {
 	return safeNames
 }
 
+func (t *Table) ColumnsNames() []string {
+	names := make([]string, len(t.Columns))
+
+	for i, c := range t.Columns {
+		names[i] = c.Name
+	}
+
+	return names
+}
+
 func (t *Table) GetColumn(name string) (*Column, bool) {
 	for _, col := range t.Columns {
 		if col.Name == name {
@@ -60,6 +70,46 @@ func (t *Table) GetColumn(name string) (*Column, bool) {
 	}
 
 	return nil, false
+}
+
+func (t *Table) GetColumns(names []string) []Column {
+	var cols []Column
+
+	for _, colName := range names {
+		col, exists := t.GetColumn(colName)
+
+		if exists {
+			cols = append(cols, *col)
+		}
+	}
+
+	return cols
+}
+
+func (t *Table) GetTextColumns() []Column {
+	var cols []Column
+
+	for _, col := range t.Columns {
+
+		if col.IsText {
+			cols = append(cols, col)
+		}
+	}
+
+	return cols
+}
+
+func (t *Table) GetTextColumnsNames() []string {
+	var cols []string
+
+	for _, col := range t.Columns {
+
+		if col.IsText {
+			cols = append(cols, col.Name)
+		}
+	}
+
+	return cols
 }
 
 func (t *Table) GetForeignKeyColumnByTable(foreignTableName string) (*Column, bool) {
@@ -232,12 +282,12 @@ func GetTablesFromDB(db *pgxpool.Pool, schemaName string, includedTables []strin
 }
 
 // Table Settings related structs
-
 type TableSettings struct {
-	ViewLinkPattern        string              `json:"viewLinkPattern,omitzero"`
-	TableViewHiddenColumns []string            `json:"tableViewHiddenColumns,omitempty"`
-	OverriddenInputs       OverriddenInputsMap `json:"overriddenInputs,omitempty"`
-	Relations              []RelationsConfig   `json:"relations,omitempty"`
+	ViewLinkPattern          string              `json:"viewLinkPattern,omitzero"`
+	TableViewSelectColumns   []string            `json:"tableViewSelectColumns,omitempty"`
+	TableViewTextFiltersCols []string            `json:"tableViewTextFiltersCols,omitempty"`
+	OverriddenInputs         OverriddenInputsMap `json:"overriddenInputs,omitempty"`
+	Relations                []RelationsConfig   `json:"relations,omitempty"`
 }
 
 type OverriddenInputsMap map[string]InputTypeLookup

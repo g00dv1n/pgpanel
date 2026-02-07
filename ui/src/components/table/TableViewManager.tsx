@@ -27,7 +27,10 @@ export function TableViewManager({
   rowsErrorMessage,
 }: TableViewManagerProps) {
   const tableName = table.name;
-  const hiddenColumns = tableSettings.tableViewHiddenColumns;
+
+  const selectColumns = table.columns.filter((c) =>
+    tableSettings.tableViewSelectColumns.includes(c.name),
+  );
 
   const navigate = useNavigate();
 
@@ -138,10 +141,9 @@ export function TableViewManager({
       </div>
 
       <DataTable
-        table={table}
+        columns={selectColumns}
         rows={rows}
         sortValue={rowsParams.sort}
-        hiddenColumns={hiddenColumns}
         selectedRows={selectedRowsKeys}
         onSortChange={(newSortVal) => {
           onRowsParamsChange({
