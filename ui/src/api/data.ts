@@ -80,6 +80,17 @@ export async function getTableRows(tableName: string, rowParams: GetTableRowsPar
   return { rows, error };
 }
 
+export async function getTableRowsWithSettings(
+  tableName: string,
+  tableSettings: TableSettings,
+  rowParams: GetTableRowsParams,
+) {
+  const s = paramsToURLSearchParams(buildGetTableRowsParamsWithSettings(rowParams, tableSettings));
+  const { data: rows = [], error } = await fetchApiwithAuth<Row[]>(`/api/data/${tableName}?${s}`);
+
+  return { rows, error };
+}
+
 export async function updateTableRowByPKeys(
   tableName: string,
   pkeysMap: RowPkeysMap,
