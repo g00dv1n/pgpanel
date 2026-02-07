@@ -28,6 +28,8 @@ var routes = []routeConfig{
 	{"GET /schema/table-settings/{table}", getTableSettingsHandler, authEnabled},
 	{"PUT /schema/table-settings/{table}", updateTableSettingsHandler, authEnabled},
 
+	{"GET /schema/stats", getStats, authEnabled},
+
 	// Data REST API endpoints
 	{"GET /data/{table}", getRowsHandler, authEnabled},
 	{"POST /data/{table}", insertRowHandler, authEnabled},

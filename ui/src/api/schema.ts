@@ -1,5 +1,6 @@
 import { fetchApiwithAuth } from "@/lib/auth";
 import { PgTable } from "@/lib/pgTypes";
+import { DatabaseSchemaStats } from "@/lib/schemaStats";
 import { TableSettings } from "@/lib/tableSettings";
 
 interface GetTablesProps {
@@ -40,4 +41,14 @@ export async function updateTableSettings(tableName: string, updateSettings: any
   );
 
   return { tableSettings, error };
+}
+
+export async function getStats() {
+  const { data: stats, error } = await fetchApiwithAuth<DatabaseSchemaStats>(`/api/schema/stats`);
+
+  if (error) {
+    return { error };
+  }
+
+  return { stats };
 }

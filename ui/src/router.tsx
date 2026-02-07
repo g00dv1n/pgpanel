@@ -2,6 +2,7 @@ import { AdminRoot, loader as adminRootLoader } from "@/components/layout/AdminR
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
 import { BackupPage } from "@/routes/BackupPage";
 import { ErrorPage } from "@/routes/ErrorPage";
+import { loader as homeLoader, HomePage } from "@/routes/HomePage";
 import { LoginPage } from "@/routes/LoginPage";
 import { loader as relationsLoader, RelationsPage } from "@/routes/RelationsPage";
 import { loader as rowLoader, RowPage } from "@/routes/RowPage";
@@ -19,6 +20,13 @@ const routes: RouteObject[] = [
     loader: adminRootLoader,
     hydrateFallbackElement: <LoadingFallback />,
     children: [
+      {
+        path: "",
+        element: <HomePage />,
+        loader: homeLoader,
+        errorElement: <ErrorPage />,
+      },
+
       {
         path: ":tableName",
         element: <TablePage />,

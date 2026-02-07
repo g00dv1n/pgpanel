@@ -306,3 +306,14 @@ type RelationsConfig struct {
 	JoinTable     string `json:"joinTable"`     // The table used to join (for many-to-many relationships)
 	Bidirectional bool   `json:"bidirectional"` // Indicates if the relationship is bidirectional (optional)
 }
+
+// DB stats related stuff
+
+type DatabaseSchemaStats struct {
+	DBName      string `json:"dbName"`
+	SchemaName  string `json:"schemaName"`
+	TablesCount int    `json:"tablesCount"`
+	TotalRows   int64  `json:"totalRows"`
+	Size        int64  `json:"size"`       // size in bytes
+	SizePretty  string `json:"sizePretty"` // human-readable
+}

@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 
 	"github.com/jackc/pgx/v5"
@@ -201,4 +202,50 @@ func (r *SchemaRepository) UpdateTableSettings(tableName string, updateSettings 
 	}
 
 	return &result, nil
+}
+
+func (r *SchemaRepository) DBName() string {
+	return r.db.Config().ConnConfig.Database
+}
+
+func (r *SchemaRepository) GetStats() (*DatabaseSchemaStats, error) {
+	var stats DatabaseSchemaStats
+	stats.DBName = r.DBName()
+	stats.SchemaName = r.SchemaName
+
+	querySQL := `
+		WITH table_count AS (
+		    SELECT COUNT(*) as cnt 
+				FROM information_schema.tables 
+		    WHERE table_schema = $1 AND table_type = 'BASE TABLE'
+		),
+		row_stats AS (
+		    SELECT COALESCE(SUM(n_live_tup), 0) as rows 
+				FROM pg_stat_user_tables 
+		    WHERE schemaname = $1
+		),
+		size_stats AS (
+		    SELECT 
+		        COALESCE(SUM(pg_total_relation_size(c.oid)), 0) AS bytes
+		    FROM pg_class c 
+		    JOIN pg_namespace n ON n.oid = c.relnamespace
+		    WHERE n.nspname = $1
+		)
+		SELECT tc.cnt, rs.rows, ss.bytes, pg_size_pretty(ss.bytes)
+		FROM table_count tc, row_stats rs, size_stats ss;
+  `
+
+	// Single round-trip to the DB
+	err := r.db.QueryRow(context.Background(), querySQL, r.SchemaName).Scan(
+		&stats.TablesCount,
+		&stats.TotalRows,
+		&stats.Size,
+		&stats.SizePretty,
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("database stats query failed: %w", err)
+	}
+
+	return &stats, nil
 }

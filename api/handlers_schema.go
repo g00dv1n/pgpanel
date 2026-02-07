@@ -66,3 +66,15 @@ func updateTableSettingsHandler(app *core.App) ApiHandler {
 		return WriteJson(w, settings)
 	}
 }
+
+func getStats(app *core.App) ApiHandler {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		stats, err := app.SchemaRepository.GetStats()
+
+		if err != nil {
+			return NewApiError(http.StatusInternalServerError, err)
+		}
+
+		return WriteJson(w, stats)
+	}
+}
