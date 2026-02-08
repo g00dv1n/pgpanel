@@ -1,11 +1,7 @@
 package core
 
 import (
-	"context"
 	"fmt"
-
-	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Column struct {
@@ -167,118 +163,6 @@ func (m TablesMap) Tables() []*Table {
 	}
 
 	return tables
-}
-
-// Query tables from Postgres with enhanced schema information
-func GetTablesFromDB(db *pgxpool.Pool, schemaName string, includedTables []string) (TablesMap, error) {
-	ctx := context.Background()
-
-	tablesMap := make(TablesMap)
-
-	if len(includedTables) == 0 {
-		// Get all tables
-		rows, err := db.Query(ctx, `
-			SELECT table_name 
-			FROM information_schema.tables 
-			WHERE table_schema = $1 AND table_type = 'BASE TABLE'
-		`, schemaName)
-		if err != nil {
-			return nil, err
-		}
-		defer rows.Close()
-
-		for rows.Next() {
-			var tableName string
-			if err := rows.Scan(&tableName); err != nil {
-				return nil, err
-			}
-			tablesMap[tableName] = &Table{Name: tableName, Schema: schemaName}
-
-		}
-	} else {
-		for _, tableName := range includedTables {
-			tablesMap[tableName] = &Table{Name: tableName, Schema: schemaName}
-		}
-	}
-
-	// Get ALL columns for all tables
-	rows, err := db.Query(ctx, `
-			SELECT 
-					table_name,
-					column_name,
-					udt_name::regtype::oid::int AS oid,
-					udt_name::regtype AS regtype,
-					udt_name,
-					is_nullable = 'YES' AS is_nullable,
-					column_default,
-					(
-						SELECT COUNT(*) > 0 
-						FROM information_schema.key_column_usage kcu
-						JOIN information_schema.table_constraints tc 
-							ON tc.constraint_name = kcu.constraint_name
-						WHERE 
-							tc.table_schema = c.table_schema
-							AND tc.table_name = c.table_name
-							AND tc.constraint_type = 'PRIMARY KEY'
-							AND kcu.column_name = c.column_name
-					) AS is_primary_key,
-					(
-						SELECT json_build_object(
-							'tableName', cl.table_name,
-							'columnName', cl.column_name,
-							'constraintName', fk.constraint_name
-						)
-						FROM information_schema.constraint_column_usage AS cl
-						JOIN information_schema.referential_constraints fk 
-								ON cl.constraint_name = fk.unique_constraint_name 
-								AND cl.constraint_schema = fk.unique_constraint_schema
-						JOIN information_schema.key_column_usage AS kcu
-								ON kcu.constraint_name = fk.constraint_name
-								AND kcu.constraint_schema = fk.constraint_schema
-						WHERE 
-								kcu.table_schema = c.table_schema
-								AND kcu.table_name = c.table_name
-								AND kcu.column_name = c.column_name
-						
-					) AS foreign_key_info
-				FROM 
-					information_schema.columns c
-				WHERE 
-					table_schema = $1 AND table_name = ANY($2)
-				ORDER BY 
-					ordinal_position ASC
-		`, schemaName, tablesMap.Names())
-
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var tableName string
-		var col Column
-
-		if err := rows.Scan(
-			&tableName,
-			&col.Name,
-			&col.OID,
-			&col.RegType,
-			&col.UdtName,
-			&col.IsNullable,
-			&col.Default,
-			&col.IsPrimaryKey,
-			&col.ForeignKey,
-		); err != nil {
-			return nil, err
-		}
-
-		col.IsText = col.OID == pgtype.VarcharOID || col.OID == pgtype.TextOID
-
-		tablesMap[tableName].Columns = append(tablesMap[tableName].Columns, col)
-
-	}
-
-	return tablesMap, nil
 }
 
 // Table Settings related structs
