@@ -165,6 +165,8 @@ func (m TablesMap) Tables() []*Table {
 	return tables
 }
 
+type TableSettingsMap map[string]*TableSettings
+
 // Table Settings related structs
 type TableSettings struct {
 	ViewLinkPattern          string              `json:"viewLinkPattern,omitzero"`

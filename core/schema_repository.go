@@ -18,10 +18,11 @@ var (
 type SchemaRepository struct {
 	SchemaName string
 
-	db             *pgxpool.Pool
-	includedTables []string
-	tablesMap      TablesMap
-	logger         *slog.Logger
+	db               *pgxpool.Pool
+	includedTables   []string
+	tablesMap        TablesMap
+	tableSettingsMap TableSettingsMap
+	logger           *slog.Logger
 }
 
 func NewSchemaRepository(db *pgxpool.Pool, logger *slog.Logger, schemaName string, includedTables []string) (*SchemaRepository, error) {
@@ -32,13 +33,18 @@ func NewSchemaRepository(db *pgxpool.Pool, logger *slog.Logger, schemaName strin
 	r := SchemaRepository{
 		SchemaName: schemaName,
 
-		db:             db,
-		includedTables: includedTables,
-		tablesMap:      make(TablesMap),
-		logger:         logger,
+		db:               db,
+		includedTables:   includedTables,
+		tablesMap:        make(TablesMap),
+		tableSettingsMap: make(TableSettingsMap),
+		logger:           logger,
 	}
 
 	if err := r.loadTablesFromDB(); err != nil {
+		return nil, err
+	}
+
+	if err := r.loadTableSettingsFromDB(); err != nil {
 		return nil, err
 	}
 
@@ -157,6 +163,59 @@ func (r *SchemaRepository) loadTablesFromDB() error {
 	return nil
 }
 
+func (r *SchemaRepository) getTableSettingsFromDB(tableName string) (*TableSettings, error) {
+	table, err := r.GetTable(tableName)
+
+	if err != nil {
+		return nil, err
+	}
+
+	sql := `
+		SELECT config FROM pgpanel.settings
+		WHERE type = 'table_settings' AND key = $1
+		LIMIT 1
+	`
+
+	var result TableSettings
+
+	row := r.db.QueryRow(context.Background(), sql, tableName)
+	err = row.Scan(&result)
+
+	if errors.Is(err, pgx.ErrNoRows) {
+		// skip
+	} else if err != nil {
+		return nil, err
+	}
+
+	// Apply some defaults for the frontend
+
+	// Add all cols if empty
+	if len(result.TableViewSelectColumns) == 0 {
+		result.TableViewSelectColumns = table.ColumnsNames()
+	}
+
+	// Add all text cols if empty
+	if len(result.TableViewTextFiltersCols) == 0 {
+		result.TableViewTextFiltersCols = table.GetTextColumnsNames()
+	}
+
+	return &result, nil
+}
+
+func (r *SchemaRepository) loadTableSettingsFromDB() error {
+	for _, t := range r.tablesMap {
+		settings, err := r.getTableSettingsFromDB(t.Name)
+
+		if err != nil {
+			return err
+		}
+
+		r.tableSettingsMap[t.Name] = settings
+	}
+
+	return nil
+}
+
 func (r *SchemaRepository) GetTablesMap(reloadTables bool) TablesMap {
 	if reloadTables {
 		r.loadTablesFromDB()
@@ -244,42 +303,13 @@ func (r *SchemaRepository) GetSchemaNames() ([]string, error) {
 }
 
 func (r *SchemaRepository) GetTableSettings(tableName string) (*TableSettings, error) {
-	table, err := r.GetTable(tableName)
+	settings := r.tableSettingsMap[tableName]
 
-	if err != nil {
-		return nil, err
+	if settings == nil {
+		return nil, ErrUnknownTable
 	}
 
-	sql := `
-		SELECT config FROM pgpanel.settings
-		WHERE type = 'table_settings' AND key = $1
-		LIMIT 1
-	`
-
-	var result TableSettings
-
-	row := r.db.QueryRow(context.Background(), sql, tableName)
-	err = row.Scan(&result)
-
-	if errors.Is(err, pgx.ErrNoRows) {
-		// skip
-	} else if err != nil {
-		return nil, err
-	}
-
-	// Apply some defaults for the frontend
-
-	// Add all cols if empty
-	if len(result.TableViewSelectColumns) == 0 {
-		result.TableViewSelectColumns = table.ColumnsNames()
-	}
-
-	// Add all text cols if empty
-	if len(result.TableViewTextFiltersCols) == 0 {
-		result.TableViewTextFiltersCols = table.GetTextColumnsNames()
-	}
-
-	return &result, nil
+	return settings, nil
 }
 
 func (r *SchemaRepository) UpdateTableSettings(tableName string, updateSettings map[string]any) (*TableSettings, error) {
@@ -293,7 +323,7 @@ func (r *SchemaRepository) UpdateTableSettings(tableName string, updateSettings 
 		RETURNING config
 	`
 
-	var result TableSettings
+	result := &TableSettings{}
 
 	row := r.db.QueryRow(context.Background(), sql, tableName, updateSettings)
 	err := row.Scan(&result)
@@ -302,7 +332,11 @@ func (r *SchemaRepository) UpdateTableSettings(tableName string, updateSettings 
 		return nil, err
 	}
 
-	return &result, nil
+	// update stored settings map
+	r.tableSettingsMap[tableName] = result
+
+	// and return it as well
+	return result, nil
 }
 
 func (r *SchemaRepository) DBName() string {
