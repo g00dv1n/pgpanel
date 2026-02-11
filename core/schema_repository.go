@@ -18,10 +18,11 @@ var (
 type SchemaRepository struct {
 	SchemaName string
 
-	db             *pgxpool.Pool
-	includedTables []string
-	tablesMap      TablesMap
-	logger         *slog.Logger
+	db               *pgxpool.Pool
+	includedTables   []string
+	tablesMap        TablesMap
+	tableSettingsMap TableSettingsMap
+	logger           *slog.Logger
 }
 
 func NewSchemaRepository(db *pgxpool.Pool, logger *slog.Logger, schemaName string, includedTables []string) (*SchemaRepository, error) {
@@ -32,13 +33,18 @@ func NewSchemaRepository(db *pgxpool.Pool, logger *slog.Logger, schemaName strin
 	r := SchemaRepository{
 		SchemaName: schemaName,
 
-		db:             db,
-		includedTables: includedTables,
-		tablesMap:      make(TablesMap),
-		logger:         logger,
+		db:               db,
+		includedTables:   includedTables,
+		tablesMap:        make(TablesMap),
+		tableSettingsMap: make(TableSettingsMap),
+		logger:           logger,
 	}
 
 	if err := r.loadTablesFromDB(); err != nil {
+		return nil, err
+	}
+
+	if err := r.loadTableSettingsFromDB(); err != nil {
 		return nil, err
 	}
 
@@ -243,7 +249,7 @@ func (r *SchemaRepository) GetSchemaNames() ([]string, error) {
 	return schemas, nil
 }
 
-func (r *SchemaRepository) GetTableSettings(tableName string) (*TableSettings, error) {
+func (r *SchemaRepository) getTableSettingsFromDB(tableName string) (*TableSettings, error) {
 	table, err := r.GetTable(tableName)
 
 	if err != nil {
@@ -282,6 +288,30 @@ func (r *SchemaRepository) GetTableSettings(tableName string) (*TableSettings, e
 	return &result, nil
 }
 
+func (r *SchemaRepository) loadTableSettingsFromDB() error {
+	for _, t := range r.tablesMap {
+		settings, err := r.getTableSettingsFromDB(t.Name)
+
+		if err != nil {
+			return err
+		}
+
+		r.tableSettingsMap[t.Name] = settings
+	}
+
+	return nil
+}
+
+func (r *SchemaRepository) GetTableSettings(tableName string) (*TableSettings, error) {
+	settings := r.tableSettingsMap[tableName]
+
+	if settings == nil {
+		return nil, ErrUnknownTable
+	}
+
+	return settings, nil
+}
+
 func (r *SchemaRepository) UpdateTableSettings(tableName string, updateSettings map[string]any) (*TableSettings, error) {
 	sql := `
 		INSERT INTO pgpanel.settings (type, key, config)
@@ -293,7 +323,7 @@ func (r *SchemaRepository) UpdateTableSettings(tableName string, updateSettings 
 		RETURNING config
 	`
 
-	var result TableSettings
+	result := &TableSettings{}
 
 	row := r.db.QueryRow(context.Background(), sql, tableName, updateSettings)
 	err := row.Scan(&result)
@@ -302,7 +332,11 @@ func (r *SchemaRepository) UpdateTableSettings(tableName string, updateSettings 
 		return nil, err
 	}
 
-	return &result, nil
+	// update stored settings map
+	r.tableSettingsMap[tableName] = result
+
+	// and return it as well
+	return result, nil
 }
 
 func (r *SchemaRepository) DBName() string {
