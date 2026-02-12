@@ -36,6 +36,9 @@ var routes = []routeConfig{
 	{"PUT /data/{table}", updateRowsHandler, authEnabled},
 	{"DELETE /data/{table}", deleteRowsHandler, authEnabled},
 
+	// Get all data to render table view with applied table settings
+	{"GET /data/{table}/table-view", getTableViewHandler, authEnabled},
+
 	{"GET /data/{mainTable}/relations/{mainTableRowId}", getRelatedRowsHandler, authEnabled},
 	{"PUT /data/{mainTable}/relations/{mainTableRowId}", updateRelatedRowsHandler, authEnabled},
 

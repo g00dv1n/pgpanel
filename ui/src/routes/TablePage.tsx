@@ -1,5 +1,4 @@
-import { getTableRowsWithSettings, parseQueryRowsParams } from "@/api/data";
-import { getTableSettings } from "@/api/schema";
+import { getTableView, parseQueryRowsParams } from "@/api/data";
 import { TableViewManager } from "@/components/table/TableViewManager";
 import { useTable } from "@/hooks/use-tables";
 import { DataRow } from "@/lib/dataRow";
@@ -11,23 +10,18 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const rowsParams = parseQueryRowsParams(url);
 
-  const { tableSettings, error: settingsError } = await getTableSettings(tableName);
-  if (settingsError) {
-    throw data(settingsError.message, { status: settingsError.code });
+  const { rows: rawRows, columns, error: rowsError } = await getTableView(tableName, rowsParams);
+
+  if (rowsError && rowsError.code === 404) {
+    throw data(rowsError.message, { status: rowsError.code });
   }
 
-  const { rows: rawRows, error: rowsError } = await getTableRowsWithSettings(
-    tableName,
-    tableSettings,
-    rowsParams,
-  );
-
-  return { tableName, tableSettings, rowsParams, rawRows, rowsError };
+  return { tableName, rowsParams, rawRows, columns, rowsError };
 }
 
 export function TablePage() {
   const loaderData = useLoaderData<typeof loader>();
-  const { tableName, tableSettings, rowsParams, rowsError, rawRows } = loaderData;
+  const { tableName, columns, rowsParams, rowsError, rawRows } = loaderData;
 
   const table = useTable(tableName);
   const rows = DataRow.fromArray(table, rawRows);
@@ -38,7 +32,7 @@ export function TablePage() {
     <TableViewManager
       key={table.name}
       table={table}
-      tableSettings={tableSettings}
+      selectColumns={columns}
       rows={rows}
       rowsParams={rowsParams}
       rowsErrorMessage={rowsError?.message}

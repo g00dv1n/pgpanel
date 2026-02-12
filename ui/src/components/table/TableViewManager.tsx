@@ -5,32 +5,27 @@ import { FiltersSearch } from "@/components/table/FiltersSearch";
 import { Pagination } from "@/components/table/Pagination";
 import { alert } from "@/components/ui/global-alert";
 import { DataRow } from "@/lib/dataRow";
-import { PgTable } from "@/lib/pgTypes";
-import { TableSettings } from "@/lib/tableSettings";
+import { PgColumn, PgTable } from "@/lib/pgTypes";
 import { useState } from "react";
 
 import { useNavigate } from "react-router";
 
 interface TableViewManagerProps {
   table: PgTable;
-  tableSettings: TableSettings;
   rowsParams: GetTableRowsParams;
   rows: DataRow[];
+  selectColumns: PgColumn[];
   rowsErrorMessage?: string;
 }
 
 export function TableViewManager({
   table,
-  tableSettings,
+  selectColumns,
   rowsParams,
   rows,
   rowsErrorMessage,
 }: TableViewManagerProps) {
   const tableName = table.name;
-
-  const selectColumns = table.columns.filter((c) =>
-    tableSettings.tableViewSelectColumns.includes(c.name),
-  );
 
   const navigate = useNavigate();
 

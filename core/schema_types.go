@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"slices"
 )
 
 type Column struct {
@@ -69,17 +70,16 @@ func (t *Table) GetColumn(name string) (*Column, bool) {
 }
 
 func (t *Table) GetColumns(names []string) []Column {
-	var cols []Column
+	var res []Column
 
-	for _, colName := range names {
-		col, exists := t.GetColumn(colName)
-
-		if exists {
-			cols = append(cols, *col)
+	// preserve original cols order
+	for _, col := range t.Columns {
+		if slices.Contains(names, col.Name) {
+			res = append(res, col)
 		}
 	}
 
-	return cols
+	return res
 }
 
 func (t *Table) GetTextColumns() []Column {

@@ -13,7 +13,7 @@ func getRowsHandler(app *core.App) ApiHandler {
 		tableName := r.PathValue("table")
 		params := core.ParseGetRowsParamsFromQuery(r.URL.Query())
 
-		rows, err := app.DataService.GetRows(tableName, &params)
+		rows, err := app.DataService.GetRows(tableName, params)
 
 		if err != nil {
 			return mapDataError(err)
@@ -22,6 +22,22 @@ func getRowsHandler(app *core.App) ApiHandler {
 		return WriteJson(w, rows)
 	}
 }
+
+func getTableViewHandler(app *core.App) ApiHandler {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		tableName := r.PathValue("table")
+		params := core.ParseGetRowsParamsFromQuery(r.URL.Query())
+
+		view, err := app.DataService.GetTableView(tableName, params)
+
+		if err != nil {
+			return mapDataError(err)
+		}
+
+		return WriteJson(w, view)
+	}
+}
+
 func insertRowHandler(app *core.App) ApiHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		tableName := r.PathValue("table")

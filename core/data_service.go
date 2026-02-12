@@ -47,25 +47,11 @@ var getRowsSQL = SqlT(`
 	OFFSET {{.Offset}}
 `)
 
-func (s DataService) GetRows(tableName string, params *GetRowsParams) (json.RawMessage, error) {
+func (s DataService) GetRows(tableName string, params GetRowsParams) (json.RawMessage, error) {
 	table, err := s.schema.GetTable(tableName)
 
 	if err != nil {
 		return nil, err
-	}
-
-	if params == nil {
-		params = DefaultGetRowsParams()
-	}
-
-	// filters can be nil because it is an interface
-	if params.Filters == nil {
-		params.Filters = SQLFilters{}
-	}
-
-	// apply default sorting for consistency
-	if params.Sorting.IsEmpty() {
-		params.Sorting = DefaultTableSorting(table)
 	}
 
 	selectColumns := params.SelectColumns.ToSQL(table)
@@ -401,4 +387,58 @@ func (s DataService) UpdateRelatedRows(relation *RelationsConfig, mainTableRowId
 	}
 
 	return nil
+}
+
+// ---------------------- Composite View Methods -------------------------------
+
+type TableView struct {
+	Rows    json.RawMessage `json:"rows"`
+	Columns []Column        `json:"columns"`
+}
+
+func (s DataService) GetTableView(tableName string, params GetRowsParams) (*TableView, error) {
+	table, err := s.schema.GetTable(tableName)
+
+	if err != nil {
+		return nil, err
+	}
+
+	settings, err := s.schema.GetTableSettings(tableName)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Apply defaults for Table View
+
+	if params.Sorting.IsEmpty() {
+		params.Sorting = DefaultTableSorting(table)
+	}
+
+	if params.Pagination.Limit == 0 {
+		params.Pagination.Limit = DefaultPaginationLimit
+	}
+
+	// apply defaults using saved users settings
+
+	if params.SelectColumns.IsEmpty() {
+		params.SelectColumns = settings.TableViewSelectColumns
+	}
+
+	if params.Filters.TextSearch != nil {
+		params.Filters.TextSearch.Cols = settings.TableViewTextFiltersCols
+	}
+
+	rows, err := s.GetRows(tableName, params)
+
+	if err != nil {
+		return nil, err
+	}
+
+	columns := table.GetColumns(params.SelectColumns)
+
+	return &TableView{
+		Rows:    rows,
+		Columns: columns,
+	}, nil
 }
