@@ -15,7 +15,7 @@ var (
 	ErrUnknownTable = errors.New("unknown table")
 )
 
-type SchemaRepository struct {
+type SchemaService struct {
 	SchemaName string
 
 	db               *pgxpool.Pool
@@ -25,12 +25,12 @@ type SchemaRepository struct {
 	logger           *slog.Logger
 }
 
-func NewSchemaRepository(db *pgxpool.Pool, logger *slog.Logger, schemaName string, includedTables []string) (*SchemaRepository, error) {
+func NewSchemaService(db *pgxpool.Pool, logger *slog.Logger, schemaName string, includedTables []string) (*SchemaService, error) {
 	if schemaName == "" {
 		schemaName = DefaultSchemaName
 	}
 
-	r := SchemaRepository{
+	r := SchemaService{
 		SchemaName: schemaName,
 
 		db:               db,
@@ -51,18 +51,18 @@ func NewSchemaRepository(db *pgxpool.Pool, logger *slog.Logger, schemaName strin
 	return &r, nil
 }
 
-func (r *SchemaRepository) loadTablesFromDB() error {
+func (s *SchemaService) loadTablesFromDB() error {
 	ctx := context.Background()
 
 	tablesMap := make(TablesMap)
 
-	if len(r.includedTables) == 0 {
+	if len(s.includedTables) == 0 {
 		// Get all tables
-		rows, err := r.db.Query(ctx, `
+		rows, err := s.db.Query(ctx, `
 			SELECT table_name 
 			FROM information_schema.tables 
 			WHERE table_schema = $1 AND table_type = 'BASE TABLE'
-		`, r.SchemaName)
+		`, s.SchemaName)
 		if err != nil {
 			return err
 		}
@@ -73,17 +73,17 @@ func (r *SchemaRepository) loadTablesFromDB() error {
 			if err := rows.Scan(&tableName); err != nil {
 				return err
 			}
-			tablesMap[tableName] = &Table{Name: tableName, Schema: r.SchemaName}
+			tablesMap[tableName] = &Table{Name: tableName, Schema: s.SchemaName}
 
 		}
 	} else {
-		for _, tableName := range r.includedTables {
-			tablesMap[tableName] = &Table{Name: tableName, Schema: r.SchemaName}
+		for _, tableName := range s.includedTables {
+			tablesMap[tableName] = &Table{Name: tableName, Schema: s.SchemaName}
 		}
 	}
 
 	// Get ALL columns for all tables
-	rows, err := r.db.Query(ctx, `
+	rows, err := s.db.Query(ctx, `
 			SELECT 
 					table_name,
 					column_name,
@@ -128,7 +128,7 @@ func (r *SchemaRepository) loadTablesFromDB() error {
 					table_schema = $1 AND table_name = ANY($2)
 				ORDER BY 
 					ordinal_position ASC
-		`, r.SchemaName, tablesMap.Names())
+		`, s.SchemaName, tablesMap.Names())
 
 	if err != nil {
 		return err
@@ -159,12 +159,12 @@ func (r *SchemaRepository) loadTablesFromDB() error {
 	}
 
 	// set tableMap if there are no errors
-	r.tablesMap = tablesMap
+	s.tablesMap = tablesMap
 	return nil
 }
 
-func (r *SchemaRepository) getTableSettingsFromDB(tableName string) (*TableSettings, error) {
-	table, err := r.GetTable(tableName)
+func (s *SchemaService) getTableSettingsFromDB(tableName string) (*TableSettings, error) {
+	table, err := s.GetTable(tableName)
 
 	if err != nil {
 		return nil, err
@@ -178,7 +178,7 @@ func (r *SchemaRepository) getTableSettingsFromDB(tableName string) (*TableSetti
 
 	var result TableSettings
 
-	row := r.db.QueryRow(context.Background(), sql, tableName)
+	row := s.db.QueryRow(context.Background(), sql, tableName)
 	err = row.Scan(&result)
 
 	if errors.Is(err, pgx.ErrNoRows) {
@@ -202,30 +202,30 @@ func (r *SchemaRepository) getTableSettingsFromDB(tableName string) (*TableSetti
 	return &result, nil
 }
 
-func (r *SchemaRepository) loadTableSettingsFromDB() error {
-	for _, t := range r.tablesMap {
-		settings, err := r.getTableSettingsFromDB(t.Name)
+func (s *SchemaService) loadTableSettingsFromDB() error {
+	for _, t := range s.tablesMap {
+		settings, err := s.getTableSettingsFromDB(t.Name)
 
 		if err != nil {
 			return err
 		}
 
-		r.tableSettingsMap[t.Name] = settings
+		s.tableSettingsMap[t.Name] = settings
 	}
 
 	return nil
 }
 
-func (r *SchemaRepository) GetTablesMap(reloadTables bool) TablesMap {
+func (s *SchemaService) GetTablesMap(reloadTables bool) TablesMap {
 	if reloadTables {
-		r.loadTablesFromDB()
+		s.loadTablesFromDB()
 	}
 
-	return r.tablesMap
+	return s.tablesMap
 }
 
-func (r *SchemaRepository) GetTable(name string) (*Table, error) {
-	table := r.tablesMap[name]
+func (s *SchemaService) GetTable(name string) (*Table, error) {
+	table := s.tablesMap[name]
 
 	if table == nil {
 		return nil, ErrUnknownTable
@@ -234,7 +234,7 @@ func (r *SchemaRepository) GetTable(name string) (*Table, error) {
 	return table, nil
 }
 
-func (r *SchemaRepository) CreateAdminTables() error {
+func (s *SchemaService) CreateAdminTables() error {
 	sql := `
 		CREATE SCHEMA IF NOT EXISTS pgpanel;
 
@@ -257,19 +257,19 @@ func (r *SchemaRepository) CreateAdminTables() error {
 				updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		);
 	`
-	_, err := r.db.Exec(context.Background(), sql)
+	_, err := s.db.Exec(context.Background(), sql)
 
 	return err
 }
 
-func (r *SchemaRepository) DropAdminTables() error {
+func (s *SchemaService) DropAdminTables() error {
 	sql := "DROP SCHEMA IF EXISTS pgpanel CASCADE"
 
-	_, err := r.db.Exec(context.Background(), sql)
+	_, err := s.db.Exec(context.Background(), sql)
 
 	return err
 }
-func (r *SchemaRepository) GetSchemaNames() ([]string, error) {
+func (s *SchemaService) GetSchemaNames() ([]string, error) {
 	sql := `
 		SELECT nspname 
 		FROM pg_catalog.pg_namespace 
@@ -280,7 +280,7 @@ func (r *SchemaRepository) GetSchemaNames() ([]string, error) {
 		)
 	`
 
-	rows, err := r.db.Query(context.Background(), sql)
+	rows, err := s.db.Query(context.Background(), sql)
 	if err != nil {
 		return nil, err
 	}
@@ -302,8 +302,8 @@ func (r *SchemaRepository) GetSchemaNames() ([]string, error) {
 	return schemas, nil
 }
 
-func (r *SchemaRepository) GetTableSettings(tableName string) (*TableSettings, error) {
-	settings := r.tableSettingsMap[tableName]
+func (s *SchemaService) GetTableSettings(tableName string) (*TableSettings, error) {
+	settings := s.tableSettingsMap[tableName]
 
 	if settings == nil {
 		return nil, ErrUnknownTable
@@ -312,7 +312,7 @@ func (r *SchemaRepository) GetTableSettings(tableName string) (*TableSettings, e
 	return settings, nil
 }
 
-func (r *SchemaRepository) UpdateTableSettings(tableName string, updateSettings map[string]any) (*TableSettings, error) {
+func (s *SchemaService) UpdateTableSettings(tableName string, updateSettings map[string]any) (*TableSettings, error) {
 	sql := `
 		INSERT INTO pgpanel.settings (type, key, config)
 		VALUES ('table_settings', $1, $2)
@@ -325,7 +325,7 @@ func (r *SchemaRepository) UpdateTableSettings(tableName string, updateSettings 
 
 	result := &TableSettings{}
 
-	row := r.db.QueryRow(context.Background(), sql, tableName, updateSettings)
+	row := s.db.QueryRow(context.Background(), sql, tableName, updateSettings)
 	err := row.Scan(&result)
 
 	if err != nil {
@@ -333,20 +333,20 @@ func (r *SchemaRepository) UpdateTableSettings(tableName string, updateSettings 
 	}
 
 	// update stored settings map
-	r.tableSettingsMap[tableName] = result
+	s.tableSettingsMap[tableName] = result
 
 	// and return it as well
 	return result, nil
 }
 
-func (r *SchemaRepository) DBName() string {
-	return r.db.Config().ConnConfig.Database
+func (s *SchemaService) DBName() string {
+	return s.db.Config().ConnConfig.Database
 }
 
-func (r *SchemaRepository) GetStats() (*DatabaseSchemaStats, error) {
+func (s *SchemaService) GetStats() (*DatabaseSchemaStats, error) {
 	var stats DatabaseSchemaStats
-	stats.DBName = r.DBName()
-	stats.SchemaName = r.SchemaName
+	stats.DBName = s.DBName()
+	stats.SchemaName = s.SchemaName
 
 	querySQL := `
 		WITH table_count AS (
@@ -371,7 +371,7 @@ func (r *SchemaRepository) GetStats() (*DatabaseSchemaStats, error) {
   `
 
 	// Single round-trip to the DB
-	err := r.db.QueryRow(context.Background(), querySQL, r.SchemaName).Scan(
+	err := s.db.QueryRow(context.Background(), querySQL, s.SchemaName).Scan(
 		&stats.TablesCount,
 		&stats.TotalRows,
 		&stats.Size,

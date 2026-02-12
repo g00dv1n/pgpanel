@@ -27,7 +27,7 @@ func adminLoginHandler(app *core.App) ApiHandler {
 			return NewApiError(http.StatusBadRequest, err)
 		}
 
-		admin, err := app.AdminRepository.GetAdmin(creds.Username)
+		admin, err := app.AdminService.GetAdmin(creds.Username)
 
 		if err != nil {
 			return NewApiError(http.StatusUnauthorized, errors.New("can't find this admin user"))

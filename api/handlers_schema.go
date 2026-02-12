@@ -12,7 +12,7 @@ func getTablesHandler(app *core.App) ApiHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		reload := r.URL.Query().Get("reload") == "true"
 
-		return WriteJson(w, app.SchemaRepository.GetTablesMap(reload))
+		return WriteJson(w, app.SchemaService.GetTablesMap(reload))
 	}
 }
 
@@ -20,7 +20,7 @@ func getTableHandler(app *core.App) ApiHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		tableName := r.PathValue("table")
 
-		table, err := app.SchemaRepository.GetTable(tableName)
+		table, err := app.SchemaService.GetTable(tableName)
 
 		if err != nil {
 			return NewApiError(http.StatusNotFound, err)
@@ -34,7 +34,7 @@ func getTableSettingsHandler(app *core.App) ApiHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		tableName := r.PathValue("table")
 
-		settings, err := app.SchemaRepository.GetTableSettings(tableName)
+		settings, err := app.SchemaService.GetTableSettings(tableName)
 
 		if err != nil {
 			if errors.Is(err, core.ErrUnknownTable) {
@@ -57,7 +57,7 @@ func updateTableSettingsHandler(app *core.App) ApiHandler {
 			return NewApiError(http.StatusBadRequest, err)
 		}
 
-		settings, err := app.SchemaRepository.UpdateTableSettings(tableName, updateSettings)
+		settings, err := app.SchemaService.UpdateTableSettings(tableName, updateSettings)
 
 		if err != nil {
 			return NewApiError(http.StatusBadRequest, err)
@@ -69,7 +69,7 @@ func updateTableSettingsHandler(app *core.App) ApiHandler {
 
 func getStats(app *core.App) ApiHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
-		stats, err := app.SchemaRepository.GetStats()
+		stats, err := app.SchemaService.GetStats()
 
 		if err != nil {
 			return NewApiError(http.StatusInternalServerError, err)

@@ -133,7 +133,7 @@ func addAdminCommand(args []string) bool {
 	username := args[0]
 	password := args[1]
 
-	err := panel.AdminRepository.AddAdmin(username, password)
+	err := panel.AdminService.AddAdmin(username, password)
 
 	if err != nil {
 		fmt.Println("Can't add admin")
@@ -153,7 +153,7 @@ func deleteAdminCommand(args []string) bool {
 	panel := NewWithEnv()
 
 	username := args[0]
-	err := panel.AdminRepository.DeleteAdmin(username)
+	err := panel.AdminService.DeleteAdmin(username)
 
 	if err != nil {
 		fmt.Println("Can't delete admin")
@@ -167,7 +167,7 @@ func deleteAdminCommand(args []string) bool {
 
 func adminListCommand(args []string) bool {
 	panel := NewWithEnv()
-	list, err := panel.AdminRepository.GetAdminList()
+	list, err := panel.AdminService.GetAdminList()
 
 	if err != nil {
 		fmt.Println("Can't get admin list")

@@ -10,13 +10,15 @@ import (
 
 // Universal App struct to store important state and different helpers
 type App struct {
-	DB               *pgxpool.Pool
-	Logger           *slog.Logger
-	SchemaRepository *SchemaRepository
-	AdminRepository  *AdminRepository
-	CrudService      *CrudService
-	Storage          Storage
-	SecretKey        []byte
+	DB            *pgxpool.Pool
+	Logger        *slog.Logger
+	SchemaService *SchemaService
+	DataService   *DataService
+
+	AdminService *AdminService
+
+	Storage   Storage
+	SecretKey []byte
 }
 
 func NewApp(config *Config) *App {
@@ -29,14 +31,14 @@ func NewApp(config *Config) *App {
 
 	logger := config.GetLogger()
 
-	schema, err := NewSchemaRepository(
+	schema, err := NewSchemaService(
 		pool,
 		logger,
 		config.GetSchemaName(),
 		config.IncludedTables,
 	)
 
-	adminRepo := NewAdminRepository(pool, logger)
+	admin := NewAdminService(pool, logger)
 
 	if err != nil {
 		logger.Error("can't extract tables", "error", err)
@@ -50,7 +52,7 @@ func NewApp(config *Config) *App {
 		os.Exit(1)
 	}
 
-	crud := NewCrudService(pool, schema, logger)
+	crud := NewDataService(pool, schema, logger)
 
 	localStorage, err := NewLocalStorage(config.UploadDir, config.UploadKeyPattern)
 	if err != nil {
@@ -64,13 +66,13 @@ func NewApp(config *Config) *App {
 	}
 
 	return &App{
-		DB:               pool,
-		Logger:           logger,
-		SchemaRepository: schema,
-		AdminRepository:  adminRepo,
-		CrudService:      crud,
-		Storage:          localStorage,
-		SecretKey:        secretKey,
+		DB:            pool,
+		Logger:        logger,
+		SchemaService: schema,
+		AdminService:  admin,
+		DataService:   crud,
+		Storage:       localStorage,
+		SecretKey:     secretKey,
 	}
 }
 

@@ -15,13 +15,13 @@ var (
 	ErrNoSuchAdmin = errors.New("no such admin")
 )
 
-type AdminRepository struct {
+type AdminService struct {
 	db     *pgxpool.Pool
 	logger *slog.Logger
 }
 
-func NewAdminRepository(db *pgxpool.Pool, logger *slog.Logger) *AdminRepository {
-	return &AdminRepository{
+func NewAdminService(db *pgxpool.Pool, logger *slog.Logger) *AdminService {
+	return &AdminService{
 		db:     db,
 		logger: logger,
 	}
@@ -37,14 +37,14 @@ func (au *AdminUser) CheckPassword(password string) bool {
 	return err == nil
 }
 
-func (r *AdminRepository) GetAdmin(username string) (*AdminUser, error) {
+func (s *AdminService) GetAdmin(username string) (*AdminUser, error) {
 	sql := `
 		SELECT username, password_hash 
 		FROM pgpanel.admins
 		WHERE username = $1
 	`
 
-	row := r.db.QueryRow(context.Background(), sql, username)
+	row := s.db.QueryRow(context.Background(), sql, username)
 
 	var au AdminUser
 
@@ -60,7 +60,7 @@ func (r *AdminRepository) GetAdmin(username string) (*AdminUser, error) {
 	return &au, err
 }
 
-func (r *AdminRepository) GetAdminList() ([]string, error) {
+func (s *AdminService) GetAdminList() ([]string, error) {
 	sql := `
 		SELECT username 
 		FROM pgpanel.admins
@@ -69,7 +69,7 @@ func (r *AdminRepository) GetAdminList() ([]string, error) {
 
 	var admins []string
 
-	rows, err := r.db.Query(context.Background(), sql)
+	rows, err := s.db.Query(context.Background(), sql)
 
 	if err != nil {
 		return admins, err
@@ -90,7 +90,7 @@ func (r *AdminRepository) GetAdminList() ([]string, error) {
 	return admins, nil
 }
 
-func (r *AdminRepository) AddAdmin(username string, password string) error {
+func (s *AdminService) AddAdmin(username string, password string) error {
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 
 	if err != nil {
@@ -102,7 +102,7 @@ func (r *AdminRepository) AddAdmin(username string, password string) error {
     VALUES ($1, $2)
   `
 
-	_, err = r.db.Exec(context.Background(), sql, username, passwordHash)
+	_, err = s.db.Exec(context.Background(), sql, username, passwordHash)
 
 	if err != nil {
 		return fmt.Errorf("error adding admin user: %w", err)
@@ -111,13 +111,13 @@ func (r *AdminRepository) AddAdmin(username string, password string) error {
 	return nil
 }
 
-func (r *AdminRepository) DeleteAdmin(username string) error {
+func (s *AdminService) DeleteAdmin(username string) error {
 	sql := `
     DELETE FROM pgpanel.admins
     WHERE username = $1
   `
 
-	_, err := r.db.Exec(context.Background(), sql, username)
+	_, err := s.db.Exec(context.Background(), sql, username)
 
 	if err != nil {
 		return fmt.Errorf("error deleting admin user: %w", err)

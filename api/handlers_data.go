@@ -13,7 +13,7 @@ func getRowsHandler(app *core.App) ApiHandler {
 		tableName := r.PathValue("table")
 		params := core.ParseGetRowsParamsFromQuery(r.URL.Query())
 
-		rows, err := app.CrudService.GetRows(tableName, &params)
+		rows, err := app.DataService.GetRows(tableName, &params)
 
 		if err != nil {
 			return mapDataError(err)
@@ -31,7 +31,7 @@ func insertRowHandler(app *core.App) ApiHandler {
 			return mapDataError(err)
 		}
 
-		rows, err := app.CrudService.InsertRow(tableName, row)
+		rows, err := app.DataService.InsertRow(tableName, row)
 
 		if err != nil {
 			return mapDataError(err)
@@ -51,7 +51,7 @@ func updateRowsHandler(app *core.App) ApiHandler {
 			return mapDataError(err)
 		}
 
-		rows, err := app.CrudService.UpdateRows(tableName, filters, row)
+		rows, err := app.DataService.UpdateRows(tableName, filters, row)
 
 		if err != nil {
 			return mapDataError(err)
@@ -66,7 +66,7 @@ func deleteRowsHandler(app *core.App) ApiHandler {
 		tableName := r.PathValue("table")
 		filters := core.ParseFiltersFromQuery(r.URL.Query())
 
-		rows, err := app.CrudService.DeleteRows(tableName, filters)
+		rows, err := app.DataService.DeleteRows(tableName, filters)
 
 		if err != nil {
 			return mapDataError(err)
@@ -110,7 +110,7 @@ func getRelatedRowsHandler(app *core.App) ApiHandler {
 			return err
 		}
 
-		rows, err := app.CrudService.GetRelatedRows(relationsConf, id)
+		rows, err := app.DataService.GetRelatedRows(relationsConf, id)
 
 		if err != nil {
 			return mapDataError(err)
@@ -135,7 +135,7 @@ func updateRelatedRowsHandler(app *core.App) ApiHandler {
 			return mapDataError(err)
 		}
 
-		err = app.CrudService.UpdateRelatedRows(relationsConf, id, &actions)
+		err = app.DataService.UpdateRelatedRows(relationsConf, id, &actions)
 
 		if err != nil {
 			return mapDataError(err)

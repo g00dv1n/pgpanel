@@ -11,17 +11,17 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type CrudService struct {
+type DataService struct {
 	db     *pgxpool.Pool
-	schema *SchemaRepository
+	schema *SchemaService
 	logger *slog.Logger
 }
 
-func NewCrudService(db *pgxpool.Pool, schema *SchemaRepository, logger *slog.Logger) *CrudService {
-	return &CrudService{db: db, schema: schema, logger: logger}
+func NewDataService(db *pgxpool.Pool, schema *SchemaService, logger *slog.Logger) *DataService {
+	return &DataService{db: db, schema: schema, logger: logger}
 }
 
-func (s CrudService) queryAsJson(sql string, args []any) (json.RawMessage, error) {
+func (s DataService) queryAsJson(sql string, args []any) (json.RawMessage, error) {
 	jsonSqlWrapper := fmt.Sprintf(`
 		WITH q as (%s)
 		SELECT 
@@ -47,7 +47,7 @@ var getRowsSQL = SqlT(`
 	OFFSET {{.Offset}}
 `)
 
-func (s CrudService) GetRows(tableName string, params *GetRowsParams) (json.RawMessage, error) {
+func (s DataService) GetRows(tableName string, params *GetRowsParams) (json.RawMessage, error) {
 	table, err := s.schema.GetTable(tableName)
 
 	if err != nil {
@@ -116,7 +116,7 @@ var updateRowsSQL = SqlT(`
 	RETURNING *
 `)
 
-func (s CrudService) UpdateRows(tableName string, filters Filters, row RawRow) (json.RawMessage, error) {
+func (s DataService) UpdateRows(tableName string, filters Filters, row RawRow) (json.RawMessage, error) {
 	table, err := s.schema.GetTable(tableName)
 
 	if err != nil {
@@ -175,7 +175,7 @@ var insertRowSQL = SqlT(`
 	RETURNING *
 `)
 
-func (s CrudService) InsertRow(tableName string, row RawRow) (json.RawMessage, error) {
+func (s DataService) InsertRow(tableName string, row RawRow) (json.RawMessage, error) {
 	table, err := s.schema.GetTable(tableName)
 
 	if err != nil {
@@ -204,7 +204,7 @@ var deleteRowsSQL = SqlT(`
 	RETURNING *
 `)
 
-func (s CrudService) DeleteRows(tableName string, filters Filters) (json.RawMessage, error) {
+func (s DataService) DeleteRows(tableName string, filters Filters) (json.RawMessage, error) {
 	table, err := s.schema.GetTable(tableName)
 
 	if err != nil {
@@ -244,7 +244,7 @@ type relationData struct {
 	relationTableCol *Column
 }
 
-func (s CrudService) getRelationData(relation *RelationsConfig) (*relationData, error) {
+func (s DataService) getRelationData(relation *RelationsConfig) (*relationData, error) {
 	mainTable, err := s.schema.GetTable(relation.MainTable)
 	if err != nil {
 		return nil, errors.New("unknown mainTable")
@@ -302,7 +302,7 @@ func (s CrudService) getRelationData(relation *RelationsConfig) (*relationData, 
 }
 
 // Return all related rows for specific main table row ID
-func (s CrudService) GetRelatedRows(relation *RelationsConfig, mainTableRowId any) (json.RawMessage, error) {
+func (s DataService) GetRelatedRows(relation *RelationsConfig, mainTableRowId any) (json.RawMessage, error) {
 	rd, err := s.getRelationData(relation)
 
 	if err != nil {
@@ -342,7 +342,7 @@ type UpdateRelatedRowsActions struct {
 	DeleteIds []any `json:"deleteIds"`
 }
 
-func (s CrudService) UpdateRelatedRows(relation *RelationsConfig, mainTableRowId any, actions *UpdateRelatedRowsActions) error {
+func (s DataService) UpdateRelatedRows(relation *RelationsConfig, mainTableRowId any, actions *UpdateRelatedRowsActions) error {
 	rd, err := s.getRelationData(relation)
 	if err != nil {
 		return err
