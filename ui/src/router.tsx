@@ -1,4 +1,8 @@
-import { AdminRoot, loader as adminRootLoader } from "@/components/layout/AdminRoot";
+import {
+  AdminRoot,
+  loader as adminRootLoader,
+  shouldRevalidate as adminRootShouldRevalidate,
+} from "@/components/layout/AdminRoot";
 import { LoadingFallback } from "@/components/layout/LoadingFallback";
 import { BackupPage } from "@/routes/BackupPage";
 import { ErrorPage } from "@/routes/ErrorPage";
@@ -19,7 +23,7 @@ const routes: RouteObject[] = [
     element: <AdminRoot />,
     loader: adminRootLoader,
     hydrateFallbackElement: <LoadingFallback />,
-    shouldRevalidate: () => false, // disable re-validation for root loader
+    shouldRevalidate: adminRootShouldRevalidate,
     children: [
       {
         index: true,

@@ -18,10 +18,24 @@ import {
 import { TablesContext } from "@/hooks/use-tables";
 import { DatabaseBackup, RotateCcw, SquareTerminal, Table2Icon, Upload } from "lucide-react";
 import { useState, useTransition } from "react";
-import { NavLink, Outlet, useLoaderData } from "react-router";
+import { NavLink, Outlet, ShouldRevalidateFunctionArgs, useLoaderData } from "react-router";
 
 export async function loader() {
   return getTables();
+}
+
+// this function will define when loader will be revalidated.
+export function shouldRevalidate({
+  currentUrl,
+  nextUrl,
+  defaultShouldRevalidate,
+}: ShouldRevalidateFunctionArgs) {
+  // Don't revalidate on search param changes
+  if (currentUrl.pathname === nextUrl.pathname) {
+    return false;
+  }
+
+  return defaultShouldRevalidate;
 }
 
 export function AdminRoot() {
