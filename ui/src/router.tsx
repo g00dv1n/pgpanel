@@ -19,6 +19,7 @@ const routes: RouteObject[] = [
     element: <AdminRoot />,
     loader: adminRootLoader,
     hydrateFallbackElement: <LoadingFallback />,
+    shouldRevalidate: () => false, // disable re-validation for root loader
     children: [
       {
         index: true,
