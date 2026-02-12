@@ -27,8 +27,9 @@ const (
 
 // ---------------------- General Filters Interface -------------------------------
 
-type Filters interface {
-	ToSQL(table *Table) (string, []any)
+type Filters struct {
+	TextSearch *TextSearchFilters
+	SQL        *SQLFilters
 }
 
 // Parse Filters
@@ -41,13 +42,17 @@ func ParseFiltersFromQuery(q url.Values) Filters {
 			cols = strings.Split(colsRaw, QueryArgsDelimiter)
 		}
 
-		return TextSearchFilters{Text: textFilters, Cols: cols}
+		return Filters{TextSearch: &TextSearchFilters{Text: textFilters, Cols: cols}, SQL: nil}
 	}
 
 	filters := q.Get(FiltersQK)
 	rawArgs := q.Get(FiltersArgsQK)
 
-	return ParseSQLFilters(filters, rawArgs)
+	sql := ParseSQLFilters(filters, rawArgs)
+	return Filters{
+		SQL:        &sql,
+		TextSearch: nil,
+	}
 }
 
 func ParseSQLFilters(statement string, rawArgs string) SQLFilters {
@@ -63,6 +68,18 @@ func ParseSQLFilters(statement string, rawArgs string) SQLFilters {
 	}
 
 	return SQLFilters{Statement: statement, Args: args}
+}
+
+func (f Filters) ToSQL(t *Table) (string, []any) {
+	if f.TextSearch != nil {
+		return f.TextSearch.ToSQL(t)
+	}
+
+	if f.SQL != nil {
+		return f.SQL.ToSQL(t)
+	}
+
+	return "", nil // No filters set
 }
 
 // ---------------------- SQLFilters -------------------------------
@@ -275,7 +292,7 @@ type GetRowsParams struct {
 func DefaultGetRowsParams() *GetRowsParams {
 	return &GetRowsParams{
 		Pagination:    Pagination{Limit: DefaultPaginationLimit, Offset: 0},
-		Filters:       SQLFilters{},
+		Filters:       Filters{},
 		SelectColumns: SelectColumns{},
 		Sorting:       Sorting{},
 	}

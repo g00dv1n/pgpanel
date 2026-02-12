@@ -1,6 +1,6 @@
 import { fetchApiwithAuth } from "@/lib/auth";
-import { Row, RowPkeysMap } from "@/lib/pgTypes";
-import { RelationsConfig, TableSettings } from "@/lib/tableSettings";
+import { PgColumn, Row, RowPkeysMap } from "@/lib/pgTypes";
+import { RelationsConfig } from "@/lib/tableSettings";
 
 export interface GetTableRowsParams {
   offset: number;
@@ -13,11 +13,9 @@ export interface GetTableRowsParams {
   filtersArgs?: string;
 }
 
-export type GetTableRowsParamsFrontend = Omit<GetTableRowsParams, "selectCols" | "textFiltersCols">;
-
 const fieldsDelimiter = "|";
 
-export function parseQueryRowsParams(url: URL): GetTableRowsParamsFrontend {
+export function parseQueryRowsParams(url: URL): GetTableRowsParams {
   const offset = Number(url.searchParams.get("offset") || 0);
   const limit = Number(url.searchParams.get("limit") || 50);
 
@@ -28,6 +26,10 @@ export function parseQueryRowsParams(url: URL): GetTableRowsParamsFrontend {
 
   const filters = url.searchParams.get("filters") || undefined;
   const filtersArgs = url.searchParams.get("filtersArgs") || undefined;
+
+  // Skip parsing of selectCols and textFiltersCols
+  // They wont be used in UI query params
+  // They will be applied from table settings in getTableView
 
   return { offset, limit, sort, textFilters, filters, filtersArgs };
 }
@@ -42,17 +44,6 @@ export function paramsToURLSearchParams(params: Record<string, any>) {
     }
   }
   return searchParams;
-}
-
-export function buildGetTableRowsParamsWithSettings(
-  rowsParams: GetTableRowsParamsFrontend,
-  settings: TableSettings,
-): GetTableRowsParams {
-  return {
-    ...rowsParams,
-    selectCols: settings.tableViewSelectColumns,
-    textFiltersCols: rowsParams.textFilters ? settings.tableViewTextFiltersCols : undefined,
-  };
 }
 
 export async function getTableRow(
@@ -80,15 +71,18 @@ export async function getTableRows(tableName: string, rowParams: GetTableRowsPar
   return { rows, error };
 }
 
-export async function getTableRowsWithSettings(
-  tableName: string,
-  tableSettings: TableSettings,
-  rowParams: GetTableRowsParams,
-) {
-  const s = paramsToURLSearchParams(buildGetTableRowsParamsWithSettings(rowParams, tableSettings));
-  const { data: rows = [], error } = await fetchApiwithAuth<Row[]>(`/api/data/${tableName}?${s}`);
+export interface TableView {
+  rows: Row[];
+  columns: PgColumn[];
+}
 
-  return { rows, error };
+export async function getTableView(tableName: string, rowParams: GetTableRowsParams) {
+  const s = paramsToURLSearchParams(rowParams);
+  const { data, error } = await fetchApiwithAuth<TableView>(
+    `/api/data/${tableName}/table-view?${s}`,
+  );
+
+  return { rows: data?.rows || [], columns: data?.columns || [], error };
 }
 
 export async function updateTableRowByPKeys(

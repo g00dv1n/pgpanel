@@ -2,10 +2,9 @@ import {
   getRelatedRows,
   getTableRows,
   GetTableRowsParams,
-  getTableRowsWithSettings,
+  getTableView,
   updateRelatedRows,
 } from "@/api/data";
-import { getTableSettings } from "@/api/schema";
 import { CellViewDialog } from "@/components/table/CellViewDialog";
 import { DataTable } from "@/components/table/DataTable";
 import { FiltersSearch } from "@/components/table/FiltersSearch";
@@ -68,20 +67,14 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     bidirectional: url.searchParams.get("bidirectional") === "true",
   };
 
-  const { tableSettings: relationTableSettings, error: settingsError } =
-    await getTableSettings(relationTableName);
-  if (settingsError) {
-    throw data(settingsError.message, { status: settingsError.code });
-  }
-
-  const [mainRowRes, rowsRes, relatedRowsRes] = await Promise.all([
+  const [mainRowRes, tableViewRes, relatedRowsRes] = await Promise.all([
     getMainTableRow(mainTableName, mainTableIdKey, mainTableRowId),
-    getTableRowsWithSettings(relationTableName, relationTableSettings, DefaultRowsParams),
+    getTableView(relationTableName, DefaultRowsParams),
     getRelatedRows(relationConfig, mainTableRowId),
   ]);
 
   const { row: mainRowRaw, error: mainRowError } = mainRowRes;
-  const { rows: rowsRaw, error: rowsError } = rowsRes;
+  const { rows: rowsRaw, columns: tableSelectColumns, error: rowsError } = tableViewRes;
 
   const { rows: relatedRowsRaw, error: relatedRowsError } = relatedRowsRes;
 
@@ -102,7 +95,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     mainTableRowId,
     mainTableIdKey,
     mainRowRaw,
-    relationTableSettings,
+    tableSelectColumns,
     rowsRaw,
     relatedRowsRaw,
     rowsError,
@@ -117,16 +110,12 @@ export function RelationsPage() {
     mainRowRaw,
     rowsRaw,
     relatedRowsRaw,
-    relationTableSettings,
+    tableSelectColumns,
   } = useLoaderData<typeof loader>();
   const relationsName = relationConfig.joinTable;
 
   const mainTable = useTable(relationConfig.mainTable);
   const relatedTable = useTable(relationConfig.relationTable);
-
-  const relatedTableSelectColumns = relatedTable.columns.filter((c) =>
-    relationTableSettings.tableViewSelectColumns.includes(c.name),
-  );
 
   const mainRow = new DataRow(mainTable, mainRowRaw);
 
@@ -168,7 +157,7 @@ export function RelationsPage() {
   };
 
   const onRowsParamsChange = async (newParams: GetTableRowsParams) => {
-    const res = await getTableRowsWithSettings(relatedTable.name, relationTableSettings, newParams);
+    const res = await getTableView(relatedTable.name, newParams);
 
     setRowsParams(newParams);
     setRows(DataRow.fromArray(relatedTable, res.rows));
@@ -269,7 +258,7 @@ export function RelationsPage() {
       </div>
 
       <DataTable
-        columns={relatedTableSelectColumns}
+        columns={tableSelectColumns}
         rows={rows}
         showSelectAll={false}
         selectedRows={selectedRowsKeys}
