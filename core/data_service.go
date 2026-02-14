@@ -21,7 +21,7 @@ func NewDataService(db *pgxpool.Pool, schema *SchemaService, logger *slog.Logger
 	return &DataService{db: db, schema: schema, logger: logger}
 }
 
-func (s DataService) queryAsJson(sql string, args []any) (json.RawMessage, error) {
+func (s DataService) queryAsJsonArray(sql string, args []any) (json.RawMessage, error) {
 	jsonSqlWrapper := fmt.Sprintf(`
 		WITH q as (%s)
 		SELECT 
@@ -67,7 +67,7 @@ func (s DataService) GetRows(tableName string, params GetRowsParams) (json.RawMe
 		"Offset":  params.Pagination.Offset,
 	})
 
-	return s.queryAsJson(sql, args)
+	return s.queryAsJsonArray(sql, args)
 }
 
 // ---------------------- Universal Update Rows -------------------------------
@@ -124,7 +124,7 @@ func (s DataService) UpdateRows(tableName string, filters Filters, row RawRow) (
 		"Where":     where,
 	})
 
-	return s.queryAsJson(sql, args)
+	return s.queryAsJsonArray(sql, args)
 }
 
 // ---------------------- Universal Insert Row -------------------------------
@@ -180,7 +180,7 @@ func (s DataService) InsertRow(tableName string, row RawRow) (json.RawMessage, e
 		"Values":    insertValues,
 	})
 
-	return s.queryAsJson(sql, args)
+	return s.queryAsJsonArray(sql, args)
 }
 
 // ---------------------- Universal Delete Rows -------------------------------
@@ -208,7 +208,7 @@ func (s DataService) DeleteRows(tableName string, filters Filters) (json.RawMess
 		"Where":     where,
 	})
 
-	return s.queryAsJson(sql, args)
+	return s.queryAsJsonArray(sql, args)
 }
 
 // ---------------------- Relations -------------------------------
@@ -309,7 +309,7 @@ func (s DataService) GetRelatedRows(relation *RelationsConfig, mainTableRowId an
 	sql := getRelatedRows.Exec(&params)
 	args := []any{mainTableRowId}
 
-	return s.queryAsJson(sql, args)
+	return s.queryAsJsonArray(sql, args)
 }
 
 var deleteRelatedRow = SqlT(`
