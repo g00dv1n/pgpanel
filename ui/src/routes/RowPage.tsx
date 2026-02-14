@@ -1,6 +1,5 @@
-import { getTableRow, parseQueryRowsParams } from "@/api/data";
-import { getTableSettings } from "@/api/schema";
-import { RowForm, RowMode } from "@/components/form/RowForm";
+import { FormViewMode, getFormView, parseQueryRowsParams } from "@/api/data";
+import { RowForm } from "@/components/form/RowForm";
 import { Button } from "@/components/ui/button";
 import { useTable } from "@/hooks/use-tables";
 import { DataRow } from "@/lib/dataRow";
@@ -9,22 +8,16 @@ import { data, LoaderFunctionArgs, useLoaderData, useNavigate, useRevalidator } 
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const tableName = params.tableName || "";
-  const mode: RowMode = params.mode === "update" ? "update" : "insert";
+  const mode: FormViewMode = params.mode === "update" ? "update" : "insert";
+  const pKeysFilters = parseQueryRowsParams(new URL(request.url)).filters;
 
-  const { tableSettings, error: settingsError } = await getTableSettings(tableName);
+  const { tableSettings, row: rawRow, error } = await getFormView(tableName, mode, pKeysFilters);
 
-  if (settingsError) {
-    throw data(settingsError.message, { status: settingsError.code });
+  if (error) {
+    throw data(error.message, { status: error.code });
   }
 
-  if (mode === "insert") {
-    return { tableName, mode, tableSettings };
-  }
-
-  const rowsParams = parseQueryRowsParams(new URL(request.url));
-  const { row: rawRow, error: rowError } = await getTableRow(tableName, rowsParams);
-
-  return { tableName, mode, tableSettings, rowsParams, rawRow, rowError };
+  return { tableName, mode, tableSettings, rawRow };
 }
 
 export function RowPage() {

@@ -442,3 +442,36 @@ func (s DataService) GetTableView(tableName string, params GetRowsParams) (*Tabl
 		Columns: columns,
 	}, nil
 }
+
+type FormView struct {
+	Rows          json.RawMessage `json:"rows,omitempty"`
+	TableSettings TableSettings   `json:"tableSettings"`
+}
+
+func (s DataService) GetFormView(tableName string, filters Filters, mode FormViewMode) (*FormView, error) {
+	settings, err := s.schema.GetTableSettings(tableName)
+
+	if err != nil {
+		return nil, err
+	}
+
+	res := &FormView{
+		TableSettings: *settings,
+	}
+
+	if mode == InsertMode {
+		return res, nil
+	}
+
+	rows, err := s.GetRows(tableName, GetRowsParams{
+		Filters:    filters,
+		Pagination: Pagination{Limit: 1},
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	res.Rows = rows
+	return res, nil
+}

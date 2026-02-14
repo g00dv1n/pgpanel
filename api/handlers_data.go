@@ -38,6 +38,22 @@ func getTableViewHandler(app *core.App) ApiHandler {
 	}
 }
 
+func getFormViewHandler(app *core.App) ApiHandler {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		tableName := r.PathValue("table")
+		filters := core.ParseFiltersFromQuery(r.URL.Query())
+		mode := core.ParseFormViewModeFromQuery(r.URL.Query())
+
+		rows, err := app.DataService.GetFormView(tableName, filters, mode)
+
+		if err != nil {
+			return mapDataError(err)
+		}
+
+		return WriteJson(w, rows)
+	}
+}
+
 func insertRowHandler(app *core.App) ApiHandler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		tableName := r.PathValue("table")

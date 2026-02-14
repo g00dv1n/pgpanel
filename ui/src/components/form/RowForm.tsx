@@ -1,4 +1,4 @@
-import { insertTableRow, updateTableRowByPKeys } from "@/api/data";
+import { FormViewMode, insertTableRow, updateTableRowByPKeys } from "@/api/data";
 import { DynamicInput } from "@/components/form/DynamicInput";
 import { Button } from "@/components/ui/button";
 import { alert } from "@/components/ui/global-alert";
@@ -12,11 +12,10 @@ import { useState } from "react";
 import { NavLink } from "react-router";
 import { resolveInputType } from "./InputsRegistry";
 
-export type RowMode = "insert" | "update";
 export interface RowFormProps {
   table: PgTable;
   tableSettings: TableSettings;
-  mode: RowMode;
+  mode: FormViewMode;
   row?: DataRow;
   onRowUpdate?: (row: DataRow) => void;
   onCancel?: () => void;
