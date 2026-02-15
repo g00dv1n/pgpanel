@@ -16,13 +16,17 @@ const (
 	OffsetQK          = "offset"
 	LimitQK           = "limit"
 	SortQK            = "sort"
+	FormViewModeQK    = "mode"
 
 	QueryArgsDelimiter = "|"
 
 	DefaultPaginationLimit = 50
 
-	SortingOrderASC  = "ASC"
-	SortingOrderDESC = "DESC"
+	SortingOrderASC  SortingOrder = "ASC"
+	SortingOrderDESC SortingOrder = "DESC"
+
+	InsertMode FormViewMode = "insert"
+	UpdateMode FormViewMode = "update"
 )
 
 // ---------------------- General Filters Interface -------------------------------
@@ -206,7 +210,7 @@ func ParsePaginationFromQuery(q url.Values) Pagination {
 
 type SortingField struct {
 	Name  string
-	Order string
+	Order SortingOrder
 }
 type Sorting struct {
 	Fields []SortingField
@@ -278,6 +282,21 @@ func (s Sorting) ToSQL() string {
 	}
 
 	return sql
+}
+
+// ---------------------- Custom utility types -------------------------------
+type SortingOrder string
+
+type FormViewMode string
+
+func ParseFormViewModeFromQuery(q url.Values) FormViewMode {
+	mode := q.Get(FormViewModeQK)
+
+	if FormViewMode(strings.ToLower(mode)) == UpdateMode {
+		return UpdateMode
+	}
+
+	return InsertMode
 }
 
 // ---------------------- Composite types -------------------------------

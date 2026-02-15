@@ -1,6 +1,6 @@
 import { fetchApiwithAuth } from "@/lib/auth";
 import { PgColumn, Row, RowPkeysMap } from "@/lib/pgTypes";
-import { RelationsConfig } from "@/lib/tableSettings";
+import { RelationsConfig, TableSettings } from "@/lib/tableSettings";
 
 export interface GetTableRowsParams {
   offset: number;
@@ -13,19 +13,23 @@ export interface GetTableRowsParams {
   filtersArgs?: string;
 }
 
+type GetTableRowsParamsQK = keyof GetTableRowsParams;
+
 const fieldsDelimiter = "|";
 
 export function parseQueryRowsParams(url: URL): GetTableRowsParams {
-  const offset = Number(url.searchParams.get("offset") || 0);
-  const limit = Number(url.searchParams.get("limit") || 50);
+  const offset = Number(url.searchParams.get("offset" satisfies GetTableRowsParamsQK) || 0);
+  const limit = Number(url.searchParams.get("limit" satisfies GetTableRowsParamsQK) || 50);
 
-  const sortRaw = url.searchParams.get("sort") || undefined;
+  const sortRaw = url.searchParams.get("sort" satisfies GetTableRowsParamsQK) || undefined;
   const sort = sortRaw ? sortRaw.split(fieldsDelimiter) : undefined;
 
-  const textFilters = url.searchParams.get("textFilters") || undefined;
+  const textFilters =
+    url.searchParams.get("textFilters" satisfies GetTableRowsParamsQK) || undefined;
 
-  const filters = url.searchParams.get("filters") || undefined;
-  const filtersArgs = url.searchParams.get("filtersArgs") || undefined;
+  const filters = url.searchParams.get("filters" satisfies GetTableRowsParamsQK) || undefined;
+  const filtersArgs =
+    url.searchParams.get("filtersArgs" satisfies GetTableRowsParamsQK) || undefined;
 
   // Skip parsing of selectCols and textFiltersCols
   // They wont be used in UI query params
@@ -83,6 +87,35 @@ export async function getTableView(tableName: string, rowParams: GetTableRowsPar
   );
 
   return { rows: data?.rows || [], columns: data?.columns || [], error };
+}
+
+export interface FormView {
+  rows?: [Row];
+  tableSettings: TableSettings;
+}
+
+export type FormViewMode = "insert" | "update";
+
+// pkeysFilters is just regular filters, but with primary keys
+export async function getFormView(tableName: string, mode: FormViewMode, pkeysFilters?: string) {
+  const s = new URLSearchParams();
+  s.set("mode", mode);
+
+  if (pkeysFilters) {
+    s.set("filters", pkeysFilters);
+  }
+
+  const { data, error } = await fetchApiwithAuth<FormView>(`/api/data/${tableName}/form-view?${s}`);
+
+  if (error) return { error };
+
+  const { rows, tableSettings } = data;
+
+  if (mode === "insert") {
+    return { tableSettings };
+  }
+
+  return { row: rows![0], tableSettings };
 }
 
 export async function updateTableRowByPKeys(

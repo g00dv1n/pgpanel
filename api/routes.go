@@ -38,6 +38,8 @@ var routes = []routeConfig{
 
 	// Get all data to render table view with applied table settings
 	{"GET /data/{table}/table-view", getTableViewHandler, authEnabled},
+	// Get all data to render form (row) view
+	{"GET /data/{table}/form-view", getFormViewHandler, authEnabled},
 
 	{"GET /data/{mainTable}/relations/{mainTableRowId}", getRelatedRowsHandler, authEnabled},
 	{"PUT /data/{mainTable}/relations/{mainTableRowId}", updateRelatedRowsHandler, authEnabled},
