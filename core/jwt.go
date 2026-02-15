@@ -43,7 +43,7 @@ func GenerateJwtToken(username string, secretKey []byte, ttl time.Duration) (str
 // ValidateJwtToken checks if the token is valid
 func ValidateJwtToken(tokenString string, secretKey []byte) (*AdminClaims, error) {
 	var claims AdminClaims
-	token, err := jwt.ParseWithClaims(tokenString, &claims, func(t *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &claims, func(t *jwt.Token) (any, error) {
 		// Validate the signing method (optional but recommended)
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
